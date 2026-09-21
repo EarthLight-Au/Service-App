@@ -4,7 +4,7 @@
    whenever there IS a connection. Bump CACHE_NAME when you change
    index.html so devices pick up the update next time they're online. */
 
-const CACHE_NAME = 'earthlight-audit-v1';
+const CACHE_NAME = 'earthlight-audit-v2';
 
 const SHELL = [
   './',
@@ -12,7 +12,6 @@ const SHELL = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.7.1/lib/msal-browser.min.js',
   'https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js'
