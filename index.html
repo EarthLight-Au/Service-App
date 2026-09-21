@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EarthLight — Solar Tower Audit</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2d6a2d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EL Audit">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" href="./icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.7.1/lib/msal-browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<style>
+:root{
+  --ink:#0E1517;
+  --surface:#16201F;
+  --surface-2:#1E2C2B;
+  --surface-3:#263432;
+  --line:#2E4240;
+  --line-soft:#263432;
+  --text:#E8EEEC;
+  --text-dim:#8AAAA6;
+  --text-faint:#557470;
+  --amber:#F2A93B;
+  --amber-dim:#8B6118;
+  --amber-ink:#1B1405;
+  --teal:#3FC6B2;
+  --teal-dim:#1A6B61;
+  --teal-ink:#061A17;
+  --green:#4CAF82;
+  --green-bg:#0A2016;
+  --danger:#E4634B;
+  --danger-soft:#3A1F1A;
+  --od-blue:#0078D4;
+  --od-blue-bg:#001833;
+  --radius:5px;
+  --font:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono','SF Mono',Consolas,monospace;
+}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --ink:#F0EDE6;--surface:#FFFFFF;--surface-2:#F4F1EA;--surface-3:#E8E4DA;
+  --line:#D5D0C6;--line-soft:#E2DDD4;--text:#1A2220;--text-dim:#4A6660;--text-faint:#7A9690;
+  --amber-ink:#1B1405;--teal-ink:#061A17;--danger-soft:#F5DDD8;--green-bg:#E8F5EE;--od-blue-bg:#E6F0FA;
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+html,body{min-height:100vh;background:var(--ink);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased;}
+
+/* ── TOP BAR ── */
+.topbar{position:sticky;top:0;z-index:40;background:var(--ink);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px);}
+.topbar-inner{max-width:960px;margin:0 auto;padding:12px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.brand{display:flex;align-items:center;gap:10px;}
+.sun-icon{width:32px;height:32px;flex:none;}
+.brand-text{}
+.brand-mark{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--amber);font-weight:600;}
+.brand-title{font-size:18px;font-weight:700;line-height:1.1;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.status-pill{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--text-dim);padding:5px 9px;border:1px solid var(--line);border-radius:20px;white-space:nowrap;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--text-faint);flex:none;}
+.dot.on{background:var(--teal);box-shadow:0 0 0 3px color-mix(in srgb,var(--teal) 20%,transparent);}
+.dot.off{background:var(--amber);box-shadow:0 0 0 3px color-mix(in srgb,var(--amber) 20%,transparent);}
+.od-pill{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;padding:5px 9px;border-radius:20px;cursor:pointer;border:1px solid var(--od-blue);color:#6BB5F0;background:var(--od-blue-bg);white-space:nowrap;transition:background .15s;}
+.od-pill:hover{background:color-mix(in srgb,var(--od-blue) 15%,transparent);}
+.od-dot{width:7px;height:7px;border-radius:50%;background:#6BB5F0;flex:none;}
+.od-dot.signed-in{background:var(--od-blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--od-blue) 25%,transparent);}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;max-width:960px;margin:0 auto;padding:0 16px;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:9px 13px 11px;color:var(--text-dim);background:none;border:none;cursor:pointer;white-space:nowrap;position:relative;flex:none;}
+.tab.active{color:var(--text);}
+.tab.active::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:2px;background:var(--amber);}
+
+/* ── PANELS ── */
+.wrap{max-width:960px;margin:0 auto;padding:0 16px 100px;}
+section.panel{display:none;padding-top:20px;}
+section.panel.active{display:block;}
+
+/* ── BLOCKS ── */
+.blk{border-top:1px solid var(--line);padding:18px 0 20px;}
+.blk:first-child{border-top:none;padding-top:4px;}
+.blk-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:14px;}
+.blk-title{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);}
+.blk-badge{font-family:var(--mono);font-size:10px;color:var(--text-faint);}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;}
+@media(max-width:560px){.grid{grid-template-columns:1fr;}}
+.g1{grid-template-columns:1fr!important;}
+.span2{grid-column:1/-1;}
+
+/* ── FIELDS ── */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
+.field input,.field select,.field textarea{
+  font-family:var(--font);font-size:14px;color:var(--text);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);
+  padding:9px 11px;width:100%;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--amber);}
+.field textarea{resize:vertical;min-height:60px;font-size:13px;line-height:1.5;}
+.field.mono input,.field.mono select{font-family:var(--mono);font-size:13px;}
+.hint{font-size:11px;color:var(--text-faint);margin-top:2px;}
+
+/* ── TOWER TABS ── */
+.tower-nav{display:flex;align-items:center;gap:8px;padding:14px 0 16px;border-top:none;flex-wrap:wrap;}
+.tower-tabs{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.tower-tab{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;padding:7px 8px 7px 12px;border-radius:20px;border:1px solid var(--line);background:var(--surface-2);color:var(--text-dim);cursor:pointer;white-space:nowrap;}
+.tower-tab.active{border-color:var(--amber);color:var(--text);background:color-mix(in srgb,var(--amber) 10%,var(--surface-2));}
+.tower-tab .tw-x{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:11px;}
+.tower-tab .tw-x:hover{color:var(--danger);}
+.add-tower-btn{font-family:var(--mono);font-size:11px;color:var(--teal);background:none;border:1px dashed var(--teal);border-radius:20px;padding:7px 12px;cursor:pointer;white-space:nowrap;}
+.add-tower-btn:hover{background:color-mix(in srgb,var(--teal) 8%,transparent);}
+
+/* ── CONDITION ROWS ── */
+.cond-row{display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:center;margin-bottom:8px;}
+@media(max-width:500px){.cond-row{grid-template-columns:1fr;}}
+.cond-row label{font-size:12px;font-weight:600;color:var(--text-dim);}
+.cond-row select{width:100%;font-size:13px;padding:8px 10px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);color:var(--text);}
+.cond-row select:focus{outline:none;border-color:var(--amber);}
+
+/* ── CHECKBOX CHIP GRID ── */
+.chip-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
+.chip{display:flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface-2);cursor:pointer;font-size:12px;transition:border-color .12s,background .12s;}
+.chip:hover{border-color:var(--amber);}
+.chip input{accent-color:var(--amber);width:14px;height:14px;cursor:pointer;}
+.chip.checked{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 8%,var(--surface-2));}
+
+/* ── SEVERITY ── */
+.sev-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.sev-btn{padding:7px 14px;border-radius:20px;border:1px solid var(--line);background:var(--surface-2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;}
+.sev-btn.active-low{background:var(--green);color:#fff;border-color:var(--green);}
+.sev-btn.active-med{background:var(--amber);color:var(--amber-ink);border-color:var(--amber);}
+.sev-btn.active-high{background:var(--danger);color:#fff;border-color:var(--danger);}
+
+/* ── PARTS TABLE ── */
+.parts-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
+.parts-table th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);font-weight:600;padding:0 6px 7px 0;border-bottom:1px solid var(--line);}
+.parts-table td{padding:7px 6px 7px 0;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+.parts-table td.num{font-family:var(--mono);text-align:right;white-space:nowrap;}
+.qty-inp{width:54px;font-family:var(--mono);text-align:center;padding:7px 4px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);color:var(--text);font-size:13px;}
+.part-cat{width:100%;margin-bottom:5px;font-size:12px;padding:6px 8px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);color:var(--text);}
+.part-item{width:100%;font-size:12px;padding:6px 8px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);color:var(--text);}
+.part-cat:focus,.part-item:focus,.qty-inp:focus{outline:none;border-color:var(--amber);}
+.rm-btn{background:none;border:1px solid var(--line);color:var(--text-faint);border-radius:var(--radius);width:28px;height:28px;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;}
+.rm-btn:hover{color:var(--danger);border-color:var(--danger);}
+.add-part-btn{font-family:var(--mono);font-size:12px;color:var(--teal);background:none;border:1px dashed var(--teal);border-radius:var(--radius);padding:8px 14px;cursor:pointer;width:100%;margin-top:4px;}
+.add-part-btn:hover{background:color-mix(in srgb,var(--teal) 8%,transparent);}
+
+/* ── PHOTOS ── */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:2px;}
+.photo-card{position:relative;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface-2);}
+.photo-card img{width:100%;height:88px;object-fit:cover;display:block;background:#000;}
+.photo-card .cap-inp{width:100%;font-size:10px;padding:5px 6px;background:var(--surface-3);border:none;border-top:1px solid var(--line);color:var(--text);font-family:var(--font);}
+.photo-card .cap-inp:focus{outline:none;background:var(--surface-2);}
+.photo-card .rm{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;border:none;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.photo-empty{color:var(--text-faint);font-size:12px;padding:16px 0;text-align:center;border:1px dashed var(--line);border-radius:var(--radius);grid-column:1/-1;}
+.photo-add-btn{font-family:var(--mono);font-size:12px;}
+
+/* ── TOTALS ── */
+.totals{display:flex;flex-direction:column;align-items:flex-end;gap:3px;margin-top:8px;}
+.tot-line{display:flex;gap:16px;font-family:var(--mono);font-size:13px;color:var(--text-dim);}
+.tot-line .amt{width:96px;text-align:right;}
+.tot-grand{font-size:18px;font-weight:700;color:var(--text);border-top:1px solid var(--line);padding-top:5px;margin-top:2px;display:flex;gap:16px;font-family:var(--mono);}
+.tot-grand .amt{width:96px;text-align:right;color:var(--amber);}
+.tot-visit{font-size:12px;color:var(--teal);border-top:1px dashed var(--line);padding-top:6px;margin-top:6px;display:flex;gap:16px;font-family:var(--mono);}
+.tot-visit .amt{width:96px;text-align:right;font-weight:700;}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--font);font-size:13px;font-weight:600;padding:10px 16px;border-radius:var(--radius);border:1px solid var(--line);background:var(--surface-2);color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .12s;}
+.btn:active{transform:translateY(1px);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn.primary{background:var(--amber);color:var(--amber-ink);border-color:var(--amber);}
+.btn.accent{background:var(--teal);color:var(--teal-ink);border-color:var(--teal);}
+.btn.ghost{background:none;}
+.btn.danger{color:var(--danger);border-color:var(--danger);background:none;}
+.btn.od-btn{background:var(--od-blue);color:#fff;border-color:var(--od-blue);}
+.btn.od-btn:hover{background:#006bc1;}
+.btn.success{background:var(--green);color:#fff;border-color:var(--green);}
+.btnbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+
+/* ── BOTTOM BAR ── */
+.bottombar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));}
+.bottombar-inner{max-width:960px;margin:0 auto;display:flex;gap:8px;align-items:center;justify-content:space-between;}
+.bottombar .btn{flex:1;text-align:center;padding:12px 10px;justify-content:center;}
+.bb-total{font-family:var(--mono);font-size:11px;color:var(--text-dim);flex:none;padding-right:4px;line-height:1.4;}
+.bb-total b{color:var(--amber);font-size:16px;display:block;}
+
+/* ── SAVED CARDS ── */
+.audit-card{border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;cursor:pointer;background:var(--surface-2);}
+.audit-card:hover{border-color:var(--teal);}
+.audit-card .who{font-weight:600;font-size:14px;margin-bottom:2px;}
+.audit-card .meta{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+.audit-card .side{text-align:right;flex:none;}
+.audit-card .amt{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--amber);}
+.audit-card .tags{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;}
+.tag{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--surface-3);color:var(--text-dim);}
+.tag.synced{background:var(--od-blue-bg);color:#6BB5F0;}
+.tag.sent{background:var(--green-bg);color:var(--green);}
+.empty{color:var(--text-faint);font-size:13px;padding:28px 0;text-align:center;border:1px dashed var(--line);border-radius:var(--radius);}
+
+/* ── ONEDRIVE PANEL ── */
+.od-banner{background:var(--od-blue-bg);border:1px solid var(--od-blue);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;}
+.od-banner svg{flex:none;margin-top:2px;}
+.od-banner-text{font-size:13px;color:#9BC8F0;line-height:1.55;}
+.od-banner-text strong{color:#E0F0FF;}
+.od-status-box{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;}
+.od-status-row{display:flex;align-items:center;gap:10px;font-size:13px;}
+.od-status-icon{width:36px;height:36px;border-radius:8px;background:var(--od-blue);display:flex;align-items:center;justify-content:center;flex:none;}
+.od-setup-steps{counter-reset:step;}
+.od-step{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start;}
+.od-step-num{width:24px;height:24px;border-radius:50%;background:var(--od-blue);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px;}
+.od-step-body{font-size:13px;color:var(--text-dim);line-height:1.5;}
+.od-step-body strong{color:var(--text);}
+.od-step-body code{font-family:var(--mono);font-size:11px;background:var(--surface-3);padding:1px 5px;border-radius:3px;color:var(--teal);}
+.sync-log{font-family:var(--mono);font-size:11px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;max-height:160px;overflow-y:auto;color:var(--text-dim);}
+.sync-log .ok{color:var(--green);}
+.sync-log .err{color:var(--danger);}
+.sync-log .info{color:var(--teal);}
+
+/* ── EMAILJS STEPS (reuse od-step look) ── */
+.ej-step-num{background:var(--teal);}
+
+/* ── PRICE BOOK ── */
+.pb-cat{margin-bottom:22px;}
+.pb-cat-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
+.pb-cat-name{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-dim);}
+.pb-table{width:100%;border-collapse:collapse;}
+.pb-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);padding:0 6px 6px 0;border-bottom:1px solid var(--line);}
+.pb-table td{padding:5px 6px 5px 0;border-bottom:1px solid var(--line-soft);}
+.pb-table td.rm{width:30px;}
+.pb-inp{font-family:var(--mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px;padding:5px 7px;color:var(--text);width:100%;}
+.pb-inp.price{text-align:right;width:82px;}
+.pb-inp.code{width:120px;}
+.pb-inp:focus{outline:none;border-color:var(--amber);}
+.settings-box{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-top:18px;}
+
+/* ── REPORT MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:80;display:none;align-items:flex-end;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--surface);border-top:1px solid var(--line);width:100%;max-width:960px;max-height:90vh;overflow-y:auto;border-radius:12px 12px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));}
+@media(min-width:700px){.modal-bg{align-items:center;}.modal{border-radius:8px;max-height:82vh;}}
+.modal h3{margin:0 0 3px;font-size:16px;}
+.modal .sub{color:var(--text-dim);font-size:12px;margin-bottom:14px;}
+.modal-close{float:right;background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;margin-left:8px;}
+
+/* ── REPORT PREVIEW ── */
+.report-preview{background:#fff;color:#1B2326;font-family:'IBM Plex Sans',Arial,sans-serif;padding:8px;border-radius:6px;font-size:12px;}
+.report-preview h2{font-size:14px;margin:0 0 10px;border-bottom:2px solid #2d6a2d;padding-bottom:6px;color:#1B2326;}
+.rp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:10px;}
+.rp-logo{display:flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:#2d6a2d;}
+.rp-meta{text-align:right;font-size:10px;color:#557;}
+.rp-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin:8px 0 12px;font-size:11px;}
+.rp-grid div span{color:#889;display:block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1px;}
+.rp-section{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2d6a2d;border-bottom:1px solid #c8d8c8;padding-bottom:3px;margin:10px 0 6px;}
+.rp-tower-head{font-size:13px;font-weight:700;color:#1B2326;background:#eef4ee;padding:7px 9px;border-radius:4px;margin:16px 0 8px;}
+.rp-table{width:100%;border-collapse:collapse;font-size:11px;margin:6px 0;}
+.rp-table th{text-align:left;border-bottom:1px solid #ccc;padding:4px 3px;font-size:9px;text-transform:uppercase;color:#667;font-weight:600;}
+.rp-table td{border-bottom:1px solid #eee;padding:4px 3px;}
+.rp-table td.r{text-align:right;}
+.rp-totals{text-align:right;margin-top:6px;}
+.rp-totals div{font-size:11px;color:#556;}
+.rp-totals .grand{font-size:15px;font-weight:700;color:#1B2326;margin-top:4px;}
+.rp-notes{font-size:11px;color:#334;margin-top:8px;line-height:1.5;}
+.rp-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 4px;}
+.rp-photo img{width:100%;height:64px;object-fit:cover;border-radius:3px;display:block;border:1px solid #ddd;}
+.rp-photo-cap{font-size:8px;color:#667;margin-top:2px;text-align:center;line-height:1.3;}
+.rp-footer{font-size:9px;color:#889;margin-top:12px;border-top:1px solid #eee;padding-top:6px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);background:var(--surface-3);color:var(--text);border:1px solid var(--line);padding:9px 16px;border-radius:var(--radius);font-size:13px;z-index:90;opacity:0;transition:opacity .2s;pointer-events:none;max-width:340px;text-align:center;}
+.toast.show{opacity:1;}
+
+/* ── HELP ── */
+.help-copy{font-size:13px;line-height:1.6;color:var(--text-dim);}
+.help-copy h4{color:var(--text);font-size:12px;text-transform:uppercase;letter-spacing:.05em;margin:20px 0 7px;font-weight:700;}
+.help-copy h4:first-child{margin-top:0;}
+.help-copy code{font-family:var(--mono);background:var(--surface-2);padding:1px 5px;border-radius:3px;font-size:11px;color:var(--teal);}
+.help-copy ul{margin-left:16px;}
+.help-copy li{margin-bottom:4px;}
+</style>
+</head>
+<body>
+
+<!-- ─── TOP BAR ─── -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <svg class="sun-icon" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="7" fill="#F2A93B"/>
+        <g stroke="#F2A93B" stroke-width="2" stroke-linecap="round">
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="16" y1="26" x2="16" y2="30"/>
+          <line x1="2" y1="16" x2="6" y2="16"/>
+          <line x1="26" y1="16" x2="30" y2="16"/>
+          <line x1="6.34" y1="6.34" x2="9.17" y2="9.17"/>
+          <line x1="22.83" y1="22.83" x2="25.66" y2="25.66"/>
+          <line x1="25.66" y1="6.34" x2="22.83" y2="9.17"/>
+          <line x1="9.17" y1="22.83" x2="6.34" y2="25.66"/>
+        </g>
+      </svg>
+      <div class="brand-text">
+        <div class="brand-mark">EARTHLIGHT — FIELD TOOL</div>
+        <div class="brand-title">Solar Tower Audit</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-pill">
+        <span class="dot" id="netDot"></span>
+        <span id="netLabel">—</span>
+      </div>
+      <div class="od-pill" id="odPill" onclick="odPillClick()">
+        <span class="od-dot" id="odDot"></span>
+        <span id="odLabel">OneDrive</span>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="audit">New Visit</button>
+    <button class="tab" data-tab="saved">Saved <span id="savedCount"></span></button>
+    <button class="tab" data-tab="onedrive">☁ OneDrive</button>
+    <button class="tab" data-tab="pricebook">Price Book &amp; Send-to</button>
+    <button class="tab" data-tab="help">How it works</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ═══════════════ AUDIT PANEL ═══════════════ -->
+<section class="panel active" id="panel-audit">
+
+  <div class="blk">
+    <div class="blk-head">
+      <div class="blk-title">Site Service Visit</div>
+      <div class="blk-badge" id="auditIdLabel">DRAFT</div>
+    </div>
+    <div class="grid">
+      <div class="field"><label>Date</label><input type="date" id="f_date"></div>
+      <div class="field"><label>Visit Number</label><input type="text" id="f_auditno" placeholder="EL-SSR-YYYYMM-###" class="mono"></div>
+      <div class="field">
+        <label>Technician</label>
+        <select id="f_tech">
+          <option value="">Select…</option>
+          <option>Barry Bloomfield</option>
+          <option>James Huddart</option>
+          <option>Barry Vermeulen</option>
+          <option value="__other">Other (type below)</option>
+        </select>
+        <input type="text" id="f_tech_other" placeholder="Technician name" style="display:none;margin-top:6px;">
+      </div>
+      <div class="field"><label>Client / Company</label><input type="text" id="f_client" placeholder="Company / site owner"></div>
+      <div class="field"><label>Location / Site</label><input type="text" id="f_location" placeholder="Site name or area"></div>
+      <div class="field span2">
+        <label>Map Location / GPS</label>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="f_maploc" placeholder="Grid ref / GPS coords / description" style="flex:1;">
+          <button class="btn ghost" style="flex:none;padding:9px 12px;" onclick="captureGPS()">📍</button>
+        </div>
+        <div class="hint">One GPS pin per visit. In reception, tap 📍 to capture it automatically; out of reception, type a grid ref or description — same field, no signal needed.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOWER TABS — one visit can hold several towers ── -->
+  <div class="tower-nav">
+    <div class="tower-tabs" id="towerTabs"></div>
+    <button class="add-tower-btn" id="addTowerBtn" type="button">+ Add tower</button>
+  </div>
+
+  <div class="blk" style="border-top:1px solid var(--line);padding-top:18px;">
+    <div class="blk-head"><div class="blk-title">Tower Details</div><div class="blk-badge" id="towerPosLabel">Tower 1</div></div>
+    <div class="grid">
+      <div class="field">
+        <label>Tower Number</label>
+        <select id="f_towernum"><option value="">Select…</option></select>
+      </div>
+      <div class="field"><label>Tower Serial</label><input type="text" id="f_serial" class="mono" placeholder="EL-XXXXXXXX"></div>
+      <div class="field"><label>Asset Number</label><input type="text" id="f_asset"></div>
+      <div class="field">
+        <label>Model</label>
+        <select id="f_model">
+          <option value="">Select…</option>
+          <option>EL-Solo 120W</option>
+          <option>EL-Solo 240W</option>
+          <option>EL-Duo 240W</option>
+          <option>EL-Duo 480W</option>
+          <option>EL-Quad 960W</option>
+          <option>Custom / Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Year Installed</label><input type="text" id="f_year" placeholder="e.g. 2019" class="mono"></div>
+      <div class="field">
+        <label>Overall Condition</label>
+        <select id="f_overall">
+          <option value="">Select…</option>
+          <option>Excellent</option>
+          <option>Good</option>
+          <option>Fair</option>
+          <option>Poor</option>
+          <option>Failed</option>
+        </select>
+      </div>
+      <div class="field span2">
+        <label>Scope of Work (this tower)</label>
+        <select id="f_scope_type">
+          <option value="">Select scope…</option>
+          <option>Routine Inspection</option>
+          <option>Battery Replacement</option>
+          <option>Controller Upgrade</option>
+          <option>Lithium Upgrade</option>
+          <option>Winch Replacement</option>
+          <option>Full Recommissioning</option>
+          <option>Fault Diagnosis</option>
+          <option>Emergency Call-Out</option>
+          <option>Custom (see notes)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="blk">
+    <div class="blk-head"><div class="blk-title">Condition Assessment</div><div class="blk-badge">On-site findings</div></div>
+
+    <div class="cond-row">
+      <label>Tower</label>
+      <select id="f_cond_tower">
+        <option value="">Choose…</option>
+        <option>Solar tower is operational.</option>
+        <option>Solar tower is semi-operational.</option>
+        <option>Solar Tower is Non-Operational.</option>
+      </select>
+    </div>
+    <div class="cond-row">
+      <label>Battery</label>
+      <select id="f_cond_battery">
+        <option value="">Choose…</option>
+        <option>AGM Batteries.</option>
+        <option>Lithium Batteries.</option>
+        <option>Non-EarthLight Battery.</option>
+        <option>No battery present.</option>
+      </select>
+    </div>
+    <div class="cond-row">
+      <label>Controller</label>
+      <select id="f_cond_controller">
+        <option value="">Choose…</option>
+        <option>Legacy Controller.</option>
+        <option>Lithium Blackstart Controller.</option>
+        <option>Non-EarthLight controller.</option>
+      </select>
+    </div>
+    <div class="cond-row">
+      <label>Lights</label>
+      <select id="f_cond_lights">
+        <option value="">Choose…</option>
+        <option>Legacy-model floodlights.</option>
+        <option>Veva Sirius Pro Flood Lights.</option>
+        <option>Metro Curve LED(s).</option>
+        <option>Solar Pro Self-Cleaning Light.</option>
+        <option>Non-EarthLight light fittings.</option>
+        <option>Old EarthLight All-in-One Solar Light.</option>
+      </select>
+    </div>
+    <div class="cond-row">
+      <label>Winch</label>
+      <select id="f_cond_winch">
+        <option value="">Choose…</option>
+        <option>Legacy steel winch.</option>
+        <option>Auto Brake Hand Winch.</option>
+      </select>
+    </div>
+    <div class="cond-row">
+      <label>Pole</label>
+      <select id="f_cond_pole">
+        <option value="">Choose…</option>
+        <option>Hinged Pole.</option>
+        <option>Tilt Pole.</option>
+        <option>Old style Non-Tilt Pole.</option>
+      </select>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div class="blk-title" style="margin-bottom:10px;">Issues Found</div>
+      <div class="field" style="margin-bottom:8px;">
+        <label>Severity</label>
+        <div class="sev-row">
+          <button class="sev-btn" onclick="setSev('Low')" type="button">Low</button>
+          <button class="sev-btn" onclick="setSev('Medium')" type="button">Medium</button>
+          <button class="sev-btn" onclick="setSev('High / Critical')" type="button">High / Critical</button>
+        </div>
+        <input type="hidden" id="f_severity" value="">
+      </div>
+      <div class="chip-grid" id="findings-chips"></div>
+    </div>
+
+    <div class="field" style="margin-top:14px;">
+      <label>Components / Free Notes</label>
+      <textarea id="f_components" placeholder="Anything not captured above (component serial numbers, photos taken, anomalies)"></textarea>
+    </div>
+    <div class="field" style="margin-top:10px;">
+      <label>Detailed Findings</label>
+      <textarea id="f_findings" placeholder="Describe defects, wear, damage, measurements, safety issues…" style="min-height:80px;"></textarea>
+    </div>
+  </div>
+
+  <div class="blk">
+    <div class="blk-head"><div class="blk-title">Solution — Parts &amp; Cost (this tower)</div><div class="blk-badge" id="partsCount">0 lines</div></div>
+    <table class="parts-table" id="partsTable">
+      <thead><tr>
+        <th style="width:48%">Part</th>
+        <th style="width:54px">Qty</th>
+        <th class="num" style="width:82px">Unit</th>
+        <th class="num" style="width:90px">Line Total</th>
+        <th style="width:30px"></th>
+      </tr></thead>
+      <tbody id="partsBody"></tbody>
+    </table>
+    <button class="add-part-btn" id="addPartBtn" type="button">+ Add part from price book</button>
+
+    <div class="totals">
+      <div class="tot-line"><span>Subtotal (ex-GST)</span><span class="amt" id="t_sub">$0.00</span></div>
+      <div class="tot-line"><span>GST 10%</span><span class="amt" id="t_gst">$0.00</span></div>
+      <div class="tot-grand"><span>This tower (inc. GST)</span><span class="amt" id="t_total">$0.00</span></div>
+      <div class="tot-visit"><span id="visitTotalLabel">Visit total — 1 tower</span><span class="amt" id="t_visit_total">$0.00</span></div>
+    </div>
+
+    <div class="field" style="margin-top:14px;">
+      <label><input type="checkbox" id="f_optional" style="width:auto;margin-right:6px;accent-color:var(--amber);">Optional installation recommended (pending approval)</label>
+    </div>
+    <div class="field" id="optNoteWrap" style="display:none;margin-top:8px;">
+      <label>Optional installation note</label>
+      <textarea id="f_optnote"></textarea>
+    </div>
+  </div>
+
+  <div class="blk">
+    <div class="blk-head"><div class="blk-title">Solution Summary &amp; Notes (this tower)</div></div>
+    <div class="field"><textarea id="f_solution" placeholder="Recommended solution, next steps, actions completed…" style="min-height:70px;"></textarea></div>
+    <div class="field" style="margin-top:10px;"><textarea id="f_notes" placeholder="Anything else for the office or client"></textarea></div>
+  </div>
+
+  <div class="blk">
+    <div class="blk-head"><div class="blk-title">Site Photos (this tower)</div><div class="blk-badge" id="photosCount">0 photos</div></div>
+    <p class="hint" style="margin-bottom:10px;">Attach photos of the tower, damage, serial plates or completed work. They're embedded straight into the full PDF report (downloaded / OneDrive copy). Emailed reports leave photos out to stay small — see "How it works".</p>
+    <div class="photo-grid" id="photoGrid">
+      <div class="photo-empty" id="photoEmptyMsg">No photos attached yet.</div>
+    </div>
+    <div class="btnbar" style="margin-top:10px;">
+      <button class="btn accent photo-add-btn" type="button" id="addPhotoCameraBtn">📷 Take Photo</button>
+      <button class="btn photo-add-btn" type="button" id="addPhotoLibraryBtn">🖼 Add from Library</button>
+    </div>
+    <input type="file" id="photoCameraInput" accept="image/*" capture="environment" multiple style="display:none;">
+    <input type="file" id="photoLibraryInput" accept="image/*" multiple style="display:none;">
+  </div>
+
+</section>
+
+<!-- ═══════════════ SAVED PANEL ═══════════════ -->
+<section class="panel" id="panel-saved">
+  <div class="blk" style="padding-top:4px;">
+    <div class="blk-head"><div class="blk-title">Saved Visits (this device)</div></div>
+    <div id="savedList"></div>
+    <div class="btnbar" style="margin-top:12px;">
+      <button class="btn" id="exportJsonBtn">Export all (.json)</button>
+      <button class="btn" id="exportCsvBtn">Export all (.csv)</button>
+      <button class="btn danger" id="clearAllBtn">Clear all</button>
+    </div>
+    <p class="hint" style="margin-top:8px;">Visits are stored locally on this device. Use OneDrive sync or Export to back them up.</p>
+  </div>
+</section>
+
+<!-- ═══════════════ ONEDRIVE PANEL ═══════════════ -->
+<section class="panel" id="panel-onedrive">
+  <div class="blk" style="padding-top:4px;">
+
+    <div class="od-banner">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M9.5 7.5C10.5 5 13 3.5 15.5 4C17.5 4.5 19 6 19.5 8C21 8.5 22 10 22 11.5C22 13.4 20.4 15 18.5 15H5.5C3.6 15 2 13.4 2 11.5C2 9.8 3.2 8.4 4.8 8.1C4.9 5.3 7.2 3 10 3C10 3 9.2 5.1 9.5 7.5Z" fill="#0078D4"/>
+      </svg>
+      <div class="od-banner-text">
+        <strong>OneDrive Auto-Upload</strong><br>
+        Once signed in with your Microsoft 365 / EarthLight work account, completed visits (PDF + JSON, all towers in one file) are automatically uploaded to <code>OneDrive → EarthLight Audits</code>. Works in the background whenever you have signal — no manual steps needed. This is the permanent, traceable record of every report — for years to come.
+      </div>
+    </div>
+
+    <div class="od-status-box" id="odStatusBox">
+      <div class="od-status-row">
+        <div class="od-status-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="white">
+            <path d="M8 6C8.8 3.8 11 2.5 13.2 3C15 3.4 16.5 4.9 17 7C18.7 7.5 20 9 20 10.7C20 12.7 18.3 14 16.5 14H4.5C2.7 14 1 12.7 1 10.7C1 9 2.2 7.7 3.8 7.4C3.9 4.8 6 2.5 8.8 2.5"/>
+          </svg>
+        </div>
+        <div>
+          <div id="odStatusTitle" style="font-weight:600;font-size:14px;">Not signed in</div>
+          <div id="odStatusSub" style="font-size:11px;color:var(--text-dim);margin-top:2px;">Sign in with your Microsoft work account to enable OneDrive sync.</div>
+        </div>
+      </div>
+      <div class="btnbar" style="margin-top:12px;">
+        <button class="btn od-btn" id="odSignInBtn" onclick="odSignIn()">Sign in with Microsoft</button>
+        <button class="btn danger" id="odSignOutBtn" onclick="odSignOut()" style="display:none;">Sign out</button>
+        <button class="btn accent" id="odSyncNowBtn" onclick="odSyncAll()" style="display:none;">Sync all unsent visits now</button>
+      </div>
+    </div>
+
+    <div class="blk-title" style="margin-bottom:10px;">Setup — Azure App Registration</div>
+    <div class="od-setup-steps">
+      <div class="od-step">
+        <div class="od-step-num">1</div>
+        <div class="od-step-body">
+          <strong>Register an app in Azure Portal</strong><br>
+          Go to <code>portal.azure.com → Azure Active Directory → App registrations → New registration</code>. Name it "EarthLight Audit Tool". Set the redirect URI to <strong>Single-page application (SPA)</strong> and paste the URL of this page (your GitHub Pages URL once deployed).
+        </div>
+      </div>
+      <div class="od-step">
+        <div class="od-step-num">2</div>
+        <div class="od-step-body">
+          <strong>Copy your Application (client) ID</strong><br>
+          After creating the app, copy the Application (client) ID from the overview page. Paste it into the field below and save.
+        </div>
+      </div>
+      <div class="od-step">
+        <div class="od-step-num">3</div>
+        <div class="od-step-body">
+          <strong>Grant API permissions</strong><br>
+          In the app → API permissions → Add <code>Microsoft Graph → Delegated → Files.ReadWrite</code> and <code>User.Read</code>. Click "Grant admin consent".
+        </div>
+      </div>
+      <div class="od-step">
+        <div class="od-step-num">4</div>
+        <div class="od-step-body">
+          <strong>Sign in below</strong><br>
+          Paste your Client ID, hit Save, then Sign in. Visits will auto-upload to <code>OneDrive/EarthLight Audits/</code> as PDF + JSON files each time you submit — one pair of files per visit, covering every tower on it.
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-box">
+      <div class="blk-title" style="margin-bottom:12px;">OneDrive Configuration</div>
+      <div class="grid">
+        <div class="field span2">
+          <label>Azure Application (Client) ID</label>
+          <input type="text" id="od_client_id" class="mono" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+          <div class="hint">From portal.azure.com → App registrations → your app → Application (client) ID</div>
+        </div>
+        <div class="field">
+          <label>OneDrive folder path</label>
+          <input type="text" id="od_folder" value="EarthLight Audits" placeholder="EarthLight Audits">
+          <div class="hint">Folder will be created in OneDrive root if it doesn't exist.</div>
+        </div>
+        <div class="field">
+          <label>Upload format</label>
+          <select id="od_format">
+            <option value="both">PDF + JSON (recommended)</option>
+            <option value="pdf">PDF only</option>
+            <option value="json">JSON only</option>
+          </select>
+        </div>
+      </div>
+      <div class="btnbar" style="margin-top:12px;">
+        <button class="btn primary" onclick="odSaveConfig()">Save Configuration</button>
+      </div>
+    </div>
+
+    <div class="blk-title" style="margin:16px 0 8px;">Sync Log</div>
+    <div class="sync-log" id="syncLog"><span class="info">No sync activity yet.</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════ PRICE BOOK / SEND-TO PANEL ═══════════════ -->
+<section class="panel" id="panel-pricebook">
+  <div class="blk" style="padding-top:4px;">
+    <div class="blk-head"><div class="blk-title">Part Codes, Quantities &amp; Pricing</div></div>
+    <p class="hint" style="margin-bottom:14px;">Edit any code, description or price — changes apply immediately to every new part picker. Prices are ex-GST. Export after updates; share the file with other devices to keep pricing in sync.</p>
+    <div id="priceBookBody"></div>
+    <div class="btnbar" style="margin-top:8px;">
+      <button class="btn accent" id="addCatBtn">+ Add category</button>
+      <button class="btn" id="exportPbBtn">Export (.json)</button>
+      <button class="btn" id="importPbBtn">Import (.json or .csv)</button>
+      <button class="btn ghost" id="resetPbBtn">Reset to EarthLight defaults</button>
+    </div>
+    <p class="hint" style="margin-top:6px;">CSV import expects columns <code>category,code,description,qty,price</code> (header row required, any order) — handy for pasting straight out of a spreadsheet price list.</p>
+    <input type="file" id="importPbFile" accept="application/json,.csv,text/csv" style="display:none;">
+  </div>
+
+  <div class="settings-box">
+    <div class="blk-title" style="margin-bottom:12px;">Send-to Settings</div>
+    <div class="grid">
+      <div class="field"><label>Service inbox email</label><input type="email" id="s_inbox" placeholder="service@earthlight.com.au"></div>
+      <div class="field"><label>CC (optional)</label><input type="email" id="s_cc" placeholder=""></div>
+    </div>
+    <p class="hint" style="margin-top:8px;">Stored on this device only. This is where the Email button sends the report.</p>
+  </div>
+
+  <div class="settings-box">
+    <div class="blk-title" style="margin-bottom:6px;">EmailJS — send from the app</div>
+    <p class="hint" style="margin-bottom:12px;">One-time free setup at <code>emailjs.com</code> lets the Email button send the PDF straight from the app — no mail app, no manual attach step. Full steps are on the "How it works" tab.</p>
+    <div class="grid">
+      <div class="field"><label>Service ID</label><input type="text" id="ej_service" class="mono" placeholder="service_xxxxxxx"></div>
+      <div class="field"><label>Template ID</label><input type="text" id="ej_template" class="mono" placeholder="template_xxxxxxx"></div>
+      <div class="field span2"><label>Public Key</label><input type="text" id="ej_publickey" class="mono" placeholder="from Account → General"></div>
+      <div class="field"><label>Attachment safety cap (KB)</label><input type="number" id="ej_cap" value="45" min="10" max="450"></div>
+    </div>
+    <div class="btnbar" style="margin-top:12px;">
+      <button class="btn primary" onclick="saveEjConfig()">Save EmailJS Config</button>
+    </div>
+    <p class="hint" style="margin-top:8px;">Free EmailJS plan: ~200 emails/month, attachments capped around 50KB — so the emailed PDF leaves photos out (they're listed by count instead). The full report with photos still goes to OneDrive automatically, or download it manually. On the $9/mo Personal plan raise the cap to ~450KB.</p>
+  </div>
+</section>
+
+<!-- ═══════════════ HELP PANEL ═══════════════ -->
+<section class="panel" id="panel-help">
+  <div class="blk" style="padding-top:4px;">
+    <div class="help-copy">
+      <h4>What works offline</h4>
+      <p>Once this page has loaded once, everything works with no signal at all: filling in a visit, adding towers, adding parts from the price book, saving, totals, GPS entry, PDF generation. Everything is held in this browser's local storage, and the app itself is cached on the device (via its service worker) so it opens with zero bars of signal — not just while the tab happens to still be open. Nothing leaves the device until you trigger it (Email, or an automatic OneDrive sync once you're back in range).</p>
+
+      <h4>Installing it like an app</h4>
+      <p>On mobile (iOS/Android), open this page in Safari or Chrome and use <b>Add to Home Screen</b> — it installs properly (icon, splash screen, no browser address bar) because the page ships a manifest + offline service worker. On desktop, use the install icon in Chrome's address bar. Install it once while you still have signal; after that it's yours to use anywhere.</p>
+
+      <h4>Multiple towers on one report</h4>
+      <p>A "Visit" is one site call-out and can hold several towers. Use <b>+ Add tower</b> under the visit details to add another — each tower gets its own Tower Details, Condition, Findings, Parts &amp; Cost and Photos, switchable via the tower tabs. Tap <b>Report</b> to generate one combined PDF covering every tower on the visit, each on its own page, with a visit summary and grand total up front.</p>
+
+      <h4>PDF report</h4>
+      <p>Tap <b>Report</b> at the bottom to preview, then <b>Download PDF</b> to save a properly formatted EarthLight Site Service Report — with every tower on the visit — to your device. This is the full file (with photos) that gets uploaded to OneDrive.</p>
+
+      <h4>Emailing the report (EmailJS setup)</h4>
+      <p>The <b>Email</b> button sends the report itself, from inside the app, with the PDF attached — no mail app hand-off. It uses <a href="https://www.emailjs.com" target="_blank" rel="noopener" style="color:var(--teal);">EmailJS</a>, a free service that lets a web page send email without its own server. One-time setup:</p>
+      <div class="od-setup-steps">
+        <div class="od-step">
+          <div class="od-step-num ej-step-num">1</div>
+          <div class="od-step-body"><strong>Create a free EmailJS account</strong><br>Sign up at emailjs.com, then under <code>Email Services</code> connect the mailbox you want reports to send from (Gmail, Outlook, or your own SMTP).</div>
+        </div>
+        <div class="od-step">
+          <div class="od-step-num ej-step-num">2</div>
+          <div class="od-step-body"><strong>Create an email template</strong><br>Under <code>Email Templates</code>, make a template with a <code>{{message}}</code> body variable for the text summary. Then open the <b>Attachments</b> tab on the template and add a <b>Variable Attachment</b>: filename <code>{{pdf_filename}}</code>, content type PDF, parameter name <code>pdf_base64</code>.</div>
+        </div>
+        <div class="od-step">
+          <div class="od-step-num ej-step-num">3</div>
+          <div class="od-step-body"><strong>Grab your IDs</strong><br>Copy the <b>Service ID</b> and <b>Template ID</b> from their respective tabs, and the <b>Public Key</b> from <code>Account → General</code>.</div>
+        </div>
+        <div class="od-step">
+          <div class="od-step-num ej-step-num">4</div>
+          <div class="od-step-body"><strong>Paste into Price Book &amp; Send-to → EmailJS</strong><br>Save it there. From then on, Email sends immediately with the PDF attached. Free plan caps attachments around 50KB, so the emailed PDF leaves out photos (it lists how many were taken) — the full photo report is still in OneDrive or the manual download.</div>
+        </div>
+      </div>
+
+      <h4>OneDrive auto-upload</h4>
+      <p>Set up your Azure client ID under the <b>OneDrive</b> tab, sign in once with your Microsoft work account, and every subsequent visit submission automatically uploads a full PDF + JSON (photos included, every tower included) to <code>OneDrive / EarthLight Audits /</code> in the background — as soon as you have signal. Visits submitted offline are queued and uploaded the moment connectivity returns. This is the permanent record for the whole team, for years to come.</p>
+
+      <h4>Price book</h4>
+      <p>The <b>Price Book</b> tab is the single source of truth for every part code, default quantity and price in the picker. Edit a price there and it's live everywhere immediately. Import a <code>.json</code> export from another device, or a plain <code>.csv</code> straight from a spreadsheet price list (columns: category, code, description, qty, price). Export after changes and share the file with other technicians — each device imports it independently.</p>
+
+      <h4>If the app isn't installed yet</h4>
+      <p>On mobile (iOS/Android), open in Safari or Chrome and use <b>Add to Home Screen</b> — it will launch as a full-screen app with no browser chrome. On desktop, use the install icon in Chrome's address bar.</p>
+    </div>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<!-- ─── BOTTOM BAR ─── -->
+<div class="bottombar" id="bottomBar" style="display:none;">
+  <div class="bottombar-inner">
+    <div class="bb-total">VISIT TOTAL<b id="bb_total">$0.00</b></div>
+    <button class="btn ghost" id="saveBtn">Save</button>
+    <button class="btn accent" id="genReportBtn">Report</button>
+    <button class="btn" id="uploadOdBtn" style="display:none;">☁ Upload</button>
+    <button class="btn primary" id="emailBtn">Email</button>
+  </div>
+</div>
+
+<!-- ─── REPORT MODAL ─── -->
+<div class="modal-bg" id="reportModal">
+  <div class="modal">
+    <button class="modal-close" id="closeReport">×</button>
+    <h3>Report Preview</h3>
+    <div class="sub">Review, then download or send. All towers on this visit are included.</div>
+    <div class="report-preview" id="reportContent"></div>
+    <div class="btnbar" style="margin-top:14px;">
+      <button class="btn primary" id="dlPdfBtn">⬇ Download PDF</button>
+      <button class="btn" id="dlHtmlBtn">Download (.html)</button>
+      <button class="btn ghost" id="printBtn">Print</button>
+      <button class="btn od-btn" id="modalOdBtn" style="display:none;">☁ Upload to OneDrive</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ─── STORAGE ─── */
+function lsGet(k,fb){try{var v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch(e){return fb;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
+var K={PB:'el_pb_v2',AUDITS:'el_audits_v2',VISITS:'el_visits_v1',SETTINGS:'el_settings_v2',OD:'el_od_config_v1',EJ:'el_ej_config_v1',QUEUE:'el_od_queue_v2'};
+
+/* ─── PRICE BOOK ─── */
+function defaultPB(){return{
+  "Batteries":[
+    {code:"ETG-14CT008",desc:"ELION Lithium Battery Compact 150Ah 12V",price:1210,qty:2},
+    {code:"ETG-14CT009",desc:"ELION Lithium Battery Compact 200Ah 12V",price:1436,qty:2},
+    {code:"ETG-14CT010",desc:"ELION Lithium Battery Compact 350Ah 12V",price:1928,qty:2},
+    {code:"ETG-14TB012",desc:"ELION Lithium Battery 70Ah 24V",price:1069,qty:2},
+    {code:"ETG-14TB013",desc:"ELION Lithium Battery 110Ah 24V",price:1507,qty:2},
+    {code:"ETG-14TB015",desc:"ELION Lithium Battery 180Ah 24V",price:1971,qty:2}
+  ],
+  "Controller":[
+    {code:"ETG-21LC341",desc:"Time Load Control & Victron MPPT MAXI Tower",price:859,qty:1},
+    {code:"ETG-21LC343",desc:"Time Control & Victron MPPT MEGA Tower",price:1820,qty:1},
+    {code:"ETG-21LC340",desc:"Time Load Control & Victron MPPT XTREME Tower",price:848,qty:1}
+  ],
+  "Lights":[
+    {code:"ETG-21FL061",desc:"VEVA SIRIUS PRO 50W DC Flood Light",price:351,qty:1},
+    {code:"ETG-21FL268",desc:"VEVA SIRIUS PRO 50W DC Flood Light Asymmetrical",price:378,qty:1},
+    {code:"ETG-21MD203",desc:"G2 DC Metro Curve Street Light 50W",price:299,qty:1},
+    {code:"ETG-21MD204",desc:"G2 DC Metro Curve Street Light 100W",price:348,qty:1},
+    {code:"ETG-21MD205",desc:"G2 DC Metro Curve Street Light 150W",price:409,qty:1},
+    {code:"ETG-11CL005",desc:"Solar Pro 40W Self-Cleaning Light",price:1252,qty:1},
+    {code:"ETG-11CL006",desc:"Solar Pro 60W Self-Cleaning Light",price:1565,qty:1},
+    {code:"ETG-11CL007",desc:"Solar Pro 80W Self-Cleaning Light",price:1706,qty:1}
+  ],
+  "Winch":[
+    {code:"ETG-21GW076",desc:"Auto Brake Hand Winch 10m",price:255,qty:1}
+  ],
+  "Pole":[
+    {code:"ETG-21TP083",desc:"Tilt Pole",price:1291,qty:1}
+  ],
+  "Solar Panel":[
+    {code:"ETG-21SP050",desc:"Solar Panel 200W",price:316,qty:1},
+    {code:"ETG-21SP051",desc:"Solar Panel 300W",price:316,qty:1},
+    {code:"ETG-21SP053",desc:"Solar Panel 400W",price:276,qty:1},
+    {code:"ETG-21SP054",desc:"Solar Panel 500W",price:309,qty:1},
+    {code:"ETG-21SP055",desc:"Solar Panel 700W",price:396,qty:1},
+    {code:"ETG-21SP200",desc:"Trina Solar Panel 440W",price:252,qty:1},
+    {code:"ETG-21SP270",desc:"Trina Solar Panel 505W",price:302,qty:1}
+  ],
+  "Battery Isolator":[
+    {code:"ETG-21BS003",desc:"LittleFuse Battery Isolator Switch",price:188,qty:1},
+    {code:"ETG-21BP111",desc:"Battery Master Switch",price:92,qty:1}
+  ],
+  "Other":[
+    {code:"ETG-21SL059",desc:"Secondary Restraint Bracket & Lanyard",price:286,qty:1}
+  ],
+  "Service Callouts":[
+    {code:"ETG-20SS031",desc:"Install Blackstart MPPT & Load controller — wiring, testing & commissioning",price:270,qty:1},
+    {code:"ETG-20SS032",desc:"Install 2x lithium batteries + Blackstart controller — full commissioning",price:486,qty:1},
+    {code:"ETG-20SS033",desc:"Install 2x lithium + Blackstart controller + upgraded winch",price:594,qty:1},
+    {code:"ETG-20SS034",desc:"Install 2x lithium + 2x LED lights + Blackstart controller + upgraded winch",price:702,qty:1},
+    {code:"ETG-20SS035",desc:"Install 4x lithium + Blackstart controller + upgraded winch",price:810,qty:1},
+    {code:"ETG-20SS036",desc:"Install 4x lithium + 4x LED lights + Blackstart controller",price:918,qty:1},
+    {code:"ETG-20SS037",desc:"Install 4x lithium + 4x LED lights + Blackstart controller + upgraded winch",price:1026,qty:1},
+    {code:"ETG-20SS038",desc:"Remove faulty solar panel, install & commission new unit",price:324,qty:1},
+    {code:"ETG-20SS031B",desc:"Install Tilt Pole & Self-Cleaning Light — wiring, testing & commissioning",price:270,qty:1}
+  ],
+  "Mobilisation":[
+    {code:"ETG-20SS021",desc:"Technician Mobilisation (per person)",price:2160,qty:1},
+    {code:"ETG-20SS022",desc:"Mine Spec Vehicle with IVM (day rate)",price:486,qty:1},
+    {code:"ETG-20SS023",desc:"Accommodation (per person, per day)",price:270,qty:1},
+    {code:"ETG-20SS024",desc:"Service & Repair Technician (day rate)",price:1890,qty:1}
+  ]
+};}
+
+/* ─── MIGRATION — old single-tower "audits" become one-tower "visits" ─── */
+function migrateOldAudits(){
+  var old=lsGet(K.AUDITS,null);
+  if(!old||!old.length)return[];
+  return old.map(function(a){
+    var t={
+      towerNumber:a.towerNumber,serial:a.serial,asset:a.asset,model:a.model,year:a.year,overall:a.overall,
+      scopeType:a.scopeType,cond:a.cond||{},severity:a.severity,findingsChecked:a.findingsChecked||[],
+      components:a.components,findings:a.findings,solution:a.solution,notes:a.notes,
+      optional:a.optional,optionalNote:a.optionalNote,parts:a.parts||[],
+      subtotal:a.subtotal||0,gst:a.gst||0,total:a.total||0,photos:a.photos||[]
+    };
+    return{
+      id:a.id,visitNo:a.auditNo,date:a.date,tech:a.tech,client:a.client,location:a.location,mapLocation:a.mapLocation,
+      towers:[t],subtotal:a.subtotal||0,gst:a.gst||0,total:a.total||0,
+      savedAt:a.savedAt,sent:a.sent,odSynced:a.odSynced,odSyncedAt:a.odSyncedAt
+    };
+  });
+}
+
+var pb = lsGet(K.PB,null)||defaultPB();
+var visits = lsGet(K.VISITS,null); if(visits===null){visits=migrateOldAudits();lsSet(K.VISITS,visits);}
+var settings = lsGet(K.SETTINGS,{inbox:'james.h@earthlight.com.au',cc:''});
+var odConfig = lsGet(K.OD,{clientId:'',folder:'EarthLight Audits',format:'both'});
+var ejConfig = lsGet(K.EJ,{serviceId:'',templateId:'',publicKey:'',capKB:45});
+var uploadQueue = lsGet(K.QUEUE,[]);
+var currentId = null;
+var curTowers = [];
+var curTowerIdx = null;
+var partRows = [];
+var severity = '';
+var lastVisit = null;
+var photos = []; // {id,dataUrl,caption}
+var msalApp = null;
+var odAccount = null;
+
+/* ─── HELPERS ─── */
+function $(id){return document.getElementById(id);}
+function fmt(n){return '$'+(Math.round(n*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function uid(){return 'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function esc(s){s=(s===undefined||s===null)?'':String(s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+var toastTmr;
+function toast(msg,dur){
+  var t=$('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTmr);toastTmr=setTimeout(function(){t.classList.remove('show');},dur||3200);
+}
+
+function logSync(msg,type){
+  var box=$('syncLog');
+  var line=document.createElement('div');
+  line.className=type||'info';
+  line.textContent='['+new Date().toLocaleTimeString()+'] '+msg;
+  if(box.querySelector('.info')&&box.querySelector('.info').textContent.includes('No sync')){box.innerHTML='';}
+  box.insertBefore(line,box.firstChild);
+}
+
+/* ─── NETWORK STATUS ─── */
+function updateNet(){
+  var on=navigator.onLine;
+  $('netDot').className='dot '+(on?'on':'off');
+  $('netLabel').textContent=on?'Online':'Offline';
+  if(on&&uploadQueue.length){setTimeout(processQueue,1000);}
+}
+window.addEventListener('online',updateNet);
+window.addEventListener('offline',updateNet);
+
+/* ─── TABS ─── */
+document.querySelectorAll('.tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var tab=this.dataset.tab;
+    document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+    this.classList.add('active');
+    $('panel-'+tab).classList.add('active');
+    $('bottomBar').style.display=(tab==='audit')?'block':'none';
+    if(tab==='saved')renderSaved();
+    if(tab==='pricebook'){renderPB();loadSettingsUI();}
+    if(tab==='onedrive'){loadOdUI();}
+  });
+});
+
+/* ─── TOWER NUMBER DROPDOWN ─── */
+(function(){var s=$('f_towernum');for(var i=1;i<=20;i++){var o=document.createElement('option');o.value='#'+i;o.textContent='Tower #'+i;s.appendChild(o);}})();
+
+/* ─── TECH OTHER ─── */
+$('f_tech').addEventListener('change',function(){
+  $('f_tech_other').style.display=this.value==='__other'?'block':'none';
+});
+
+/* ─── OPTIONAL NOTE ─── */
+$('f_optional').addEventListener('change',function(){
+  $('optNoteWrap').style.display=this.checked?'block':'none';
+});
+
+/* ─── GPS ─── */
+window.captureGPS=function(){
+  if(!navigator.geolocation){toast('GPS not supported on this device');return;}
+  toast('Locating…');
+  navigator.geolocation.getCurrentPosition(function(p){
+    var lat=p.coords.latitude.toFixed(6),lng=p.coords.longitude.toFixed(6);
+    $('f_maploc').value=lat+', '+lng;
+    toast('GPS: '+lat+', '+lng);
+  },function(){toast('Could not get GPS — enter manually');},{enableHighAccuracy:true,timeout:10000});
+};
+
+/* ─── FINDINGS CHIPS ─── */
+var FINDINGS=['Battery Low / Depleted','Battery Swollen / Damaged','Battery Not Holding Charge',
+  'Controller Fault','Controller Incompatible','Wiring Damage / Corrosion',
+  'Panel Soiling / Shading','Panel Cracked / Damaged','Insufficient Charge Current',
+  'Light Flickering / Intermittent','Light Not Working','Mast Corrosion / Structural Damage',
+  'Winch Failure / Stuck','Enclosure Water Ingress','Fuse Blown','Theft / Vandalism',
+  'Legacy Components Identified','No Fault Found'];
+
+(function(){
+  var grid=$('findings-chips');
+  FINDINGS.forEach(function(f,i){
+    var lbl=document.createElement('label');lbl.className='chip';
+    var cb=document.createElement('input');cb.type='checkbox';cb.value=f;cb.id='fc'+i;
+    cb.addEventListener('change',function(){lbl.classList.toggle('checked',cb.checked);});
+    var span=document.createElement('span');span.textContent=f;
+    lbl.appendChild(cb);lbl.appendChild(span);
+    grid.appendChild(lbl);
+  });
+})();
+
+function getCheckedFindings(){
+  return Array.from(document.querySelectorAll('#findings-chips input:checked')).map(function(c){return c.value;});
+}
+function setCheckedFindings(arr){
+  document.querySelectorAll('#findings-chips input').forEach(function(c){
+    c.checked=(arr||[]).includes(c.value);
+    c.closest('.chip').classList.toggle('checked',c.checked);
+  });
+}
+
+/* ─── PHOTOS ─── */
+function photoUid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+function resizeImageFile(file,maxDim,quality){
+  return new Promise(function(resolve,reject){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var w=img.width,h=img.height;
+        if(w>h){if(w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}}
+        else{if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}}
+        var canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        try{resolve(canvas.toDataURL('image/jpeg',quality||0.72));}catch(err){reject(err);}
+      };
+      img.onerror=function(){reject(new Error('Could not decode image'));};
+      img.src=e.target.result;
+    };
+    reader.onerror=function(){reject(new Error('Could not read file'));};
+    reader.readAsDataURL(file);
+  });
+}
+
+function addPhotosFromFiles(fileList){
+  var files=Array.from(fileList||[]).filter(function(f){return f.type&&f.type.indexOf('image/')===0;});
+  if(!files.length)return;
+  toast('Adding '+files.length+' photo'+(files.length!==1?'s':'')+'…');
+  files.forEach(function(f){
+    resizeImageFile(f,1280,0.72).then(function(dataUrl){
+      photos.push({id:photoUid(),dataUrl:dataUrl,caption:''});
+      renderPhotos();
+    }).catch(function(){toast('Could not read one of the photos — skipped.');});
+  });
+}
+
+function renderPhotos(){
+  var grid=$('photoGrid');grid.innerHTML='';
+  if(!photos.length){
+    var empty=document.createElement('div');empty.className='photo-empty';empty.id='photoEmptyMsg';empty.textContent='No photos attached yet.';
+    grid.appendChild(empty);
+  }else{
+    photos.forEach(function(p){
+      var card=document.createElement('div');card.className='photo-card';
+      var img=document.createElement('img');img.src=p.dataUrl;img.alt='Site photo';card.appendChild(img);
+      var rm=document.createElement('button');rm.className='rm';rm.type='button';rm.textContent='×';
+      rm.addEventListener('click',function(){photos=photos.filter(function(x){return x.id!==p.id;});renderPhotos();});
+      card.appendChild(rm);
+      var cap=document.createElement('input');cap.className='cap-inp';cap.placeholder='Caption (optional)';cap.value=p.caption||'';
+      cap.addEventListener('input',function(){p.caption=this.value;});
+      card.appendChild(cap);
+      grid.appendChild(card);
+    });
+  }
+  $('photosCount').textContent=photos.length+' photo'+(photos.length!==1?'s':'');
+}
+
+$('photoCameraInput').addEventListener('change',function(e){addPhotosFromFiles(e.target.files);this.value='';});
+$('photoLibraryInput').addEventListener('change',function(e){addPhotosFromFiles(e.target.files);this.value='';});
+$('addPhotoCameraBtn').addEventListener('click',function(){$('photoCameraInput').click();});
+$('addPhotoLibraryBtn').addEventListener('click',function(){$('photoLibraryInput').click();});
+
+/* ─── SEVERITY ─── */
+window.setSev=function(v){
+  severity=v;$('f_severity').value=v;
+  document.querySelectorAll('.sev-btn').forEach(function(b){
+    b.classList.remove('active-low','active-med','active-high');
+  });
+  var cls=v==='Low'?'active-low':v==='Medium'?'active-med':'active-high';
+  Array.from(document.querySelectorAll('.sev-btn')).find(function(b){return b.textContent.trim()===v||b.textContent.includes(v);}).classList.add(cls);
+};
+
+/* ─── PARTS (scoped to the tower currently on-screen) ─── */
+function rebuildTotals(){
+  var sub=0;
+  partRows.forEach(function(r){sub+=r.qty*r.price;});
+  var gst=sub*0.1,total=sub+gst;
+  $('t_sub').textContent=fmt(sub);$('t_gst').textContent=fmt(gst);$('t_total').textContent=fmt(total);
+  $('partsCount').textContent=partRows.length+' line'+(partRows.length!==1?'s':'');
+  updateVisitTotal(total);
+}
+
+function updateVisitTotal(liveCurrentTotal){
+  var sum=0;
+  curTowers.forEach(function(t,i){
+    if(i===curTowerIdx&&typeof liveCurrentTotal==='number')sum+=liveCurrentTotal;
+    else sum+=(t.total||0);
+  });
+  $('t_visit_total').textContent=fmt(sum);
+  $('bb_total').textContent=fmt(sum);
+  var n=curTowers.length;
+  $('visitTotalLabel').textContent='Visit total — '+n+' tower'+(n!==1?'s':'');
+}
+
+function buildCatSelect(sel){
+  sel.innerHTML='';
+  Object.keys(pb).forEach(function(cat){
+    var o=document.createElement('option');o.value=cat;o.textContent=cat;sel.appendChild(o);
+  });
+}
+
+function buildItemSelect(catSel,itemSel,selCode){
+  itemSel.innerHTML='';
+  var cat=catSel.value;
+  if(!pb[cat])return;
+  pb[cat].forEach(function(item){
+    var o=document.createElement('option');
+    o.value=item.code;
+    o.dataset.price=item.price;o.dataset.qty=item.qty;
+    o.textContent='['+item.code+'] '+item.desc+' — '+fmt(item.price);
+    if(selCode&&item.code===selCode)o.selected=true;
+    itemSel.appendChild(o);
+  });
+}
+
+function addPartRow(catVal,codeVal,qtyVal,priceVal){
+  var idx=partRows.length;
+  var rowData={qty:qtyVal||1,price:priceVal||0,cat:catVal||Object.keys(pb)[0],code:codeVal||''};
+  partRows.push(rowData);
+
+  var tr=document.createElement('tr');
+  tr.dataset.idx=idx;
+
+  var tdPart=document.createElement('td');
+  var catSel=document.createElement('select');catSel.className='part-cat';
+  var itemSel=document.createElement('select');itemSel.className='part-item';
+  buildCatSelect(catSel);
+  if(catVal)catSel.value=catVal;
+  buildItemSelect(catSel,itemSel,codeVal);
+
+  catSel.addEventListener('change',function(){
+    buildItemSelect(catSel,itemSel,null);
+    var opt=itemSel.options[0];
+    if(opt){rowData.code=opt.value;rowData.price=parseFloat(opt.dataset.price)||0;rowData.cat=catSel.value;rebuildTotals();}
+  });
+  itemSel.addEventListener('change',function(){
+    var opt=itemSel.options[itemSel.selectedIndex];
+    rowData.code=opt.value;rowData.price=parseFloat(opt.dataset.price)||0;
+    qtyInp.value=parseFloat(opt.dataset.qty)||1;rowData.qty=parseFloat(qtyInp.value);
+    rowData.cat=catSel.value;rebuildTotals();
+  });
+  if(itemSel.options[0]){rowData.code=itemSel.options[0].value;rowData.price=parseFloat(itemSel.options[0].dataset.price)||0;}
+  if(codeVal){
+    var chosen=Array.from(itemSel.options).find(function(o){return o.value===codeVal;});
+    if(chosen){chosen.selected=true;rowData.price=parseFloat(chosen.dataset.price)||0;}
+  }
+  tdPart.appendChild(catSel);tdPart.appendChild(itemSel);
+
+  var tdQty=document.createElement('td');
+  var qtyInp=document.createElement('input');qtyInp.type='number';qtyInp.min='0';qtyInp.step='1';qtyInp.className='qty-inp';qtyInp.value=rowData.qty;
+  qtyInp.addEventListener('input',function(){rowData.qty=parseFloat(this.value)||0;rebuildTotals();});
+  tdQty.appendChild(qtyInp);
+
+  var tdPrice=document.createElement('td');tdPrice.className='num';
+  var priceSpan=document.createElement('span');
+  Object.defineProperty(rowData,'_priceEl',{get:function(){return priceSpan;}});
+  function updatePriceCell(){priceSpan.textContent=fmt(rowData.price);}
+  updatePriceCell();
+  itemSel.addEventListener('change',updatePriceCell);
+  tdPrice.appendChild(priceSpan);
+
+  var tdTotal=document.createElement('td');tdTotal.className='num';
+  function updateLineTotal(){tdTotal.textContent=fmt((parseFloat(qtyInp.value)||0)*rowData.price);}
+  updateLineTotal();
+  qtyInp.addEventListener('input',updateLineTotal);
+  itemSel.addEventListener('change',function(){setTimeout(updateLineTotal,0);});
+
+  var tdRm=document.createElement('td');
+  var rmBtn=document.createElement('button');rmBtn.className='rm-btn';rmBtn.type='button';rmBtn.textContent='×';
+  rmBtn.addEventListener('click',function(){
+    partRows.splice(idx,1);tr.remove();
+    document.querySelectorAll('#partsBody tr').forEach(function(r,i){r.dataset.idx=i;});
+    rebuildTotals();
+  });
+  tdRm.appendChild(rmBtn);
+
+  tr.appendChild(tdPart);tr.appendChild(tdQty);tr.appendChild(tdPrice);tr.appendChild(tdTotal);tr.appendChild(tdRm);
+  $('partsBody').appendChild(tr);
+  rebuildTotals();
+}
+
+$('addPartBtn').addEventListener('click',function(){addPartRow();});
+
+/* ─── TOWER MODEL — a Visit holds N Towers; the form always shows ONE tower at a time ─── */
+function blankTower(){
+  return{
+    towerNumber:'',serial:'',asset:'',model:'',year:'',overall:'',scopeType:'',
+    cond:{tower:'',battery:'',controller:'',lights:'',winch:'',pole:''},
+    severity:'',findingsChecked:[],components:'',findings:'',solution:'',notes:'',
+    optional:false,optionalNote:'',parts:[],subtotal:0,gst:0,total:0,photos:[]
+  };
+}
+
+function collectTowerFromForm(){
+  var rows=$('partsBody').querySelectorAll('tr');
+  var parts=[];
+  rows.forEach(function(tr){
+    var cats=tr.querySelector('.part-cat');var items=tr.querySelector('.part-item');var qty=tr.querySelector('.qty-inp');
+    if(!items)return;
+    var opt=items.options[items.selectedIndex];if(!opt||!opt.value)return;
+    parts.push({cat:cats?cats.value:'',code:opt.value,desc:opt.textContent.replace(/\[.*?\]\s*/,'').replace(/ — \$[\d,.]+$/,''),qty:parseFloat(qty.value)||1,price:parseFloat(opt.dataset.price)||0});
+  });
+  var sub=parts.reduce(function(a,p){return a+p.qty*p.price;},0);
+  var gst=sub*0.1;
+  return{
+    towerNumber:$('f_towernum').value,serial:$('f_serial').value,asset:$('f_asset').value,
+    model:$('f_model').value,year:$('f_year').value,overall:$('f_overall').value,scopeType:$('f_scope_type').value,
+    cond:{tower:$('f_cond_tower').value,battery:$('f_cond_battery').value,
+      controller:$('f_cond_controller').value,lights:$('f_cond_lights').value,
+      winch:$('f_cond_winch').value,pole:$('f_cond_pole').value},
+    severity:severity,findingsChecked:getCheckedFindings(),
+    components:$('f_components').value,findings:$('f_findings').value,
+    solution:$('f_solution').value,notes:$('f_notes').value,
+    optional:$('f_optional').checked,optionalNote:$('f_optnote').value,
+    parts:parts,subtotal:sub,gst:gst,total:sub+gst,
+    photos:photos.slice()
+  };
+}
+
+function loadTowerIntoForm(t){
+  t=t||blankTower();
+  $('f_towernum').value=t.towerNumber||'';$('f_serial').value=t.serial||'';
+  $('f_asset').value=t.asset||'';$('f_model').value=t.model||'';
+  $('f_year').value=t.year||'';$('f_overall').value=t.overall||'';$('f_scope_type').value=t.scopeType||'';
+  var c=t.cond||{};
+  $('f_cond_tower').value=c.tower||'';$('f_cond_battery').value=c.battery||'';
+  $('f_cond_controller').value=c.controller||'';$('f_cond_lights').value=c.lights||'';
+  $('f_cond_winch').value=c.winch||'';$('f_cond_pole').value=c.pole||'';
+  severity='';document.querySelectorAll('.sev-btn').forEach(function(b){b.classList.remove('active-low','active-med','active-high');});
+  $('f_severity').value='';
+  if(t.severity)setSev(t.severity);
+  setCheckedFindings(t.findingsChecked||[]);
+  $('f_components').value=t.components||'';$('f_findings').value=t.findings||'';
+  $('f_solution').value=t.solution||'';$('f_notes').value=t.notes||'';
+  $('f_optional').checked=!!t.optional;$('optNoteWrap').style.display=t.optional?'block':'none';$('f_optnote').value=t.optionalNote||'';
+  $('partsBody').innerHTML='';partRows=[];
+  (t.parts||[]).forEach(function(p){addPartRow(p.cat,p.code,p.qty,p.price);});
+  photos=(t.photos||[]).slice();renderPhotos();
+  rebuildTotals();
+}
+
+function towerLabel(t,i){
+  return t.towerNumber||t.serial||('Tower '+(i+1));
+}
+
+function renderTowerTabs(){
+  var wrap=$('towerTabs');wrap.innerHTML='';
+  curTowers.forEach(function(t,i){
+    var tab=document.createElement('div');tab.className='tower-tab'+(i===curTowerIdx?' active':'');
+    var lbl=document.createElement('span');lbl.textContent=towerLabel(t,i);
+    tab.appendChild(lbl);
+    if(curTowers.length>1){
+      var x=document.createElement('span');x.className='tw-x';x.textContent='×';
+      x.addEventListener('click',function(ev){ev.stopPropagation();removeTower(i);});
+      tab.appendChild(x);
+    }
+    tab.addEventListener('click',function(){switchTower(i);});
+    wrap.appendChild(tab);
+  });
+  $('towerPosLabel').textContent='Tower '+((curTowerIdx===null?0:curTowerIdx)+1)+' of '+curTowers.length;
+}
+
+function switchTower(idx){
+  if(curTowerIdx!==null&&curTowerIdx<curTowers.length){curTowers[curTowerIdx]=collectTowerFromForm();}
+  curTowerIdx=idx;
+  loadTowerIntoForm(curTowers[idx]);
+  renderTowerTabs();
+}
+
+function addTower(){
+  if(curTowerIdx!==null&&curTowerIdx<curTowers.length){curTowers[curTowerIdx]=collectTowerFromForm();}
+  var t=blankTower();
+  var used=curTowers.map(function(x){return x.towerNumber;});
+  for(var i=1;i<=20;i++){if(used.indexOf('#'+i)===-1){t.towerNumber='#'+i;break;}}
+  curTowers.push(t);
+  switchTower(curTowers.length-1);
+  toast('Tower added — '+curTowers.length+' on this visit.');
+}
+$('addTowerBtn').addEventListener('click',function(){addTower();});
+
+function removeTower(idx){
+  if(curTowers.length<=1){toast('A visit needs at least one tower.');return;}
+  if(!confirm('Remove '+towerLabel(curTowers[idx],idx)+' from this visit? Its details will be lost.'))return;
+  curTowers.splice(idx,1);
+  var newIdx=Math.min(idx,curTowers.length-1);
+  curTowerIdx=null; // force full reload, nothing to save back
+  switchTower(newIdx);
+  toast('Tower removed.');
+}
+
+/* ─── COLLECT / LOAD VISIT ─── */
+function techName(){return $('f_tech').value==='__other'?$('f_tech_other').value:$('f_tech').value;}
+
+function collectVisit(){
+  if(curTowerIdx!==null&&curTowerIdx<curTowers.length){curTowers[curTowerIdx]=collectTowerFromForm();}
+  var towersOut=curTowers.map(function(t){return t;});
+  var sub=towersOut.reduce(function(a,t){return a+(t.subtotal||0);},0);
+  var gst=towersOut.reduce(function(a,t){return a+(t.gst||0);},0);
+  var total=towersOut.reduce(function(a,t){return a+(t.total||0);},0);
+  return{
+    id:currentId||(currentId=uid()),
+    visitNo:$('f_auditno').value,date:$('f_date').value,
+    tech:techName(),client:$('f_client').value,location:$('f_location').value,
+    mapLocation:$('f_maploc').value,
+    towers:towersOut,subtotal:sub,gst:gst,total:total,
+    savedAt:new Date().toISOString()
+  };
+}
+
+function loadVisit(v){
+  currentId=v.id;
+  $('f_auditno').value=v.visitNo||'';$('f_date').value=v.date||'';
+  $('f_client').value=v.client||'';$('f_location').value=v.location||'';
+  $('f_maploc').value=v.mapLocation||'';
+  if(v.tech){
+    var techSel=$('f_tech');var found=false;
+    Array.from(techSel.options).forEach(function(o){if(o.value===v.tech){techSel.value=v.tech;found=true;}});
+    if(!found){techSel.value='__other';$('f_tech_other').style.display='block';$('f_tech_other').value=v.tech;}
+  }else{$('f_tech').value='';$('f_tech_other').style.display='none';}
+  curTowers=(v.towers&&v.towers.length?v.towers:[blankTower()]).slice();
+  curTowerIdx=null;
+  switchTower(0);
+  $('auditIdLabel').textContent=v.visitNo||'DRAFT';
+  document.querySelector('.tab[data-tab="audit"]').click();
+  toast('Visit loaded — '+(v.client||'')+' · '+curTowers.length+' tower'+(curTowers.length!==1?'s':''));
+}
+
+function newVisit(){
+  if(!confirm('Start a fresh visit? Unsaved changes will be lost.'))return;
+  currentId=null;
+  document.querySelectorAll('#panel-audit input[type=text],#panel-audit input[type=email],#panel-audit input[type=date]').forEach(function(el){if(el.id!=='f_maploc')el.value='';});
+  $('f_client').value='';$('f_location').value='';$('f_maploc').value='';
+  $('f_tech').value='';$('f_tech_other').style.display='none';$('f_tech_other').value='';
+  curTowers=[blankTower()];curTowerIdx=null;switchTower(0);
+  $('f_date').value=new Date().toISOString().split('T')[0];
+  var d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),r=String(Math.floor(Math.random()*900)+100);
+  $('f_auditno').value='EL-SSR-'+y+m+'-'+r;
+  $('auditIdLabel').textContent='DRAFT';
+  document.querySelector('.tab[data-tab="audit"]').click();
+}
+
+function upsertVisit(v){
+  var idx=visits.findIndex(function(x){return x.id===v.id;});
+  if(idx>=0)visits[idx]=v;else visits.unshift(v);
+  lsSet(K.VISITS,visits);
+}
+
+/* ─── SAVE / LOAD ─── */
+$('saveBtn').addEventListener('click',function(){
+  var v=collectVisit();
+  upsertVisit(v);
+  toast('Saved — '+(v.client||'')+' · '+v.towers.length+' tower'+(v.towers.length!==1?'s':''));
+  $('auditIdLabel').textContent=v.visitNo||'DRAFT';
+  updateSavedCount();
+});
+
+function updateSavedCount(){$('savedCount').textContent=visits.length?'('+visits.length+')':('')}
+updateSavedCount();
+
+function renderSaved(){
+  var el=$('savedList');
+  if(!visits.length){el.innerHTML='<div class="empty">No saved visits yet.</div>';return;}
+  el.innerHTML='';
+  visits.forEach(function(v){
+    var card=document.createElement('div');card.className='audit-card';
+    var synced=v.odSynced,sent=v.sent;
+    var towerNames=(v.towers||[]).map(function(t,i){return towerLabel(t,i);}).join(', ');
+    card.innerHTML='<div class="info"><div class="who">'+esc(v.client||'—')+' — '+esc(v.location||'—')+'</div>'+
+      '<div class="meta">'+esc(v.visitNo||'—')+' &nbsp;·&nbsp; '+esc(v.date||'—')+' &nbsp;·&nbsp; '+esc(v.tech||'—')+'</div>'+
+      '<div class="meta" style="margin-top:2px;">'+(v.towers?v.towers.length:0)+' tower'+((v.towers&&v.towers.length!==1)?'s':'')+': '+esc(towerNames)+'</div>'+
+      '<div class="tags">'+
+        (synced?'<span class="tag synced">☁ OneDrive</span>':'')+
+        (sent?'<span class="tag sent">✓ Sent</span>':'')+
+      '</div></div>'+
+      '<div class="side"><div class="amt">'+fmt(v.total||0)+'</div>'+
+      '<div style="margin-top:6px;display:flex;gap:4px;">'+
+        '<button class="btn" style="padding:6px 10px;font-size:11px;" onclick="openVisit(\''+v.id+'\')">Open</button>'+
+        '<button class="btn danger" style="padding:6px 8px;font-size:11px;" onclick="delVisit(\''+v.id+'\')">×</button>'+
+      '</div></div>';
+    el.appendChild(card);
+  });
+}
+
+window.openVisit=function(id){
+  var v=visits.find(function(x){return x.id===id;});if(v)loadVisit(v);
+};
+window.delVisit=function(id){
+  if(!confirm('Delete this visit?'))return;
+  visits=visits.filter(function(x){return x.id!==id;});
+  lsSet(K.VISITS,visits);renderSaved();updateSavedCount();toast('Deleted.');
+};
+
+$('exportJsonBtn').addEventListener('click',function(){saveFile('el-visits.json',JSON.stringify(visits,null,2),'application/json');});
+$('exportCsvBtn').addEventListener('click',function(){
+  var rows=[['Visit ID','Visit No','Date','Client','Location','Technician','Tower','Serial','Model','Overall','Severity','Findings','Tower Total','Visit Total','OneDrive','Sent']];
+  visits.forEach(function(v){
+    (v.towers||[]).forEach(function(t){
+      rows.push([v.id,v.visitNo,v.date,v.client,v.location,v.tech,t.towerNumber,t.serial,t.model,t.overall,t.severity,(t.findingsChecked||[]).join('; '),t.total,v.total,v.odSynced?'Yes':'No',v.sent?'Yes':'No']);
+    });
+  });
+  saveFile('el-visits.csv',rows.map(function(r){return r.map(function(c){return'"'+(c===undefined||c===null?'':c).toString().replace(/"/g,'""')+'"';}).join(',');}).join('\n'),'text/csv');
+});
+$('clearAllBtn').addEventListener('click',function(){if(confirm('Clear ALL saved visits from this device?')){visits=[];lsSet(K.VISITS,visits);renderSaved();updateSavedCount();}});
+
+/* ─── PDF GENERATION — one PDF, every tower on the visit, page break between towers ─── */
+function generatePDF(v,opts){
+  opts=opts||{};
+  var jspdf=window.jspdf;if(!jspdf){toast('PDF library loading, try again in a moment.');return null;}
+  var doc=new jspdf.jsPDF({unit:'mm',format:'a4'});
+  var PW=210,PH=297,ML=14,MR=14,MT=14;var y=MT;var CW=PW-ML-MR;
+
+  function chk(n){if(y+n>PH-16){doc.addPage();y=MT;}}
+  function sf(sz,st,col){doc.setFontSize(sz);doc.setFont('helvetica',st||'normal');if(col)doc.setTextColor(col[0],col[1],col[2]);else doc.setTextColor(26,42,34);}
+
+  // Header
+  doc.setFillColor(45,106,45);doc.rect(0,0,PW,26,'F');
+  doc.setFillColor(242,169,59);doc.circle(ML+7,13,5,'F');
+  doc.setDrawColor(242,169,59);doc.setLineWidth(0.8);
+  for(var ang=0;ang<8;ang++){var rad=ang*Math.PI/4;doc.line(ML+7+6.5*Math.cos(rad),13+6.5*Math.sin(rad),ML+7+8.5*Math.cos(rad),13+8.5*Math.sin(rad));}
+  sf(16,'bold',[255,255,255]);doc.text('EarthLight',ML+16,10);
+  sf(8,'normal',[200,230,200]);doc.text('Site Service Report',ML+16,16);
+  sf(7,'normal',[200,230,200]);
+  doc.text('Visit: '+(v.visitNo||'—'),PW-MR-70,9,{align:'left'});
+  doc.text('Date: '+(v.date||'—'),PW-MR-70,14,{align:'left'});
+  doc.text('Tech: '+(v.tech||'—'),PW-MR-70,19,{align:'left'});
+  y=32;
+
+  function secHead(title){chk(12);doc.setFillColor(45,106,45);doc.roundedRect(ML,y,CW,7.5,1.5,1.5,'F');sf(8,'bold',[255,255,255]);doc.text(title.toUpperCase(),ML+4,y+5.3);y+=11;}
+  function row2(l1,v1,l2,v2){chk(11);var hw=CW/2-3;sf(7,'normal',[100,130,120]);doc.text(l1.toUpperCase(),ML,y);doc.text((l2||'').toUpperCase(),ML+CW/2,y);y+=3.5;sf(9,'bold',[26,42,34]);var lines1=doc.splitTextToSize(v1||'—',hw);var lines2=doc.splitTextToSize(v2||'—',hw);doc.text(lines1,ML,y);doc.text(lines2,ML+CW/2,y);y+=Math.max(lines1.length,lines2.length)*4.5+3;}
+  function row1(l,v){chk(11);sf(7,'normal',[100,130,120]);doc.text(l.toUpperCase(),ML,y);y+=3.5;sf(9,'bold',[26,42,34]);var lines=doc.splitTextToSize(v||'—',CW-2);doc.text(lines,ML,y);y+=lines.length*4.5+4;}
+
+  var towers=v.towers||[];
+
+  secHead('Visit Summary');
+  row2('Client',v.client,'Visit Number',v.visitNo);
+  row2('Location',v.location,'Date',v.date);
+  row2('Technician',v.tech,'Towers on this visit',String(towers.length));
+  if(v.mapLocation)row1('GPS / Map Location',v.mapLocation);
+  chk(10);
+  doc.setFillColor(45,106,45);doc.roundedRect(ML,y,CW,9,1.5,1.5,'F');sf(10,'bold',[255,255,255]);
+  doc.text('VISIT GRAND TOTAL (inc. GST)',ML+4,y+5.8);doc.text(fmt(v.total||0),PW-MR-4,y+5.8,{align:'right'});
+  y+=14;
+
+  towers.forEach(function(t,ti){
+    if(ti>0){doc.addPage();y=MT;}
+    secHead('Tower '+(ti+1)+' of '+towers.length+' — '+(t.towerNumber||t.serial||'Unlabelled'));
+
+    secHead('Tower Details');
+    row2('Tower Number',t.towerNumber,'Serial Number',t.serial);
+    row2('Model',t.model,'Asset Number',t.asset);
+    row2('Year Installed',t.year,'Overall Condition',t.overall);
+    if(t.scopeType)row1('Scope of Work',t.scopeType);
+
+    secHead('Condition Assessment');
+    var cond=t.cond||{};
+    row2('Tower',cond.tower,'Battery',cond.battery);
+    row2('Controller',cond.controller,'Lights',cond.lights);
+    row2('Winch',cond.winch,'Pole',cond.pole);
+
+    if(t.severity||(t.findingsChecked&&t.findingsChecked.length)){
+      secHead('Findings');
+      chk(10);
+      if(t.severity){var sc=t.severity==='Low'?[39,174,96]:t.severity==='Medium'?[242,169,59]:[228,99,75];doc.setFillColor(sc[0],sc[1],sc[2]);doc.roundedRect(ML,y,32,6,1.5,1.5,'F');sf(7.5,'bold',[255,255,255]);doc.text(t.severity.toUpperCase(),ML+3,y+4.3);y+=9;}
+      if(t.findingsChecked&&t.findingsChecked.length){
+        var fc=t.findingsChecked;var cols2=2;var colW2=CW/cols2;var fi=0;
+        fc.forEach(function(f,i){if(i>0&&i%cols2===0){y+=7;chk(8);}var cx=ML+(fi*colW2);doc.setFillColor(180,100,60);doc.circle(cx+2,y-1,1.2,'F');sf(8,'normal',[26,42,34]);doc.text(f,cx+5,y);fi=(fi+1)%cols2;});y+=9;
+      }
+    }
+
+    if(t.findings){secHead('Detailed Notes');chk(14);var fLines=doc.splitTextToSize(t.findings,CW-6);var fH=fLines.length*4.5+6;doc.setFillColor(247,249,247);doc.roundedRect(ML,y,CW,fH,1.5,1.5,'F');sf(9,'normal',[26,42,34]);doc.text(fLines,ML+3,y+4.5);y+=fH+5;}
+    if(t.solution){secHead('Solution / Next Steps');chk(14);var sLines=doc.splitTextToSize(t.solution,CW-6);var sH=sLines.length*4.5+6;doc.setFillColor(232,242,232);doc.roundedRect(ML,y,CW,sH,1.5,1.5,'F');sf(9,'normal',[26,42,34]);doc.text(sLines,ML+3,y+4.5);y+=sH+5;}
+
+    secHead('Parts & Cost');
+    chk(28);
+    doc.setFillColor(247,249,247);doc.rect(ML,y,CW,7,'F');
+    doc.setDrawColor(200,215,200);doc.setLineWidth(0.25);doc.line(ML,y,PW-MR,y);doc.line(ML,y+7,PW-MR,y+7);
+    sf(7,'bold',[90,120,100]);
+    doc.text('DESCRIPTION',ML+2,y+4.5);doc.text('QTY',ML+CW*0.58,y+4.5);doc.text('UNIT',ML+CW*0.70,y+4.5);doc.text('TOTAL',ML+CW*0.84,y+4.5);
+    y+=7;
+    var sub=0;
+    (t.parts||[]).forEach(function(p,i){
+      var lt=(p.qty||0)*(p.price||0);sub+=lt;
+      var dl=doc.splitTextToSize(p.desc||'',CW*0.54);var rh=Math.max(7,dl.length*4.5+3);
+      chk(rh+2);if(i%2===0){doc.setFillColor(250,252,250);doc.rect(ML,y,CW,rh,'F');}
+      doc.setDrawColor(208,219,208);doc.setLineWidth(0.2);doc.line(ML,y+rh,PW-MR,y+rh);
+      sf(8,'normal',[26,42,34]);doc.text(dl,ML+2,y+4.5);
+      doc.text(String(p.qty||1),ML+CW*0.58,y+4.5);
+      doc.text(fmt(p.price||0),ML+CW*0.70,y+4.5);
+      sf(8,'bold',[26,42,34]);doc.text(fmt(lt),ML+CW*0.84,y+4.5);
+      y+=rh;
+    });
+    var gst=sub*0.1,total=sub+gst;
+    chk(28);y+=3;
+    var tx=ML+CW*0.58;
+    sf(8,'normal',[90,120,100]);doc.text('Subtotal (ex-GST)',tx,y);sf(8,'normal',[26,42,34]);doc.text(fmt(sub),PW-MR-1,y,{align:'right'});y+=5;
+    sf(8,'normal',[90,120,100]);doc.text('GST (10%)',tx,y);sf(8,'normal',[26,42,34]);doc.text(fmt(gst),PW-MR-1,y,{align:'right'});y+=5;
+    doc.setFillColor(45,106,45);doc.roundedRect(tx-2,y,CW-(tx-ML)+2,9,1.5,1.5,'F');sf(10,'bold',[255,255,255]);doc.text('TOWER TOTAL (inc. GST)',tx,y+5.5);doc.text(fmt(total),PW-MR-2,y+5.5,{align:'right'});y+=14;
+
+    if(t.optional&&t.optionalNote){chk(10);sf(7,'normal',[90,120,100]);doc.text('OPTIONAL INSTALLATION',ML,y);y+=4;sf(9,'normal',[26,42,34]);doc.text(t.optionalNote,ML,y);y+=7;}
+    if(t.notes){chk(14);sf(7,'normal',[90,120,100]);doc.text('ADDITIONAL NOTES',ML,y);y+=4;var nLines=doc.splitTextToSize(t.notes,CW-6);var nH=nLines.length*4.5+6;doc.setFillColor(247,249,247);doc.roundedRect(ML,y,CW,nH,1.5,1.5,'F');sf(9,'normal',[26,42,34]);doc.text(nLines,ML+3,y+4.5);y+=nH+5;}
+
+    if(t.photos&&t.photos.length){
+      if(opts.forEmail){
+        chk(10);sf(8,'italic',[90,120,100]);doc.text(t.photos.length+' site photo'+(t.photos.length!==1?'s':'')+' attached — see OneDrive or the full downloaded PDF.',ML,y);y+=8;
+      }else{
+        secHead('Site Photos');
+        var cols=2,gap=5,cellW=(CW-gap*(cols-1))/cols,maxH=62;
+        var rowItems=[],rowMaxH=0;
+        function flushPhotoRow(){
+          if(!rowItems.length)return;
+          var hasCap=rowItems.some(function(it){return it.caption;});
+          chk(rowMaxH+(hasCap?9:4));
+          var x=ML;
+          rowItems.forEach(function(it){
+            try{doc.addImage(it.dataUrl,'JPEG',x,y,it.w,it.h);}catch(e){}
+            doc.setDrawColor(210,222,210);doc.setLineWidth(0.2);doc.rect(x,y,it.w,it.h);
+            if(it.caption){sf(7,'italic',[90,120,100]);var capLines=doc.splitTextToSize(it.caption,it.w);doc.text(capLines,x,y+it.h+3.5);}
+            x+=it.w+gap;
+          });
+          y+=rowMaxH+(hasCap?9:5);
+          rowItems=[];rowMaxH=0;
+        }
+        t.photos.forEach(function(p){
+          var propsW=4,propsH=3;
+          try{var props=doc.getImageProperties(p.dataUrl);propsW=props.width;propsH=props.height;}catch(e){}
+          var w=cellW,h=w*propsH/propsW;
+          if(h>maxH){h=maxH;w=h*propsW/propsH;}
+          rowItems.push({dataUrl:p.dataUrl,w:w,h:h,caption:p.caption});
+          rowMaxH=Math.max(rowMaxH,h);
+          if(rowItems.length===cols)flushPhotoRow();
+        });
+        flushPhotoRow();
+      }
+    }
+  });
+
+  // Footer
+  var pn=doc.internal.getNumberOfPages();
+  for(var pi=1;pi<=pn;pi++){
+    doc.setPage(pi);
+    doc.setFillColor(242,248,242);doc.rect(0,PH-13,PW,13,'F');
+    doc.setDrawColor(200,215,200);doc.setLineWidth(0.25);doc.line(0,PH-13,PW,PH-13);
+    sf(6.5,'normal',[90,120,100]);
+    doc.text('EarthLight  |  '+(settings.inbox||'service@earthlight.com.au')+'  |  earthlight.com.au',ML,PH-7);
+    doc.text('Page '+pi+' of '+pn,PW-MR,PH-7,{align:'right'});
+  }
+  return doc;
+}
+
+/* ─── REPORT HTML PREVIEW ─── */
+function buildTowerReportHtml(t,ti,total){
+  var parts=t.parts||[];
+  var partsRows=parts.map(function(p){
+    return '<tr><td><code style="font-size:9px;background:#f0f0f0;padding:1px 4px;border-radius:2px;">'+esc(p.code)+'</code></td><td>'+esc(p.desc)+'</td><td class="r">'+p.qty+'</td><td class="r">'+fmt(p.price)+'</td><td class="r">'+fmt(p.qty*p.price)+'</td></tr>';
+  }).join('');
+  var c=t.cond||{};
+  var fc=(t.findingsChecked||[]);
+  return '<div class="rp-tower-head">Tower '+(ti+1)+' — '+esc(t.towerNumber||t.serial||'Unlabelled')+'</div>'+
+    (t.scopeType?'<div class="rp-notes"><b>Scope:</b> '+esc(t.scopeType)+'</div>':'')+
+    '<div class="rp-section">Tower</div>'+
+    '<div class="rp-grid"><div><span>Tower No.</span>'+esc(t.towerNumber)+'</div><div><span>Serial</span>'+esc(t.serial)+'</div>'+
+    '<div><span>Model</span>'+esc(t.model)+'</div><div><span>Asset</span>'+esc(t.asset)+'</div>'+
+    '<div><span>Year</span>'+esc(t.year)+'</div><div><span>Overall</span>'+esc(t.overall)+'</div></div>'+
+    '<div class="rp-section">Condition</div>'+
+    '<div class="rp-grid"><div><span>Tower</span>'+esc(c.tower)+'</div><div><span>Battery</span>'+esc(c.battery)+'</div>'+
+    '<div><span>Controller</span>'+esc(c.controller)+'</div><div><span>Lights</span>'+esc(c.lights)+'</div>'+
+    '<div><span>Winch</span>'+esc(c.winch)+'</div><div><span>Pole</span>'+esc(c.pole)+'</div></div>'+
+    (fc.length?'<div class="rp-section">Findings</div><p class="rp-notes"><b>Severity:</b> '+esc(t.severity||'—')+'<br><b>Issues:</b> '+esc(fc.join(', '))+'</p>':'')+
+    (t.findings?'<p class="rp-notes">'+esc(t.findings)+'</p>':'')+
+    (t.solution?'<div class="rp-section">Solution</div><p class="rp-notes">'+esc(t.solution)+'</p>':'')+
+    '<div class="rp-section">Parts & Cost</div>'+
+    '<table class="rp-table"><thead><tr><th>Code</th><th>Description</th><th>Qty</th><th class="r">Unit</th><th class="r">Total</th></tr></thead><tbody>'+
+    (partsRows||'<tr><td colspan="5" style="color:#889">No parts selected</td></tr>')+'</tbody></table>'+
+    '<div class="rp-totals"><div>Subtotal (ex-GST): '+fmt(t.subtotal||0)+'</div><div>GST 10%: '+fmt(t.gst||0)+'</div><div class="grand">Tower total (inc. GST): '+fmt(t.total||0)+'</div></div>'+
+    (t.optional?'<p class="rp-notes"><b>Optional installation:</b> '+esc(t.optionalNote||'Recommended — pending approval')+'</p>':'')+
+    (t.notes?'<p class="rp-notes"><b>Notes:</b> '+esc(t.notes)+'</p>':'')+
+    ((t.photos&&t.photos.length)?'<div class="rp-section">Site Photos</div><div class="rp-photos">'+
+      t.photos.map(function(p){return '<div class="rp-photo"><img src="'+p.dataUrl+'" alt="Site photo">'+(p.caption?'<div class="rp-photo-cap">'+esc(p.caption)+'</div>':'')+'</div>';}).join('')+
+      '</div>':'');
+}
+
+function buildReportHtml(v){
+  var towers=v.towers||[];
+  var body='<div class="rp-header">'+
+    '<div class="rp-logo"><svg width="20" height="20" viewBox="0 0 32 32"><circle cx="16" cy="16" r="7" fill="#2d6a2d"/><g stroke="#2d6a2d" stroke-width="2" stroke-linecap="round"><line x1="16" y1="3" x2="16" y2="7"/><line x1="16" y1="25" x2="16" y2="29"/><line x1="3" y1="16" x2="7" y2="16"/><line x1="25" y1="16" x2="29" y2="16"/></g></svg>EarthLight Site Service Report</div>'+
+    '<div class="rp-meta">'+esc(v.visitNo||'—')+'<br>'+esc(v.date||'—')+'</div></div>'+
+    '<div class="rp-section">Visit Summary</div>'+
+    '<div class="rp-grid"><div><span>Client</span>'+esc(v.client)+'</div><div><span>Location</span>'+esc(v.location)+'</div>'+
+    '<div><span>Technician</span>'+esc(v.tech)+'</div><div><span>Towers on visit</span>'+towers.length+'</div>'+
+    '<div style="grid-column:1/-1"><span>GPS / Map</span>'+esc(v.mapLocation)+'</div></div>'+
+    '<div class="rp-totals"><div class="grand">Visit grand total (inc. GST): '+fmt(v.total||0)+'</div></div>';
+  towers.forEach(function(t,ti){body+=buildTowerReportHtml(t,ti,v.total);});
+  body+='<div class="rp-footer">EarthLight Site Service Report · Generated '+new Date().toLocaleString()+' · All prices ex-GST unless otherwise stated.</div>';
+  return body;
+}
+
+/* ─── REPORT MODAL ─── */
+$('genReportBtn').addEventListener('click',function(){
+  var v=collectVisit();lastVisit=v;
+  $('reportContent').innerHTML=buildReportHtml(v);
+  $('modalOdBtn').style.display=odAccount?'inline-flex':'none';
+  $('reportModal').classList.add('show');
+});
+$('closeReport').addEventListener('click',function(){$('reportModal').classList.remove('show');});
+
+$('dlPdfBtn').addEventListener('click',function(){
+  if(!lastVisit){toast('Generate report first.');return;}
+  var doc=generatePDF(lastVisit);
+  if(!doc)return;
+  var fname=('EL-SSR_'+(lastVisit.client||'Report')+'_'+lastVisit.visitNo+'_'+lastVisit.date+'.pdf').replace(/[^a-zA-Z0-9._-]/g,'_');
+  doc.save(fname);
+  toast('PDF downloading…');
+});
+
+$('dlHtmlBtn').addEventListener('click',function(){
+  if(!lastVisit)return;
+  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>EarthLight SSR - '+esc(lastVisit.client)+'</title>'+
+    '<style>body{font-family:"IBM Plex Sans",Arial,sans-serif;color:#1a2a1a;max-width:720px;margin:30px auto;padding:0 20px;font-size:13px;}'+
+    '.rp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}'+
+    '.rp-logo{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;color:#2d6a2d;}'+
+    '.rp-meta{text-align:right;font-size:11px;color:#557;}'+
+    '.rp-section{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2d6a2d;border-bottom:1px solid #c8d8c8;padding-bottom:3px;margin:12px 0 7px;}'+
+    '.rp-tower-head{font-size:14px;font-weight:700;color:#1a2a1a;background:#eef4ee;padding:8px 10px;border-radius:4px;margin:18px 0 8px;}'+
+    '.rp-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:12px;margin:8px 0 12px;}'+
+    '.rp-grid div span{color:#889;display:block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;}'+
+    '.rp-table{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0;}'+
+    '.rp-table th{text-align:left;border-bottom:1px solid #ccc;padding:5px 3px;font-size:10px;text-transform:uppercase;color:#667;}'+
+    '.rp-table td{border-bottom:1px solid #eee;padding:5px 3px;}.r{text-align:right;}'+
+    '.rp-totals{text-align:right;margin-top:8px;font-size:12px;color:#556;}.rp-totals .grand{font-size:16px;font-weight:700;color:#1a2a1a;margin-top:4px;}'+
+    '.rp-notes{font-size:12px;color:#334;line-height:1.5;margin:6px 0;}'+
+    '.rp-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 4px;}'+
+    '.rp-photo img{width:100%;height:90px;object-fit:cover;border-radius:4px;display:block;border:1px solid #ddd;}'+
+    '.rp-photo-cap{font-size:9px;color:#667;margin-top:3px;text-align:center;line-height:1.3;}'+
+    '.rp-footer{font-size:10px;color:#889;margin-top:14px;border-top:1px solid #eee;padding-top:6px;}</style></head><body>'+
+    buildReportHtml(lastVisit)+'</body></html>';
+  saveFile(('EL-SSR_'+(lastVisit.client||'Report')+'_'+lastVisit.visitNo+'_'+lastVisit.date+'.html').replace(/[^a-zA-Z0-9._-]/g,'_'),html,'text/html');
+});
+
+$('printBtn').addEventListener('click',function(){
+  if(!lastVisit)return;
+  var w=window.open('','_blank');if(!w){toast('Allow pop-ups to print.');return;}
+  w.document.write('<html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px;color:#1a2a1a;max-width:720px;margin:0 auto;}.rp-section{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#2d6a2d;border-bottom:1px solid #ccc;margin:12px 0 6px;padding-bottom:3px;}.rp-tower-head{font-size:13px;font-weight:700;background:#eef4ee;padding:7px 9px;border-radius:4px;margin:16px 0 8px;}.rp-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:11px;margin:6px 0 10px;}.rp-grid div span{color:#889;display:block;font-size:9px;text-transform:uppercase;}.rp-table{width:100%;border-collapse:collapse;font-size:11px;}.rp-table th{text-align:left;border-bottom:1px solid #ccc;padding:4px;font-size:9px;text-transform:uppercase;color:#667;}.rp-table td{border-bottom:1px solid #eee;padding:4px;}.r{text-align:right;}.rp-totals{text-align:right;font-size:12px;}.grand{font-size:15px;font-weight:700;}.rp-notes{font-size:11px;line-height:1.5;margin:6px 0;}.rp-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 4px;}.rp-photo img{width:100%;height:90px;object-fit:cover;border-radius:4px;border:1px solid #ddd;}.rp-photo-cap{font-size:9px;color:#667;margin-top:3px;text-align:center;}.rp-footer{font-size:9px;color:#889;margin-top:12px;border-top:1px solid #eee;padding-top:5px;}.rp-header{display:flex;justify-content:space-between;margin-bottom:10px;}.rp-logo{font-weight:700;font-size:14px;color:#2d6a2d;}</style></head><body>');
+  w.document.write($('reportContent').innerHTML);
+  w.document.write('</body></html>');w.document.close();setTimeout(function(){w.print();},300);
+});
+
+/* ─── EMAIL — sent from the app itself via EmailJS, PDF attached, no mail app ─── */
+$('emailBtn').addEventListener('click',function(){
+  var v=collectVisit();lastVisit=v;
+  if(!settings.inbox){toast('Set the service inbox email in Price Book & Send-to → Send-to Settings.');return;}
+  if(!ejConfig.serviceId||!ejConfig.templateId||!ejConfig.publicKey){toast('Set up EmailJS first — see Price Book & Send-to → EmailJS (steps in "How it works").');return;}
+  if(!window.emailjs){toast('Email library still loading — try again in a moment.');return;}
+
+  toast('Preparing report…');
+  var doc=generatePDF(v,{forEmail:true});
+  if(!doc)return;
+  var dataUri=doc.output('datauristring');
+  var b64=dataUri.split(',')[1]||'';
+  var approxKB=Math.round(b64.length*0.75/1024);
+  var cap=ejConfig.capKB||45;
+  if(approxKB>cap){
+    toast('PDF too large to email ('+approxKB+'KB, cap '+cap+'KB). Shorten notes/findings, or raise the cap on a paid EmailJS plan. Full report is still in OneDrive / manual download.',5000);
+    return;
+  }
+
+  var fname=('EL-SSR_'+(v.client||'Report')+'_'+v.visitNo+'_'+v.date+'.pdf').replace(/[^a-zA-Z0-9._-]/g,'_');
+  var subject='EarthLight Site Service Report — '+(v.client||'Site')+' — '+(v.location||'')+' — '+(v.date||'');
+  var lines=['EarthLight Site Service Report','',
+    'Visit No: '+(v.visitNo||'—'),'Date: '+(v.date||''),'Client: '+(v.client||''),'Technician: '+(v.tech||''),
+    'Location: '+(v.location||''),'GPS / Map: '+(v.mapLocation||'—'),
+    'Towers on this visit: '+(v.towers||[]).length,''];
+  (v.towers||[]).forEach(function(t,i){
+    lines.push('— Tower '+(i+1)+': '+(t.towerNumber||t.serial||'—')+' — '+(t.overall||'—')+' — '+fmt(t.total||0));
+    if(t.severity)lines.push('   Severity: '+t.severity+(t.findingsChecked&&t.findingsChecked.length?' — '+t.findingsChecked.join(', '):''));
+  });
+  lines.push('','VISIT TOTAL: '+fmt(v.total||0),'','Full PDF report attached (photos omitted from this copy — see OneDrive for the full version with photos).','','EarthLight.com.au');
+  var message=lines.join('\n');
+
+  var params={to_email:settings.inbox,cc_email:settings.cc||'',subject:subject,message:message,pdf_base64:b64,pdf_filename:fname};
+
+  toast('Sending email…');
+  emailjs.send(ejConfig.serviceId,ejConfig.templateId,params,ejConfig.publicKey).then(function(){
+    v.sent=true;upsertVisit(v);renderSaved();
+    toast('✅ Email sent to '+settings.inbox);
+  },function(err){
+    var msg=(err&&err.text)?err.text:((err&&err.message)?err.message:'unknown error');
+    toast('Email failed: '+msg,5000);
+  });
+});
+
+/* ─── ONEDRIVE — MSAL ─── */
+function initMsal(){
+  var clientId=odConfig.clientId;
+  if(!clientId||!window.msal){return;}
+  try{
+    msalApp=new msal.PublicClientApplication({
+      auth:{clientId:clientId,redirectUri:window.location.href.split('?')[0].split('#')[0]},
+      cache:{cacheLocation:'localStorage',storeAuthStateInCookie:false}
+    });
+    var accounts=msalApp.getAllAccounts();
+    if(accounts.length>0){odAccount=accounts[0];updateOdUI();}
+    msalApp.handleRedirectPromise().then(function(resp){
+      if(resp&&resp.account){odAccount=resp.account;updateOdUI();logSync('Signed in as '+resp.account.username,'ok');toast('✅ Signed in to OneDrive — '+resp.account.username);}
+    }).catch(function(e){logSync('MSAL redirect error: '+e.message,'err');});
+  }catch(e){logSync('MSAL init error: '+e.message,'err');}
+}
+
+window.odSignIn=function(){
+  if(!msalApp){toast('Save your Azure Client ID first.');return;}
+  msalApp.loginPopup({scopes:['User.Read','Files.ReadWrite']}).then(function(r){
+    odAccount=r.account;updateOdUI();logSync('Signed in as '+r.account.username,'ok');
+    toast('✅ Signed in to OneDrive — '+r.account.username);
+    if(uploadQueue.length)processQueue();
+  }).catch(function(e){
+    if(e.errorCode==='popup_window_error'){
+      msalApp.loginRedirect({scopes:['User.Read','Files.ReadWrite']});
+    }else{logSync('Sign-in failed: '+e.message,'err');toast('Sign-in failed. See sync log.');}
+  });
+};
+
+window.odSignOut=function(){
+  if(!msalApp||!odAccount)return;
+  msalApp.logoutPopup({account:odAccount}).then(function(){odAccount=null;updateOdUI();logSync('Signed out','info');toast('Signed out of OneDrive.');}).catch(function(){odAccount=null;updateOdUI();});
+};
+
+function getOdToken(){
+  if(!msalApp||!odAccount)return Promise.reject(new Error('Not signed in'));
+  return msalApp.acquireTokenSilent({scopes:['Files.ReadWrite'],account:odAccount}).then(function(r){return r.accessToken;}).catch(function(){
+    return msalApp.acquireTokenPopup({scopes:['Files.ReadWrite'],account:odAccount}).then(function(r){return r.accessToken;});
+  });
+}
+
+async function odUploadVisit(v){
+  var token=await getOdToken();
+  var folder=odConfig.folder||'EarthLight Audits';
+  var fmt2=odConfig.format||'both';
+
+  var folderCheckResp=await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/'+encodeURIComponent(folder),{headers:{Authorization:'Bearer '+token}});
+  if(!folderCheckResp.ok){
+    await fetch('https://graph.microsoft.com/v1.0/me/drive/root/children',{
+      method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({name:folder,folder:{},['@microsoft.graph.conflictBehavior']:'rename'})
+    });
+    logSync('Created folder: '+folder,'ok');
+  }
+
+  var base=('EL-SSR_'+(v.client||'Report')+'_'+(v.visitNo||v.id)+'_'+(v.date||'')).replace(/[^a-zA-Z0-9._-]/g,'_');
+
+  if(fmt2==='json'||fmt2==='both'){
+    var jsonStr=JSON.stringify(v,null,2);
+    var jsonBlob=new Blob([jsonStr],{type:'application/json'});
+    var path2=folder+'/'+base+'.json';
+    var resp2=await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/'+encodeURIComponent(path2)+':/content',{
+      method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:jsonBlob
+    });
+    if(!resp2.ok)throw new Error('JSON upload failed: '+resp2.statusText);
+    logSync('Uploaded JSON: '+base+'.json','ok');
+  }
+
+  if(fmt2==='pdf'||fmt2==='both'){
+    var pdfDoc=generatePDF(v);if(!pdfDoc)throw new Error('PDF generation failed');
+    var pdfBlob=pdfDoc.output('blob');
+    var path3=folder+'/'+base+'.pdf';
+    var resp3=await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/'+encodeURIComponent(path3)+':/content',{
+      method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/pdf'},body:pdfBlob
+    });
+    if(!resp3.ok)throw new Error('PDF upload failed: '+resp3.statusText);
+    logSync('Uploaded PDF: '+base+'.pdf','ok');
+  }
+
+  v.odSynced=true;v.odSyncedAt=new Date().toISOString();
+  upsertVisit(v);
+  logSync('✅ '+(v.client||'')+' ('+(v.towers?v.towers.length:0)+' towers) synced to OneDrive','ok');
+  return true;
+}
+
+window.odSyncAll=async function(){
+  if(!odAccount){toast('Sign in to OneDrive first.');return;}
+  var unsynced=visits.filter(function(v){return !v.odSynced;});
+  if(!unsynced.length){toast('All visits already synced to OneDrive.');return;}
+  toast('Syncing '+unsynced.length+' visit(s)…');
+  var ok=0,fail=0;
+  for(var i=0;i<unsynced.length;i++){
+    try{await odUploadVisit(unsynced[i]);ok++;}catch(e){fail++;logSync('Failed: '+(unsynced[i].client||unsynced[i].id)+' — '+e.message,'err');}
+  }
+  toast('Sync complete: '+ok+' uploaded'+(fail?' ('+fail+' failed)':''));
+  renderSaved();
+};
+
+async function processQueue(){
+  if(!uploadQueue.length||!odAccount||!navigator.onLine)return;
+  logSync('Processing '+uploadQueue.length+' queued upload(s)…','info');
+  var q=uploadQueue.slice();uploadQueue=[];lsSet(K.QUEUE,uploadQueue);
+  for(var i=0;i<q.length;i++){
+    var v=visits.find(function(x){return x.id===q[i];});
+    if(!v)continue;
+    try{await odUploadVisit(v);}catch(e){uploadQueue.push(q[i]);logSync('Queued retry: '+(v.client||v.id)+' — '+e.message,'err');}
+  }
+  lsSet(K.QUEUE,uploadQueue);
+}
+
+$('modalOdBtn').addEventListener('click',function(){
+  if(!lastVisit||!odAccount)return;
+  odUploadVisit(lastVisit).then(function(){toast('✅ Uploaded to OneDrive!');renderSaved();}).catch(function(e){toast('Upload failed: '+e.message);});
+});
+
+function odPillClick(){document.querySelector('.tab[data-tab="onedrive"]').click();}
+window.odPillClick=odPillClick;
+
+function updateOdUI(){
+  if(odAccount){
+    $('odDot').className='od-dot signed-in';
+    $('odLabel').textContent=odAccount.username?odAccount.username.split('@')[0]:'Connected';
+    $('odStatusTitle').textContent='Signed in as '+odAccount.username;
+    $('odStatusSub').textContent='Visits will auto-upload to OneDrive/'+odConfig.folder+'/';
+    $('odSignInBtn').style.display='none';
+    $('odSignOutBtn').style.display='inline-flex';
+    $('odSyncNowBtn').style.display='inline-flex';
+    $('uploadOdBtn').style.display='inline-flex';
+    $('modalOdBtn').style.display='inline-flex';
+  }else{
+    $('odDot').className='od-dot';$('odLabel').textContent='OneDrive';
+    $('odStatusTitle').textContent='Not signed in';
+    $('odStatusSub').textContent='Sign in with your Microsoft work account to enable OneDrive sync.';
+    $('odSignInBtn').style.display='inline-flex';
+    $('odSignOutBtn').style.display='none';
+    $('odSyncNowBtn').style.display='none';
+    $('uploadOdBtn').style.display='none';
+  }
+}
+
+$('uploadOdBtn').addEventListener('click',function(){
+  if(!odAccount){toast('Sign in to OneDrive first.');return;}
+  var v=collectVisit();lastVisit=v;
+  toast('Uploading to OneDrive…');
+  odUploadVisit(v).then(function(){toast('✅ Uploaded to OneDrive!');renderSaved();}).catch(function(e){
+    if(!navigator.onLine){uploadQueue.push(v.id);lsSet(K.QUEUE,uploadQueue);toast('Offline — queued for upload when back in signal.');}
+    else{toast('Upload failed: '+e.message);}
+  });
+});
+
+function loadOdUI(){
+  $('od_client_id').value=odConfig.clientId||'';
+  $('od_folder').value=odConfig.folder||'EarthLight Audits';
+  $('od_format').value=odConfig.format||'both';
+}
+
+window.odSaveConfig=function(){
+  odConfig.clientId=$('od_client_id').value.trim();
+  odConfig.folder=$('od_folder').value.trim()||'EarthLight Audits';
+  odConfig.format=$('od_format').value;
+  lsSet(K.OD,odConfig);
+  initMsal();
+  toast('✅ OneDrive config saved. Sign in now.');
+  logSync('Config saved. Client ID: '+odConfig.clientId.substring(0,8)+'…','info');
+};
+
+/* ─── PRICE BOOK ─── */
+function renderPB(){
+  var wrap=$('priceBookBody');wrap.innerHTML='';
+  Object.keys(pb).forEach(function(cat){
+    var div=document.createElement('div');div.className='pb-cat';
+    var head=document.createElement('div');head.className='pb-cat-head';
+    var name=document.createElement('span');name.className='pb-cat-name';name.textContent=cat;
+    var addBtn=document.createElement('button');addBtn.className='btn ghost';addBtn.style.cssText='padding:4px 10px;font-size:11px;';addBtn.textContent='+ Add item';
+    addBtn.addEventListener('click',function(){pb[cat].push({code:'',desc:'',price:0,qty:1});persistPB();renderPB();});
+    head.appendChild(name);head.appendChild(addBtn);div.appendChild(head);
+    var table=document.createElement('table');table.className='pb-table';
+    var thead=document.createElement('thead');thead.innerHTML='<tr><th style="width:120px">Code</th><th>Description</th><th style="width:60px">Qty</th><th style="width:88px">Price (ex-GST)</th><th class="rm"></th></tr>';
+    table.appendChild(thead);
+    var tbody=document.createElement('tbody');
+    pb[cat].forEach(function(item,i){
+      var tr=document.createElement('tr');
+      function inp(cls,val,prop,type){
+        var td=document.createElement('td');var el=document.createElement('input');el.className='pb-inp '+cls;el.type=type||'text';el.value=val;
+        el.addEventListener('input',function(){item[prop]=(type==='number'?parseFloat(this.value)||0:this.value);persistPB();});
+        td.appendChild(el);return td;
+      }
+      tr.appendChild(inp('code',item.code,'code'));tr.appendChild(inp('desc',item.desc,'desc'));tr.appendChild(inp('',item.qty,'qty','number'));tr.appendChild(inp('price',item.price,'price','number'));
+      var tdRm=document.createElement('td');tdRm.className='rm';var rm=document.createElement('button');rm.className='rm-btn';rm.textContent='×';
+      rm.addEventListener('click',function(){pb[cat].splice(i,1);persistPB();renderPB();});tdRm.appendChild(rm);tr.appendChild(tdRm);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);div.appendChild(table);wrap.appendChild(div);
+  });
+}
+function persistPB(){lsSet(K.PB,pb);}
+
+/* Minimal CSV parser — handles quoted fields with commas/escaped quotes */
+function parseCsv(text){
+  var rows=[],row=[],field='',inQ=false;
+  for(var i=0;i<text.length;i++){
+    var ch=text[i];
+    if(inQ){
+      if(ch==='"'){ if(text[i+1]==='"'){field+='"';i++;} else {inQ=false;} }
+      else field+=ch;
+    }else{
+      if(ch==='"')inQ=true;
+      else if(ch===','){row.push(field);field='';}
+      else if(ch==='\n'||ch==='\r'){
+        if(ch==='\r'&&text[i+1]==='\n')i++;
+        row.push(field);field='';rows.push(row);row=[];
+      }else field+=ch;
+    }
+  }
+  if(field.length||row.length){row.push(field);rows.push(row);}
+  return rows.filter(function(r){return r.some(function(c){return c.trim()!=='';});});
+}
+
+function parsePriceBookCsv(text){
+  var rows=parseCsv(text);
+  if(!rows.length)throw new Error('empty file');
+  var header=rows[0].map(function(h){return h.trim().toLowerCase();});
+  var iCat=header.indexOf('category'),iCode=header.indexOf('code'),iDesc=header.indexOf('description'),iQty=header.indexOf('qty'),iPrice=header.indexOf('price');
+  if(iCat===-1||iCode===-1||iDesc===-1||iPrice===-1)throw new Error('missing required columns (need category, code, description, price)');
+  var out={};
+  rows.slice(1).forEach(function(r){
+    var cat=(r[iCat]||'').trim()||'Other';
+    var code=(r[iCode]||'').trim();
+    var desc=(r[iDesc]||'').trim();
+    if(!code&&!desc)return;
+    var qty=iQty>-1?(parseFloat(r[iQty])||1):1;
+    var price=parseFloat((r[iPrice]||'0').replace(/[^0-9.\-]/g,''))||0;
+    if(!out[cat])out[cat]=[];
+    out[cat].push({code:code,desc:desc,price:price,qty:qty});
+  });
+  return out;
+}
+
+$('addCatBtn').addEventListener('click',function(){var n=prompt('New category name:');if(n&&!pb[n]){pb[n]=[];persistPB();renderPB();}});
+$('exportPbBtn').addEventListener('click',function(){saveFile('earthlight-price-book.json',JSON.stringify(pb,null,2),'application/json');toast('Exporting price book…');});
+$('importPbBtn').addEventListener('click',function(){$('importPbFile').click();});
+$('importPbFile').addEventListener('change',function(e){
+  var f=e.target.files[0];if(!f)return;
+  var isCsv=/\.csv$/i.test(f.name)||f.type==='text/csv';
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      pb=isCsv?parsePriceBookCsv(r.result):JSON.parse(r.result);
+      persistPB();renderPB();toast('Price book imported ('+(isCsv?'CSV':'JSON')+').');
+    }catch(err){alert('Could not read price book file: '+err.message);}
+  };
+  r.readAsText(f);
+  this.value='';
+});
+$('resetPbBtn').addEventListener('click',function(){if(confirm('Reset to EarthLight defaults? Custom edits will be lost unless exported first.')){pb=defaultPB();persistPB();renderPB();toast('Price book reset.');}});
+
+/* ─── SETTINGS ─── */
+function loadSettingsUI(){
+  $('s_inbox').value=settings.inbox||'';$('s_cc').value=settings.cc||'';
+  $('ej_service').value=ejConfig.serviceId||'';$('ej_template').value=ejConfig.templateId||'';
+  $('ej_publickey').value=ejConfig.publicKey||'';$('ej_cap').value=ejConfig.capKB||45;
+}
+['s_inbox','s_cc'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',function(){settings.inbox=$('s_inbox').value;settings.cc=$('s_cc').value;lsSet(K.SETTINGS,settings);});
+});
+
+window.saveEjConfig=function(){
+  ejConfig.serviceId=$('ej_service').value.trim();
+  ejConfig.templateId=$('ej_template').value.trim();
+  ejConfig.publicKey=$('ej_publickey').value.trim();
+  ejConfig.capKB=parseFloat($('ej_cap').value)||45;
+  lsSet(K.EJ,ejConfig);
+  toast('✅ EmailJS config saved.');
+};
+
+/* ─── FILE SAVE ─── */
+function saveFile(name,content,type){
+  var blob=new Blob([content],{type:type});var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=name;a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+
+/* ─── SERVICE WORKER — full offline install ─── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(e){console.warn('SW registration failed',e);});
+  });
+}
+
+/* ─── INIT ─── */
+updateNet();
+$('bottomBar').style.display='block';
+lsSet(K.PB,pb);
+loadSettingsUI();
+initMsal();
+updateOdUI();
+curTowers=[blankTower()];curTowerIdx=null;switchTower(0);
+$('f_date').value=new Date().toISOString().split('T')[0];
+(function(){var d=new Date();var y=d.getFullYear();var m=String(d.getMonth()+1).padStart(2,'0');var r=String(Math.floor(Math.random()*900)+100);$('f_auditno').value='EL-SSR-'+y+m+'-'+r;})();
+
+})();
+</script>
+</body>
+</html>
