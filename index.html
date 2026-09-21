@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -288,6 +288,14 @@ section.panel.active{display:block;}
 .help-copy ul{margin-left:16px;}
 .help-copy li{margin-bottom:4px;}
 </style>
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:_dlc_DocId msdt:dt="string">YRNP74QTP6U2-1741340171-54228</mso:_dlc_DocId>
+<mso:_dlc_DocIdItemGuid msdt:dt="string">0ba75923-2892-4bb1-a1b6-e5fb13660a64</mso:_dlc_DocIdItemGuid>
+<mso:_dlc_DocIdUrl msdt:dt="string">https://earthtrackminesupplies.sharepoint.com/sites/EL/_layouts/15/DocIdRedir.aspx?ID=YRNP74QTP6U2-1741340171-54228, YRNP74QTP6U2-1741340171-54228</mso:_dlc_DocIdUrl>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
 </head>
 <body>
 
@@ -580,7 +588,7 @@ section.panel.active{display:block;}
       </svg>
       <div class="od-banner-text">
         <strong>OneDrive Auto-Upload</strong><br>
-        Once signed in with your Microsoft 365 / EarthLight work account, completed visits (PDF + JSON, all towers in one file) are automatically uploaded to <code>OneDrive → EarthLight Audits</code>. Works in the background whenever you have signal — no manual steps needed. This is the permanent, traceable record of every report — for years to come.
+        Once signed in with your Microsoft 365 / EarthLight work account, completed visits (PDF + JSON, all towers in one file) are automatically uploaded to your <b>shared company folder</b> — the same one for every technician. Works in the background whenever you have signal — no manual steps needed. This is the permanent, traceable record of every report — for years to come.
       </div>
     </div>
 
@@ -629,8 +637,15 @@ section.panel.active{display:block;}
       <div class="od-step">
         <div class="od-step-num">4</div>
         <div class="od-step-body">
-          <strong>Sign in below</strong><br>
-          Paste your Client ID, hit Save, then Sign in. Visits will auto-upload to <code>OneDrive/EarthLight Audits/</code> as PDF + JSON files each time you submit — one pair of files per visit, covering every tower on it.
+          <strong>Share your company folder with the team</strong><br>
+          Pick (or create) the OneDrive/SharePoint folder every report should land in, share it with each technician's account with <b>Edit</b> access, then copy that folder's address-bar URL.
+        </div>
+      </div>
+      <div class="od-step">
+        <div class="od-step-num">5</div>
+        <div class="od-step-body">
+          <strong>Paste both in and sign in below</strong><br>
+          Client ID and shared folder link both go in the fields below — save, then sign in. Every visit you submit auto-uploads as PDF + JSON into that shared folder, one pair of files per visit, covering every tower on it — under your own name for traceability, in one place for the team.
         </div>
       </div>
     </div>
@@ -643,10 +658,10 @@ section.panel.active{display:block;}
           <input type="text" id="od_client_id" class="mono" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
           <div class="hint">From portal.azure.com → App registrations → your app → Application (client) ID</div>
         </div>
-        <div class="field">
-          <label>OneDrive folder path</label>
-          <input type="text" id="od_folder" value="EarthLight Audits" placeholder="EarthLight Audits">
-          <div class="hint">Folder will be created in OneDrive root if it doesn't exist.</div>
+        <div class="field span2">
+          <label>Shared company folder link</label>
+          <input type="text" id="od_shared_link" class="mono" placeholder="https://yourtenant.sharepoint.com/sites/.../APP REPORTS">
+          <div class="hint">Paste the address-bar URL of the shared OneDrive/SharePoint folder every visit should upload into. It must already be shared with each technician's account, with Edit access.</div>
         </div>
         <div class="field">
           <label>Upload format</label>
@@ -746,7 +761,7 @@ section.panel.active{display:block;}
       </div>
 
       <h4>OneDrive auto-upload</h4>
-      <p>Set up your Azure client ID under the <b>OneDrive</b> tab, sign in once with your Microsoft work account, and every subsequent visit submission automatically uploads a full PDF + JSON (photos included, every tower included) to <code>OneDrive / EarthLight Audits /</code> in the background — as soon as you have signal. Visits submitted offline are queued and uploaded the moment connectivity returns. This is the permanent record for the whole team, for years to come.</p>
+      <p>Set up your Azure client ID and your shared company folder link under the <b>OneDrive</b> tab (the folder must already be shared with each technician's account, with Edit access), sign in once with your own Microsoft work account, and every subsequent visit submission automatically uploads a full PDF + JSON (photos included, every tower included) into that one shared folder — as soon as you have signal. Each upload is under the signing-in tech's own name for accountability, but everyone's reports land in the same place. Visits submitted offline are queued and uploaded the moment connectivity returns. This is the permanent record for the whole team, for years to come.</p>
 
       <h4>Price book</h4>
       <p>The <b>Price Book</b> tab is the single source of truth for every part code, default quantity and price in the picker. Edit a price there and it's live everywhere immediately. Import a <code>.json</code> export from another device, or a plain <code>.csv</code> straight from a spreadsheet price list (columns: category, code, description, qty, price). Export after changes and share the file with other technicians — each device imports it independently.</p>
@@ -889,7 +904,7 @@ function migrateOldAudits(){
 var pb = lsGet(K.PB,null)||defaultPB();
 var visits = lsGet(K.VISITS,null); if(visits===null){visits=migrateOldAudits();lsSet(K.VISITS,visits);}
 var settings = lsGet(K.SETTINGS,{inbox:'james.h@earthlight.com.au',cc:''});
-var odConfig = lsGet(K.OD,{clientId:'',folder:'EarthLight Audits',format:'both'});
+var odConfig = lsGet(K.OD,{clientId:'',sharedLink:'',format:'both'});
 var ejConfig = lsGet(K.EJ,{serviceId:'',templateId:'',publicKey:'',capKB:45});
 var uploadQueue = lsGet(K.QUEUE,[]);
 var currentId = null;
@@ -1737,18 +1752,34 @@ function getOdToken(){
   });
 }
 
+function parseSpFolderUrl(url){
+  try{
+    var u=new URL(url);
+    var host=u.hostname;
+    var idParam=u.searchParams.get('id');
+    var raw=idParam?decodeURIComponent(idParam):decodeURIComponent(u.pathname);
+    var m=raw.match(/^(\/(?:sites|teams)\/[^\/]+)\/([^\/]+)\/(.+)$/i);
+    if(!m)return null;
+    return{host:host,sitePath:m[1],folderPath:m[3]};
+  }catch(e){return null;}
+}
+
+function odGraphBase(){
+  var parsed=parseSpFolderUrl(odConfig.sharedLink||'');
+  if(!parsed)return null;
+  var encFolder=parsed.folderPath.split('/').map(encodeURIComponent).join('/');
+  return 'https://graph.microsoft.com/v1.0/sites/'+parsed.host+':'+parsed.sitePath+':/drive/root:/'+encFolder;
+}
+
 async function odUploadVisit(v){
   var token=await getOdToken();
-  var folder=odConfig.folder||'EarthLight Audits';
   var fmt2=odConfig.format||'both';
+  var graphBase=odGraphBase();
+  if(!graphBase)throw new Error('Shared folder link isn\'t set up — check Price Book & Send-to → OneDrive settings.');
 
-  var folderCheckResp=await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/'+encodeURIComponent(folder),{headers:{Authorization:'Bearer '+token}});
-  if(!folderCheckResp.ok){
-    await fetch('https://graph.microsoft.com/v1.0/me/drive/root/children',{
-      method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
-      body:JSON.stringify({name:folder,folder:{},['@microsoft.graph.conflictBehavior']:'rename'})
-    });
-    logSync('Created folder: '+folder,'ok');
+  var checkResp=await fetch(graphBase,{headers:{Authorization:'Bearer '+token}});
+  if(!checkResp.ok){
+    throw new Error('Shared folder not found (HTTP '+checkResp.status+'). Check the folder link is correct and that you have edit access to it.');
   }
 
   var base=('EL-SSR_'+(v.client||'Report')+'_'+(v.visitNo||v.id)+'_'+(v.date||'')).replace(/[^a-zA-Z0-9._-]/g,'_');
@@ -1756,8 +1787,7 @@ async function odUploadVisit(v){
   if(fmt2==='json'||fmt2==='both'){
     var jsonStr=JSON.stringify(v,null,2);
     var jsonBlob=new Blob([jsonStr],{type:'application/json'});
-    var path2=folder+'/'+base+'.json';
-    var resp2=await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/'+encodeURIComponent(path2)+':/content',{
+    var resp2=await fetch(graphBase+'/'+encodeURIComponent(base+'.json')+':/content',{
       method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:jsonBlob
     });
     if(!resp2.ok)throw new Error('JSON upload failed: '+resp2.statusText);
@@ -1767,8 +1797,7 @@ async function odUploadVisit(v){
   if(fmt2==='pdf'||fmt2==='both'){
     var pdfDoc=generatePDF(v);if(!pdfDoc)throw new Error('PDF generation failed');
     var pdfBlob=pdfDoc.output('blob');
-    var path3=folder+'/'+base+'.pdf';
-    var resp3=await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/'+encodeURIComponent(path3)+':/content',{
+    var resp3=await fetch(graphBase+'/'+encodeURIComponent(base+'.pdf')+':/content',{
       method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/pdf'},body:pdfBlob
     });
     if(!resp3.ok)throw new Error('PDF upload failed: '+resp3.statusText);
@@ -1777,7 +1806,7 @@ async function odUploadVisit(v){
 
   v.odSynced=true;v.odSyncedAt=new Date().toISOString();
   upsertVisit(v);
-  logSync('✅ '+(v.client||'')+' ('+(v.towers?v.towers.length:0)+' towers) synced to OneDrive','ok');
+  logSync('✅ '+(v.client||'')+' ('+(v.towers?v.towers.length:0)+' towers) synced to shared OneDrive folder','ok');
   return true;
 }
 
@@ -1819,7 +1848,7 @@ function updateOdUI(){
     $('odDot').className='od-dot signed-in';
     $('odLabel').textContent=odAccount.username?odAccount.username.split('@')[0]:'Connected';
     $('odStatusTitle').textContent='Signed in as '+odAccount.username;
-    $('odStatusSub').textContent='Visits will auto-upload to OneDrive/'+odConfig.folder+'/';
+    $('odStatusSub').textContent='Visits will auto-upload to your shared company folder.';
     $('odSignInBtn').style.display='none';
     $('odSignOutBtn').style.display='inline-flex';
     $('odSyncNowBtn').style.display='inline-flex';
@@ -1848,18 +1877,23 @@ $('uploadOdBtn').addEventListener('click',function(){
 
 function loadOdUI(){
   $('od_client_id').value=odConfig.clientId||'';
-  $('od_folder').value=odConfig.folder||'EarthLight Audits';
+  $('od_shared_link').value=odConfig.sharedLink||'';
   $('od_format').value=odConfig.format||'both';
 }
 
 window.odSaveConfig=function(){
   odConfig.clientId=$('od_client_id').value.trim();
-  odConfig.folder=$('od_folder').value.trim()||'EarthLight Audits';
+  odConfig.sharedLink=$('od_shared_link').value.trim();
   odConfig.format=$('od_format').value;
   lsSet(K.OD,odConfig);
   initMsal();
-  toast('✅ OneDrive config saved. Sign in now.');
-  logSync('Config saved. Client ID: '+odConfig.clientId.substring(0,8)+'…','info');
+  if(odConfig.sharedLink&&!parseSpFolderUrl(odConfig.sharedLink)){
+    toast('Saved, but that folder link doesn\'t look right — double check it\'s the folder\'s address-bar URL.',5000);
+    logSync('Warning: could not parse the shared folder link.','err');
+  }else{
+    toast('✅ OneDrive config saved. Sign in now.');
+    logSync('Config saved. Client ID: '+odConfig.clientId.substring(0,8)+'…','info');
+  }
 };
 
 /* ─── PRICE BOOK ─── */
