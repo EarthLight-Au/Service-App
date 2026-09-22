@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -288,14 +288,6 @@ section.panel.active{display:block;}
 .help-copy ul{margin-left:16px;}
 .help-copy li{margin-bottom:4px;}
 </style>
-
-<!--[if gte mso 9]><xml>
-<mso:CustomDocumentProperties>
-<mso:_dlc_DocId msdt:dt="string">YRNP74QTP6U2-1741340171-54228</mso:_dlc_DocId>
-<mso:_dlc_DocIdItemGuid msdt:dt="string">0ba75923-2892-4bb1-a1b6-e5fb13660a64</mso:_dlc_DocIdItemGuid>
-<mso:_dlc_DocIdUrl msdt:dt="string">https://earthtrackminesupplies.sharepoint.com/sites/EL/_layouts/15/DocIdRedir.aspx?ID=YRNP74QTP6U2-1741340171-54228, YRNP74QTP6U2-1741340171-54228</mso:_dlc_DocIdUrl>
-</mso:CustomDocumentProperties>
-</xml><![endif]-->
 </head>
 <body>
 
@@ -588,7 +580,7 @@ section.panel.active{display:block;}
       </svg>
       <div class="od-banner-text">
         <strong>OneDrive Auto-Upload</strong><br>
-        Once signed in with your Microsoft 365 / EarthLight work account, completed visits (PDF + JSON, all towers in one file) are automatically uploaded to your <b>shared company folder</b> — the same one for every technician. Works in the background whenever you have signal — no manual steps needed. This is the permanent, traceable record of every report — for years to come.
+        This is already set up for the team — just sign in below with your own Microsoft work account. Completed visits (PDF + JSON, all towers in one file) then upload automatically to the shared company folder, tagged under your name. Works in the background whenever you have signal — no other setup needed. This is the permanent, traceable record of every report — for years to come.
       </div>
     </div>
 
@@ -611,41 +603,42 @@ section.panel.active{display:block;}
       </div>
     </div>
 
-    <div class="blk-title" style="margin-bottom:10px;">Setup — Azure App Registration</div>
+    <div class="blk-title" style="margin-bottom:4px;">How this was set up (reference only)</div>
+    <p class="hint" style="margin-bottom:10px;">Already done for the whole team — nothing to redo. Kept here for whoever maintains this in future (e.g. if the Azure app ever needs recreating).</p>
     <div class="od-setup-steps">
       <div class="od-step">
         <div class="od-step-num">1</div>
         <div class="od-step-body">
           <strong>Register an app in Azure Portal</strong><br>
-          Go to <code>portal.azure.com → Azure Active Directory → App registrations → New registration</code>. Name it "EarthLight Audit Tool". Set the redirect URI to <strong>Single-page application (SPA)</strong> and paste the URL of this page (your GitHub Pages URL once deployed).
+          <code>portal.azure.com → Microsoft Entra ID → App registrations → New registration</code>. Redirect URI set to <strong>Single-page application (SPA)</strong>, pointed at this app's GitHub Pages URL.
         </div>
       </div>
       <div class="od-step">
         <div class="od-step-num">2</div>
         <div class="od-step-body">
-          <strong>Copy your Application (client) ID</strong><br>
-          After creating the app, copy the Application (client) ID from the overview page. Paste it into the field below and save.
+          <strong>Application (client) ID</strong><br>
+          Copied from the app's Overview page and baked into the build below — that's why nobody needs to paste it in themselves.
         </div>
       </div>
       <div class="od-step">
         <div class="od-step-num">3</div>
         <div class="od-step-body">
-          <strong>Grant API permissions</strong><br>
-          In the app → API permissions → Add <code>Microsoft Graph → Delegated → Files.ReadWrite</code> and <code>User.Read</code>. Click "Grant admin consent".
+          <strong>API permissions</strong><br>
+          Microsoft Graph → Delegated → <code>Files.ReadWrite</code> and <code>User.Read</code>. Neither needed admin consent in this tenant.
         </div>
       </div>
       <div class="od-step">
         <div class="od-step-num">4</div>
         <div class="od-step-body">
-          <strong>Share your company folder with the team</strong><br>
-          Pick (or create) the OneDrive/SharePoint folder every report should land in, share it with each technician's account with <b>Edit</b> access, then copy that folder's address-bar URL.
+          <strong>Shared company folder</strong><br>
+          Shared with each technician's account with <b>Edit</b> access, and its link baked into the build the same way as the Client ID.
         </div>
       </div>
       <div class="od-step">
         <div class="od-step-num">5</div>
         <div class="od-step-body">
-          <strong>Paste both in and sign in below</strong><br>
-          Client ID and shared folder link both go in the fields below — save, then sign in. Every visit you submit auto-uploads as PDF + JSON into that shared folder, one pair of files per visit, covering every tower on it — under your own name for traceability, in one place for the team.
+          <strong>All that's left, ever, per person</strong><br>
+          Sign in below. Every visit submitted after that auto-uploads as PDF + JSON into the shared folder, one pair of files per visit, covering every tower on it — under your own name for traceability, in one place for the team.
         </div>
       </div>
     </div>
@@ -761,7 +754,7 @@ section.panel.active{display:block;}
       </div>
 
       <h4>OneDrive auto-upload</h4>
-      <p>Set up your Azure client ID and your shared company folder link under the <b>OneDrive</b> tab (the folder must already be shared with each technician's account, with Edit access), sign in once with your own Microsoft work account, and every subsequent visit submission automatically uploads a full PDF + JSON (photos included, every tower included) into that one shared folder — as soon as you have signal. Each upload is under the signing-in tech's own name for accountability, but everyone's reports land in the same place. Visits submitted offline are queued and uploaded the moment connectivity returns. This is the permanent record for the whole team, for years to come.</p>
+      <p>OneDrive is already configured for the whole team — just sign in once with your own Microsoft work account under the <b>OneDrive</b> tab, and every subsequent visit submission automatically uploads a full PDF + JSON (photos included, every tower included) into the shared company folder — as soon as you have signal. Each upload is under the signing-in tech's own name for accountability, but everyone's reports land in the same place. Visits submitted offline are queued and uploaded the moment connectivity returns. This is the permanent record for the whole team, for years to come.</p>
 
       <h4>Price book</h4>
       <p>The <b>Price Book</b> tab is the single source of truth for every part code, default quantity and price in the picker. Edit a price there and it's live everywhere immediately. Import a <code>.json</code> export from another device, or a plain <code>.csv</code> straight from a spreadsheet price list (columns: category, code, description, qty, price). Export after changes and share the file with other technicians — each device imports it independently.</p>
@@ -904,7 +897,13 @@ function migrateOldAudits(){
 var pb = lsGet(K.PB,null)||defaultPB();
 var visits = lsGet(K.VISITS,null); if(visits===null){visits=migrateOldAudits();lsSet(K.VISITS,visits);}
 var settings = lsGet(K.SETTINGS,{inbox:'james.h@earthlight.com.au',cc:''});
-var odConfig = lsGet(K.OD,{clientId:'',sharedLink:'',format:'both'});
+/* Pre-configured for the whole team — the Client ID is a public identifier (safe to ship in the
+   build, not a secret), and this shared folder link is where every visit should land. Each
+   technician still has to sign in individually (that's what gives per-person accountability),
+   but nothing needs to be typed in first. */
+var DEFAULT_OD_CLIENT_ID='20876bc8-ad4e-456b-b08d-ec9b606b0cd7';
+var DEFAULT_OD_SHARED_LINK='https://earthtrackminesupplies.sharepoint.com/sites/EL/Documents/Forms/AllItems.aspx?id=%2Fsites%2FEL%2FDocuments%2FOPERATIONS%2F6%20%2D%20SERVICE%20%26%20WARRANTY%2F02%20%2D%20SERVICE%20REPORTS%2FAPP%20REPORTS';
+var odConfig = lsGet(K.OD,{clientId:DEFAULT_OD_CLIENT_ID,sharedLink:DEFAULT_OD_SHARED_LINK,format:'both'});
 var ejConfig = lsGet(K.EJ,{serviceId:'',templateId:'',publicKey:'',capKB:45});
 var uploadQueue = lsGet(K.QUEUE,[]);
 var currentId = null;
