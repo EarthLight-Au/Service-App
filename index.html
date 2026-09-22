@@ -2024,15 +2024,13 @@ async function ensureMsal(){
 window.odSignIn=async function(){
   var ready=await ensureMsal();
   if(!ready||!msalApp){toast('Save your Azure Client ID first.');return;}
-  msalApp.loginPopup({scopes:['User.Read','Files.ReadWrite','Mail.Send']}).then(function(r){
-    odAccount=r.account;updateOdUI();logSync('Signed in as '+r.account.username,'ok');
-    toast('✅ Signed in — '+r.account.username);
-    if(uploadQueue.length)processQueue();
-  }).catch(function(e){
-    if(e.errorCode==='popup_window_error'){
-      msalApp.loginRedirect({scopes:['User.Read','Files.ReadWrite','Mail.Send']});
-    }else{logSync('Sign-in failed: '+e.message,'err');toast('Sign-in failed. See sync log.');}
-  });
+  toast('Redirecting to Microsoft sign-in…');
+  try{
+    await msalApp.loginRedirect({scopes:['User.Read','Files.ReadWrite','Mail.Send']});
+  }catch(e){
+    logSync('Sign-in failed: '+e.message,'err');
+    toast('Sign-in failed. See sync log.');
+  }
 };
 
 window.odSignOut=async function(){
