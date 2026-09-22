@@ -619,8 +619,8 @@ section.panel.active{display:block;}
           <div class="od-step">
             <div class="od-step-num">2</div>
             <div class="od-step-body">
-              <strong>Application (client) ID</strong><br>
-              Copied from the app's Overview page and baked into the build below — that's why nobody needs to paste it in themselves.
+              <strong>Application (client) ID + Directory (tenant) ID</strong><br>
+              Both copied from the app's Overview page and baked into the build below — that's why nobody needs to paste them in themselves. The tenant ID matters because this app is registered single-tenant ("My organization only"), so sign-in has to point at this specific tenant rather than the generic multi-tenant endpoint.
             </div>
           </div>
           <div class="od-step">
@@ -653,6 +653,11 @@ section.panel.active{display:block;}
               <label>Azure Application (Client) ID</label>
               <input type="text" id="od_client_id" class="mono" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
               <div class="hint">From portal.azure.com → App registrations → your app → Application (client) ID</div>
+            </div>
+            <div class="field span2">
+              <label>Directory (Tenant) ID</label>
+              <input type="text" id="od_tenant_id" class="mono" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+              <div class="hint">Same Overview page as the Client ID, labelled "Directory (tenant) ID". Required because the app is registered as single-tenant ("My organization only").</div>
             </div>
             <div class="field span2">
               <label>Shared company folder link</label>
@@ -907,8 +912,9 @@ var settings = lsGet(K.SETTINGS,{inbox:'james.h@earthlight.com.au',cc:''});
    technician still has to sign in individually (that's what gives per-person accountability),
    but nothing needs to be typed in first. */
 var DEFAULT_OD_CLIENT_ID='20876bc8-ad4e-456b-b08d-ec9b606b0cd7';
+var DEFAULT_OD_TENANT_ID='b2b60954-06b0-42fc-bd2f-0e196791a303';
 var DEFAULT_OD_SHARED_LINK='https://earthtrackminesupplies.sharepoint.com/sites/EL/Documents/Forms/AllItems.aspx?id=%2Fsites%2FEL%2FDocuments%2FOPERATIONS%2F6%20%2D%20SERVICE%20%26%20WARRANTY%2F02%20%2D%20SERVICE%20REPORTS%2FAPP%20REPORTS';
-var odConfig = lsGet(K.OD,{clientId:DEFAULT_OD_CLIENT_ID,sharedLink:DEFAULT_OD_SHARED_LINK,format:'both'});
+var odConfig = lsGet(K.OD,{clientId:DEFAULT_OD_CLIENT_ID,tenantId:DEFAULT_OD_TENANT_ID,sharedLink:DEFAULT_OD_SHARED_LINK,format:'both'});
 var ejConfig = lsGet(K.EJ,{serviceId:'',templateId:'',publicKey:'',capKB:45});
 var uploadQueue = lsGet(K.QUEUE,[]);
 var currentId = null;
@@ -1722,8 +1728,9 @@ function initMsal(){
   if(!clientId||!window.msal){msalReadyPromise=Promise.resolve(false);return msalReadyPromise;}
   msalReadyPromise=(async function(){
     try{
+      var authority='https://login.microsoftonline.com/'+(odConfig.tenantId||'common');
       msalApp=new msal.PublicClientApplication({
-        auth:{clientId:clientId,redirectUri:window.location.href.split('?')[0].split('#')[0]},
+        auth:{clientId:clientId,authority:authority,redirectUri:window.location.href.split('?')[0].split('#')[0]},
         cache:{cacheLocation:'localStorage',storeAuthStateInCookie:false}
       });
       await msalApp.initialize();
@@ -1900,12 +1907,14 @@ $('uploadOdBtn').addEventListener('click',function(){
 
 function loadOdUI(){
   $('od_client_id').value=odConfig.clientId||'';
+  $('od_tenant_id').value=odConfig.tenantId||'';
   $('od_shared_link').value=odConfig.sharedLink||'';
   $('od_format').value=odConfig.format||'both';
 }
 
 window.odSaveConfig=function(){
   odConfig.clientId=$('od_client_id').value.trim();
+  odConfig.tenantId=$('od_tenant_id').value.trim();
   odConfig.sharedLink=$('od_shared_link').value.trim();
   odConfig.format=$('od_format').value;
   lsSet(K.OD,odConfig);
