@@ -603,72 +603,77 @@ section.panel.active{display:block;}
       </div>
     </div>
 
-    <div class="blk-title" style="margin-bottom:4px;">How this was set up (reference only)</div>
-    <p class="hint" style="margin-bottom:10px;">Already done for the whole team — nothing to redo. Kept here for whoever maintains this in future (e.g. if the Azure app ever needs recreating).</p>
-    <div class="od-setup-steps">
-      <div class="od-step">
-        <div class="od-step-num">1</div>
-        <div class="od-step-body">
-          <strong>Register an app in Azure Portal</strong><br>
-          <code>portal.azure.com → Microsoft Entra ID → App registrations → New registration</code>. Redirect URI set to <strong>Single-page application (SPA)</strong>, pointed at this app's GitHub Pages URL.
+    <details style="margin-top:4px;">
+      <summary style="cursor:pointer;color:var(--text-faint);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:4px 0;">Advanced / admin settings</summary>
+      <div style="margin-top:14px;">
+        <div class="blk-title" style="margin-bottom:4px;">How this was set up (reference only)</div>
+        <p class="hint" style="margin-bottom:10px;">Already done for the whole team — nothing to redo. Kept here for whoever maintains this in future (e.g. if the Azure app ever needs recreating).</p>
+        <div class="od-setup-steps">
+          <div class="od-step">
+            <div class="od-step-num">1</div>
+            <div class="od-step-body">
+              <strong>Register an app in Azure Portal</strong><br>
+              <code>portal.azure.com → Microsoft Entra ID → App registrations → New registration</code>. Redirect URI set to <strong>Single-page application (SPA)</strong>, pointed at this app's GitHub Pages URL.
+            </div>
+          </div>
+          <div class="od-step">
+            <div class="od-step-num">2</div>
+            <div class="od-step-body">
+              <strong>Application (client) ID</strong><br>
+              Copied from the app's Overview page and baked into the build below — that's why nobody needs to paste it in themselves.
+            </div>
+          </div>
+          <div class="od-step">
+            <div class="od-step-num">3</div>
+            <div class="od-step-body">
+              <strong>API permissions</strong><br>
+              Microsoft Graph → Delegated → <code>Files.ReadWrite</code> and <code>User.Read</code>. Neither needed admin consent in this tenant.
+            </div>
+          </div>
+          <div class="od-step">
+            <div class="od-step-num">4</div>
+            <div class="od-step-body">
+              <strong>Shared company folder</strong><br>
+              Shared with each technician's account with <b>Edit</b> access, and its link baked into the build the same way as the Client ID.
+            </div>
+          </div>
+          <div class="od-step">
+            <div class="od-step-num">5</div>
+            <div class="od-step-body">
+              <strong>All that's left, ever, per person</strong><br>
+              Sign in below. Every visit submitted after that auto-uploads as PDF + JSON into the shared folder, one pair of files per visit, covering every tower on it — under your own name for traceability, in one place for the team.
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="od-step">
-        <div class="od-step-num">2</div>
-        <div class="od-step-body">
-          <strong>Application (client) ID</strong><br>
-          Copied from the app's Overview page and baked into the build below — that's why nobody needs to paste it in themselves.
-        </div>
-      </div>
-      <div class="od-step">
-        <div class="od-step-num">3</div>
-        <div class="od-step-body">
-          <strong>API permissions</strong><br>
-          Microsoft Graph → Delegated → <code>Files.ReadWrite</code> and <code>User.Read</code>. Neither needed admin consent in this tenant.
-        </div>
-      </div>
-      <div class="od-step">
-        <div class="od-step-num">4</div>
-        <div class="od-step-body">
-          <strong>Shared company folder</strong><br>
-          Shared with each technician's account with <b>Edit</b> access, and its link baked into the build the same way as the Client ID.
-        </div>
-      </div>
-      <div class="od-step">
-        <div class="od-step-num">5</div>
-        <div class="od-step-body">
-          <strong>All that's left, ever, per person</strong><br>
-          Sign in below. Every visit submitted after that auto-uploads as PDF + JSON into the shared folder, one pair of files per visit, covering every tower on it — under your own name for traceability, in one place for the team.
-        </div>
-      </div>
-    </div>
 
-    <div class="settings-box">
-      <div class="blk-title" style="margin-bottom:12px;">OneDrive Configuration</div>
-      <div class="grid">
-        <div class="field span2">
-          <label>Azure Application (Client) ID</label>
-          <input type="text" id="od_client_id" class="mono" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-          <div class="hint">From portal.azure.com → App registrations → your app → Application (client) ID</div>
-        </div>
-        <div class="field span2">
-          <label>Shared company folder link</label>
-          <input type="text" id="od_shared_link" class="mono" placeholder="https://yourtenant.sharepoint.com/sites/.../APP REPORTS">
-          <div class="hint">Paste the address-bar URL of the shared OneDrive/SharePoint folder every visit should upload into. It must already be shared with each technician's account, with Edit access.</div>
-        </div>
-        <div class="field">
-          <label>Upload format</label>
-          <select id="od_format">
-            <option value="both">PDF + JSON (recommended)</option>
-            <option value="pdf">PDF only</option>
-            <option value="json">JSON only</option>
-          </select>
+        <div class="settings-box">
+          <div class="blk-title" style="margin-bottom:12px;">OneDrive Configuration</div>
+          <div class="grid">
+            <div class="field span2">
+              <label>Azure Application (Client) ID</label>
+              <input type="text" id="od_client_id" class="mono" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+              <div class="hint">From portal.azure.com → App registrations → your app → Application (client) ID</div>
+            </div>
+            <div class="field span2">
+              <label>Shared company folder link</label>
+              <input type="text" id="od_shared_link" class="mono" placeholder="https://yourtenant.sharepoint.com/sites/.../APP REPORTS">
+              <div class="hint">Paste the address-bar URL of the shared OneDrive/SharePoint folder every visit should upload into. It must already be shared with each technician's account, with Edit access.</div>
+            </div>
+            <div class="field">
+              <label>Upload format</label>
+              <select id="od_format">
+                <option value="both">PDF + JSON (recommended)</option>
+                <option value="pdf">PDF only</option>
+                <option value="json">JSON only</option>
+              </select>
+            </div>
+          </div>
+          <div class="btnbar" style="margin-top:12px;">
+            <button class="btn primary" onclick="odSaveConfig()">Save Configuration</button>
+          </div>
         </div>
       </div>
-      <div class="btnbar" style="margin-top:12px;">
-        <button class="btn primary" onclick="odSaveConfig()">Save Configuration</button>
-      </div>
-    </div>
+    </details>
 
     <div class="blk-title" style="margin:16px 0 8px;">Sync Log</div>
     <div class="sync-log" id="syncLog"><span class="info">No sync activity yet.</span></div>
@@ -1710,24 +1715,36 @@ $('emailBtn').addEventListener('click',function(){
 });
 
 /* ─── ONEDRIVE — MSAL ─── */
+var msalReadyPromise=null;
+
 function initMsal(){
   var clientId=odConfig.clientId;
-  if(!clientId||!window.msal){return;}
-  try{
-    msalApp=new msal.PublicClientApplication({
-      auth:{clientId:clientId,redirectUri:window.location.href.split('?')[0].split('#')[0]},
-      cache:{cacheLocation:'localStorage',storeAuthStateInCookie:false}
-    });
-    var accounts=msalApp.getAllAccounts();
-    if(accounts.length>0){odAccount=accounts[0];updateOdUI();}
-    msalApp.handleRedirectPromise().then(function(resp){
+  if(!clientId||!window.msal){msalReadyPromise=Promise.resolve(false);return msalReadyPromise;}
+  msalReadyPromise=(async function(){
+    try{
+      msalApp=new msal.PublicClientApplication({
+        auth:{clientId:clientId,redirectUri:window.location.href.split('?')[0].split('#')[0]},
+        cache:{cacheLocation:'localStorage',storeAuthStateInCookie:false}
+      });
+      await msalApp.initialize();
+      var accounts=msalApp.getAllAccounts();
+      if(accounts.length>0){odAccount=accounts[0];updateOdUI();}
+      var resp=await msalApp.handleRedirectPromise();
       if(resp&&resp.account){odAccount=resp.account;updateOdUI();logSync('Signed in as '+resp.account.username,'ok');toast('✅ Signed in to OneDrive — '+resp.account.username);}
-    }).catch(function(e){logSync('MSAL redirect error: '+e.message,'err');});
-  }catch(e){logSync('MSAL init error: '+e.message,'err');}
+      return true;
+    }catch(e){logSync('MSAL init error: '+e.message,'err');return false;}
+  })();
+  return msalReadyPromise;
 }
 
-window.odSignIn=function(){
-  if(!msalApp){toast('Save your Azure Client ID first.');return;}
+async function ensureMsal(){
+  if(!msalReadyPromise)initMsal();
+  return await msalReadyPromise;
+}
+
+window.odSignIn=async function(){
+  var ready=await ensureMsal();
+  if(!ready||!msalApp){toast('Save your Azure Client ID first.');return;}
   msalApp.loginPopup({scopes:['User.Read','Files.ReadWrite']}).then(function(r){
     odAccount=r.account;updateOdUI();logSync('Signed in as '+r.account.username,'ok');
     toast('✅ Signed in to OneDrive — '+r.account.username);
@@ -1739,17 +1756,24 @@ window.odSignIn=function(){
   });
 };
 
-window.odSignOut=function(){
+window.odSignOut=async function(){
+  await ensureMsal();
   if(!msalApp||!odAccount)return;
   msalApp.logoutPopup({account:odAccount}).then(function(){odAccount=null;updateOdUI();logSync('Signed out','info');toast('Signed out of OneDrive.');}).catch(function(){odAccount=null;updateOdUI();});
 };
 
-function getOdToken(){
-  if(!msalApp||!odAccount)return Promise.reject(new Error('Not signed in'));
-  return msalApp.acquireTokenSilent({scopes:['Files.ReadWrite'],account:odAccount}).then(function(r){return r.accessToken;}).catch(function(){
-    return msalApp.acquireTokenPopup({scopes:['Files.ReadWrite'],account:odAccount}).then(function(r){return r.accessToken;});
-  });
+async function getOdToken(){
+  await ensureMsal();
+  if(!msalApp||!odAccount)throw new Error('Not signed in');
+  try{
+    var r=await msalApp.acquireTokenSilent({scopes:['Files.ReadWrite'],account:odAccount});
+    return r.accessToken;
+  }catch(e){
+    var r2=await msalApp.acquireTokenPopup({scopes:['Files.ReadWrite'],account:odAccount});
+    return r2.accessToken;
+  }
 }
+
 
 function parseSpFolderUrl(url){
   try{
