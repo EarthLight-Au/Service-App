@@ -333,7 +333,7 @@ section.panel.active{display:block;}
     </div>
     <div class="grid">
       <div class="field"><label>Date</label><input type="date" id="f_date"></div>
-      <div class="field"><label>Visit Number</label><input type="text" id="f_auditno" placeholder="EL-SSR-YYYYMM-###" class="mono"></div>
+      <div class="field"><label>Visit Number</label><input type="text" id="f_auditno" placeholder="EL-SSR-YYMMDD-SITE" class="mono"></div>
       <div class="field">
         <label>Technician</label>
         <select id="f_tech">
@@ -1473,6 +1473,30 @@ function removeTower(idx){
 /* ─── COLLECT / LOAD VISIT ─── */
 function techName(){return $('f_tech').value==='__other'?$('f_tech_other').value:$('f_tech').value;}
 
+/* ─── VISIT NUMBER — EL-SSR-YYMMDD-SITE, auto from the visit Date + first 4 letters of the
+   site name, live-updating as either changes, until the tech edits the field directly. ─── */
+var visitNoAutoGen=true;
+
+function siteCode(loc){
+  var clean=(loc||'').replace(/[^a-zA-Z0-9]/g,'').toUpperCase();
+  return clean.slice(0,4)||'XXXX';
+}
+
+function dateCode(dateStr){
+  var d=dateStr?new Date(dateStr+'T00:00:00'):new Date();
+  if(isNaN(d.getTime()))d=new Date();
+  return String(d.getFullYear()).slice(-2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+}
+
+function regenVisitNo(){
+  if(!visitNoAutoGen)return;
+  $('f_auditno').value='EL-SSR-'+dateCode($('f_date').value)+'-'+siteCode($('f_location').value);
+}
+
+$('f_location').addEventListener('input',regenVisitNo);
+$('f_date').addEventListener('input',regenVisitNo);
+$('f_auditno').addEventListener('input',function(){visitNoAutoGen=false;});
+
 function collectVisit(){
   if(curTowerIdx!==null&&curTowerIdx<curTowers.length){curTowers[curTowerIdx]=collectTowerFromForm();}
   var towersOut=curTowers.map(function(t){return t;});
@@ -1496,6 +1520,7 @@ function collectVisit(){
 
 function loadVisit(v){
   currentId=v.id;
+  visitNoAutoGen=false;
   $('f_auditno').value=v.visitNo||'';$('f_date').value=v.date||'';
   $('f_client').value=v.client||'';$('f_location').value=v.location||'';
   $('f_contact_phone').value=v.contactPhone||'';$('f_contact_email').value=v.contactEmail||'';
@@ -1523,8 +1548,8 @@ function newVisit(){
   loadMobIntoForm([]);
   var t0=blankTower();t0.towerNumber='#1';curTowers=[t0];curTowerIdx=null;switchTower(0);
   $('f_date').value=new Date().toISOString().split('T')[0];
-  var d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),r=String(Math.floor(Math.random()*900)+100);
-  $('f_auditno').value='EL-SSR-'+y+m+'-'+r;
+  visitNoAutoGen=true;
+  regenVisitNo();
   $('auditIdLabel').textContent='DRAFT';
   document.querySelector('.tab[data-tab="audit"]').click();
 }
@@ -2288,7 +2313,7 @@ initMsal();
 updateOdUI();
 var t0=blankTower();t0.towerNumber='#1';curTowers=[t0];curTowerIdx=null;switchTower(0);
 $('f_date').value=new Date().toISOString().split('T')[0];
-(function(){var d=new Date();var y=d.getFullYear();var m=String(d.getMonth()+1).padStart(2,'0');var r=String(Math.floor(Math.random()*900)+100);$('f_auditno').value='EL-SSR-'+y+m+'-'+r;})();
+regenVisitNo();
 
 })();
 </script>
