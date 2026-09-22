@@ -14,7 +14,6 @@
 <link rel="icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.7.1/lib/msal-browser.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <style>
 /* EarthLight brand palette per Brand Guidelines v1.0:
    Yellow #E6FF00 (PMS 13-0630 TN) is the sole accent — Grey80/60/40/20 + Black/White are the neutrals.
@@ -227,9 +226,6 @@ section.panel.active{display:block;}
 .sync-log .err{color:var(--danger);}
 .sync-log .info{color:var(--teal);}
 
-/* ── EMAILJS STEPS (reuse od-step look) ── */
-.ej-step-num{background:var(--teal);color:var(--teal-ink);}
-
 /* ── PRICE BOOK ── */
 .pb-cat{margin-bottom:22px;}
 .pb-cat-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
@@ -351,6 +347,8 @@ section.panel.active{display:block;}
       </div>
       <div class="field"><label>Client / Company</label><input type="text" id="f_client" placeholder="Company / site owner"></div>
       <div class="field"><label>Location / Site</label><input type="text" id="f_location" placeholder="Site name or area"></div>
+      <div class="field"><label>Site Contact Phone</label><input type="tel" id="f_contact_phone" placeholder="04xx xxx xxx"></div>
+      <div class="field"><label>Site Contact Email</label><input type="email" id="f_contact_email" placeholder="contact@client.com.au"></div>
       <div class="field span2">
         <label>Map Location / GPS</label>
         <div style="display:flex;gap:6px;">
@@ -359,6 +357,27 @@ section.panel.active{display:block;}
         </div>
         <div class="hint">One GPS pin per visit. In reception, tap 📍 to capture it automatically; out of reception, type a grid ref or description — same field, no signal needed.</div>
       </div>
+    </div>
+  </div>
+
+  <div class="blk">
+    <div class="blk-head"><div class="blk-title">Mobilisation &amp; Callout Costs (this visit)</div><div class="blk-badge">Not tied to any one tower</div></div>
+    <p class="hint" style="margin-bottom:10px;">Technician mobilisation, vehicle/day rates, accommodation — costs for the visit as a whole, kept separate from each tower's parts.</p>
+    <table class="parts-table" id="mobTable">
+      <thead><tr>
+        <th style="width:48%">Item</th>
+        <th style="width:54px">Qty</th>
+        <th class="num" style="width:82px">Unit</th>
+        <th class="num" style="width:90px">Line Total</th>
+        <th style="width:30px"></th>
+      </tr></thead>
+      <tbody id="mobBody"></tbody>
+    </table>
+    <button class="add-part-btn" id="addMobBtn" type="button">+ Add mobilisation / callout item</button>
+    <div class="totals">
+      <div class="tot-line"><span>Subtotal (ex-GST)</span><span class="amt" id="mob_sub">$0.00</span></div>
+      <div class="tot-line"><span>GST 10%</span><span class="amt" id="mob_gst">$0.00</span></div>
+      <div class="tot-grand"><span>Mobilisation total (inc. GST)</span><span class="amt" id="mob_total">$0.00</span></div>
     </div>
   </div>
 
@@ -379,15 +398,93 @@ section.panel.active{display:block;}
       <div class="field"><label>Asset Number</label><input type="text" id="f_asset"></div>
       <div class="field">
         <label>Model</label>
-        <select id="f_model">
-          <option value="">Select…</option>
-          <option>EL-Solo 120W</option>
-          <option>EL-Solo 240W</option>
-          <option>EL-Duo 240W</option>
-          <option>EL-Duo 480W</option>
-          <option>EL-Quad 960W</option>
-          <option>Custom / Other</option>
-        </select>
+        <input type="text" id="f_model" class="mono" list="modelList" placeholder="Type to search or select…" autocomplete="off">
+        <datalist id="modelList">
+          <option value="ETG-01MI011"></option>
+          <option value="ETG-01MI090"></option>
+          <option value="ETG-01MT101"></option>
+          <option value="ETG-SLMT20"></option>
+          <option value="ETG-SLMT20-FX"></option>
+          <option value="ETG-SLMT40"></option>
+          <option value="ETG-SLMT40-FX"></option>
+          <option value="ETG-SLMTX-SP30"></option>
+          <option value="ETG-01LR024"></option>
+          <option value="ETG-01MA006"></option>
+          <option value="ETG-01MA007"></option>
+          <option value="ETG-01TM016"></option>
+          <option value="ETG-01TM017"></option>
+          <option value="ETG-01TM018"></option>
+          <option value="ETG-01TM019"></option>
+          <option value="ETG-01TM020"></option>
+          <option value="ETG-01TM021"></option>
+          <option value="ETG-01TM040"></option>
+          <option value="ETG-01TM054"></option>
+          <option value="ETG-01TM091"></option>
+          <option value="ETG-01TM092"></option>
+          <option value="ETG-01TM093"></option>
+          <option value="ETG-01TM102"></option>
+          <option value="ETG-SLMT100"></option>
+          <option value="ETG-SLMT100-G2"></option>
+          <option value="ETG-SLMT140"></option>
+          <option value="ETG-SLMT160"></option>
+          <option value="ETG-SLMT60-G2"></option>
+          <option value="ETG-SLMT70"></option>
+          <option value="ETG-SLMT70-G2"></option>
+          <option value="ETG-SLMT90"></option>
+          <option value="ETG-01GT004"></option>
+          <option value="ETG-01GT005"></option>
+          <option value="ETG-01GT094"></option>
+          <option value="ETG-01GT095"></option>
+          <option value="ETG-01GT099"></option>
+          <option value="ETG-01GT100"></option>
+          <option value="ETG-01GT117"></option>
+          <option value="ETG-01LR023"></option>
+          <option value="ETG-01MG001"></option>
+          <option value="ETG-01MG002"></option>
+          <option value="ETG-01MG003"></option>
+          <option value="ETG-01MG022"></option>
+          <option value="ETG-01MG043"></option>
+          <option value="ETG-01TT068"></option>
+          <option value="ETG-01TT069"></option>
+          <option value="ETG-01TT089"></option>
+          <option value="ETG-01TT090"></option>
+          <option value="ETG-SLMT200"></option>
+          <option value="ETG-SLMT200-G2"></option>
+          <option value="ETG-SLMT400"></option>
+          <option value="ETG-SLMT400-G2"></option>
+          <option value="ETG-SLMT600"></option>
+          <option value="ETG-SLMT600-G2"></option>
+          <option value="ETMS-PLS100TWIN-FC"></option>
+          <option value="ETG-01TE066"></option>
+          <option value="ETG-01SM026"></option>
+          <option value="ETG-01SM027"></option>
+          <option value="ETG-01SM028"></option>
+          <option value="ETG-01SM029"></option>
+          <option value="ETG-01SM030"></option>
+          <option value="ETG-01SM031"></option>
+          <option value="ETG-01SM032"></option>
+          <option value="ETG-01SM033"></option>
+          <option value="ETG-01SM034"></option>
+          <option value="ETG-01SM035"></option>
+          <option value="ETG-01SM096"></option>
+          <option value="ETG-01SM097"></option>
+          <option value="ETG-01SM098"></option>
+          <option value="ETG-01PT041"></option>
+          <option value="ETG-01PT042"></option>
+          <option value="ETG-01SB025"></option>
+          <option value="ETG-01TT046"></option>
+          <option value="ETG-01UB036"></option>
+          <option value="ETG-01UB037"></option>
+          <option value="ETG-ESPL150"></option>
+          <option value="ETG-TLP-6000"></option>
+          <option value="ETG-TLP-8000"></option>
+          <option value="ETMS-SPW30-TLP7M"></option>
+          <option value="ETMS-SPW50-TLP7M"></option>
+          <option value="ETMS-PLS150QUAD-FCB"></option>
+          <option value="ETMS-PLS150TWIN-FCB"></option>
+          <option value="ETG-ESLP50-TWIN"></option>
+          <option value="ETG-PLS100QUAD-FCB"></option>
+        </datalist>
       </div>
       <div class="field"><label>Year Installed</label><input type="text" id="f_year" placeholder="e.g. 2019" class="mono"></div>
       <div class="field">
@@ -459,7 +556,7 @@ section.panel.active{display:block;}
         <option>Metro Curve LED(s).</option>
         <option>Solar Pro Self-Cleaning Light.</option>
         <option>Non-EarthLight light fittings.</option>
-        <option>Old EarthLight All-in-One Solar Light.</option>
+        <option>Legacy EarthLight All-in-One Solar Light.</option>
       </select>
     </div>
     <div class="cond-row">
@@ -476,7 +573,7 @@ section.panel.active{display:block;}
         <option value="">Choose…</option>
         <option>Hinged Pole.</option>
         <option>Tilt Pole.</option>
-        <option>Old style Non-Tilt Pole.</option>
+        <option>Legacy Non-Tilt Pole.</option>
       </select>
     </div>
 
@@ -704,25 +801,10 @@ section.panel.active{display:block;}
   <div class="settings-box">
     <div class="blk-title" style="margin-bottom:12px;">Send-to Settings</div>
     <div class="grid">
-      <div class="field"><label>Service inbox email</label><input type="email" id="s_inbox" placeholder="service@earthlight.com.au"></div>
-      <div class="field"><label>CC (optional)</label><input type="email" id="s_cc" placeholder=""></div>
+      <div class="field"><label>Office inbox (always sent here)</label><input type="email" id="s_inbox" placeholder="service@earthlight.com.au"></div>
+      <div class="field"><label>CC (optional, always included)</label><input type="email" id="s_cc" placeholder=""></div>
     </div>
-    <p class="hint" style="margin-top:8px;">Stored on this device only. This is where the Email button sends the report.</p>
-  </div>
-
-  <div class="settings-box">
-    <div class="blk-title" style="margin-bottom:6px;">EmailJS — send from the app</div>
-    <p class="hint" style="margin-bottom:12px;">One-time free setup at <code>emailjs.com</code> lets the Email button send the PDF straight from the app — no mail app, no manual attach step. Full steps are on the "How it works" tab.</p>
-    <div class="grid">
-      <div class="field"><label>Service ID</label><input type="text" id="ej_service" class="mono" placeholder="service_xxxxxxx"></div>
-      <div class="field"><label>Template ID</label><input type="text" id="ej_template" class="mono" placeholder="template_xxxxxxx"></div>
-      <div class="field span2"><label>Public Key</label><input type="text" id="ej_publickey" class="mono" placeholder="from Account → General"></div>
-      <div class="field"><label>Attachment safety cap (KB)</label><input type="number" id="ej_cap" value="45" min="10" max="450"></div>
-    </div>
-    <div class="btnbar" style="margin-top:12px;">
-      <button class="btn primary" onclick="saveEjConfig()">Save EmailJS Config</button>
-    </div>
-    <p class="hint" style="margin-top:8px;">Free EmailJS plan: ~200 emails/month, attachments capped around 50KB — so the emailed PDF leaves photos out (they're listed by count instead). The full report with photos still goes to OneDrive automatically, or download it manually. On the $9/mo Personal plan raise the cap to ~450KB.</p>
+    <p class="hint" style="margin-top:8px;">The Email button sends via your own Microsoft sign-in (the same one used for OneDrive) — so it comes from whichever tech is signed in, no separate email setup needed. If the visit has a site contact email filled in, you'll get a one-tap prompt asking whether to send them a copy too.</p>
   </div>
 </section>
 
@@ -742,29 +824,12 @@ section.panel.active{display:block;}
       <h4>PDF report</h4>
       <p>Tap <b>Report</b> at the bottom to preview, then <b>Download PDF</b> to save a properly formatted EarthLight Site Service Report — with every tower on the visit — to your device. This is the full file (with photos) that gets uploaded to OneDrive.</p>
 
-      <h4>Emailing the report (EmailJS setup)</h4>
-      <p>The <b>Email</b> button sends the report itself, from inside the app, with the PDF attached — no mail app hand-off. It uses <a href="https://www.emailjs.com" target="_blank" rel="noopener" style="color:var(--teal);">EmailJS</a>, a free service that lets a web page send email without its own server. One-time setup:</p>
-      <div class="od-setup-steps">
-        <div class="od-step">
-          <div class="od-step-num ej-step-num">1</div>
-          <div class="od-step-body"><strong>Create a free EmailJS account</strong><br>Sign up at emailjs.com, then under <code>Email Services</code> connect the mailbox you want reports to send from (Gmail, Outlook, or your own SMTP).</div>
-        </div>
-        <div class="od-step">
-          <div class="od-step-num ej-step-num">2</div>
-          <div class="od-step-body"><strong>Create an email template</strong><br>Under <code>Email Templates</code>, make a template with a <code>{{message}}</code> body variable for the text summary. Then open the <b>Attachments</b> tab on the template and add a <b>Variable Attachment</b>: filename <code>{{pdf_filename}}</code>, content type PDF, parameter name <code>pdf_base64</code>.</div>
-        </div>
-        <div class="od-step">
-          <div class="od-step-num ej-step-num">3</div>
-          <div class="od-step-body"><strong>Grab your IDs</strong><br>Copy the <b>Service ID</b> and <b>Template ID</b> from their respective tabs, and the <b>Public Key</b> from <code>Account → General</code>.</div>
-        </div>
-        <div class="od-step">
-          <div class="od-step-num ej-step-num">4</div>
-          <div class="od-step-body"><strong>Paste into Price Book &amp; Send-to → EmailJS</strong><br>Save it there. From then on, Email sends immediately with the PDF attached. Free plan caps attachments around 50KB, so the emailed PDF leaves out photos (it lists how many were taken) — the full photo report is still in OneDrive or the manual download.</div>
-        </div>
-      </div>
+      <h4>Emailing the report</h4>
+      <p>The <b>Email</b> button sends the report itself, from inside the app, with the PDF attached — no mail app hand-off, and no separate setup. It uses the same Microsoft sign-in as OneDrive, so it sends from whichever tech is signed in at the time (their own EarthLight mailbox), always to the office inbox configured under Send-to Settings. If the visit has a site contact email filled in, you'll get a one-tap prompt asking whether to also send them a copy — say no and it's office-only. If you're not signed in yet, the Email button will prompt you to sign in first.</p>
 
       <h4>OneDrive auto-upload</h4>
       <p>OneDrive is already configured for the whole team — just sign in once with your own Microsoft work account under the <b>OneDrive</b> tab, and every subsequent visit submission automatically uploads a full PDF + JSON (photos included, every tower included) into the shared company folder — as soon as you have signal. Each upload is under the signing-in tech's own name for accountability, but everyone's reports land in the same place. Visits submitted offline are queued and uploaded the moment connectivity returns. This is the permanent record for the whole team, for years to come.</p>
+      <p>Emailing and OneDrive sync use the same sign-in — one login covers both.</p>
 
       <h4>Price book</h4>
       <p>The <b>Price Book</b> tab is the single source of truth for every part code, default quantity and price in the picker. Edit a price there and it's live everywhere immediately. Import a <code>.json</code> export from another device, or a plain <code>.csv</code> straight from a spreadsheet price list (columns: category, code, description, qty, price). Export after changes and share the file with other technicians — each device imports it independently.</p>
@@ -816,7 +881,7 @@ var LOGO_PNG_B64="iVBORw0KGgoAAAANSUhEUgAAAKAAAACgCAYAAACLz2ctAAAABmJLR0QA/wD/AP
 /* ─── STORAGE ─── */
 function lsGet(k,fb){try{var v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch(e){return fb;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
-var K={PB:'el_pb_v2',AUDITS:'el_audits_v2',VISITS:'el_visits_v1',SETTINGS:'el_settings_v2',OD:'el_od_config_v1',EJ:'el_ej_config_v1',QUEUE:'el_od_queue_v2'};
+var K={PB:'el_pb_v2',AUDITS:'el_audits_v2',VISITS:'el_visits_v1',SETTINGS:'el_settings_v2',OD:'el_od_config_v1',QUEUE:'el_od_queue_v2',PBUNLOCK:'el_pb_unlock_v1'};
 
 /* ─── PRICE BOOK ─── */
 function defaultPB(){return{
@@ -906,7 +971,7 @@ function migrateOldAudits(){
 
 var pb = lsGet(K.PB,null)||defaultPB();
 var visits = lsGet(K.VISITS,null); if(visits===null){visits=migrateOldAudits();lsSet(K.VISITS,visits);}
-var settings = lsGet(K.SETTINGS,{inbox:'james.h@earthlight.com.au',cc:''});
+var settings = lsGet(K.SETTINGS,{inbox:'service@earthlight.com.au',cc:''});
 /* Pre-configured for the whole team — the Client ID is a public identifier (safe to ship in the
    build, not a secret), and this shared folder link is where every visit should land. Each
    technician still has to sign in individually (that's what gives per-person accountability),
@@ -915,7 +980,6 @@ var DEFAULT_OD_CLIENT_ID='20876bc8-ad4e-456b-b08d-ec9b606b0cd7';
 var DEFAULT_OD_TENANT_ID='b2b60954-06b0-42fc-bd2f-0e196791a303';
 var DEFAULT_OD_SHARED_LINK='https://earthtrackminesupplies.sharepoint.com/sites/EL/Documents/Forms/AllItems.aspx?id=%2Fsites%2FEL%2FDocuments%2FOPERATIONS%2F6%20%2D%20SERVICE%20%26%20WARRANTY%2F02%20%2D%20SERVICE%20REPORTS%2FAPP%20REPORTS';
 var odConfig = lsGet(K.OD,{clientId:DEFAULT_OD_CLIENT_ID,tenantId:DEFAULT_OD_TENANT_ID,sharedLink:DEFAULT_OD_SHARED_LINK,format:'both'});
-var ejConfig = lsGet(K.EJ,{serviceId:'',templateId:'',publicKey:'',capKB:45});
 var uploadQueue = lsGet(K.QUEUE,[]);
 var currentId = null;
 var curTowers = [];
@@ -959,9 +1023,18 @@ window.addEventListener('online',updateNet);
 window.addEventListener('offline',updateNet);
 
 /* ─── TABS ─── */
+var ADMIN_PIN='5170';
+var pbUnlocked=lsGet(K.PBUNLOCK,false);
+
 document.querySelectorAll('.tab').forEach(function(btn){
   btn.addEventListener('click',function(){
     var tab=this.dataset.tab;
+    if(tab==='pricebook'&&!pbUnlocked){
+      var entered=prompt('Admin PIN required to open Price Book & Send-to:');
+      if(entered===null)return;
+      if(entered!==ADMIN_PIN){toast('Incorrect PIN.');return;}
+      pbUnlocked=true;lsSet(K.PBUNLOCK,true);
+    }
     document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});
     document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
     this.classList.add('active');
@@ -1115,15 +1188,17 @@ function updateVisitTotal(liveCurrentTotal){
     if(i===curTowerIdx&&typeof liveCurrentTotal==='number')sum+=liveCurrentTotal;
     else sum+=(t.total||0);
   });
+  sum+=mobLiveTotal();
   $('t_visit_total').textContent=fmt(sum);
   $('bb_total').textContent=fmt(sum);
   var n=curTowers.length;
   $('visitTotalLabel').textContent='Visit total — '+n+' tower'+(n!==1?'s':'');
 }
 
-function buildCatSelect(sel){
+function buildCatSelect(sel,excludeCat){
   sel.innerHTML='';
   Object.keys(pb).forEach(function(cat){
+    if(excludeCat&&cat===excludeCat)return;
     var o=document.createElement('option');o.value=cat;o.textContent=cat;sel.appendChild(o);
   });
 }
@@ -1153,7 +1228,7 @@ function addPartRow(catVal,codeVal,qtyVal,priceVal){
   var tdPart=document.createElement('td');
   var catSel=document.createElement('select');catSel.className='part-cat';
   var itemSel=document.createElement('select');itemSel.className='part-item';
-  buildCatSelect(catSel);
+  buildCatSelect(catSel,'Mobilisation');
   if(catVal)catSel.value=catVal;
   buildItemSelect(catSel,itemSel,codeVal);
 
@@ -1209,6 +1284,85 @@ function addPartRow(catVal,codeVal,qtyVal,priceVal){
 }
 
 $('addPartBtn').addEventListener('click',function(){addPartRow();});
+
+/* ─── MOBILISATION & CALLOUT — visit-level, separate from any one tower's parts ─── */
+var mobParts=[];
+
+function mobLiveTotal(){
+  var sub=mobParts.reduce(function(a,p){return a+p.qty*p.price;},0);
+  return sub+sub*0.1;
+}
+
+function rebuildMobTotals(){
+  var sub=0;
+  mobParts.forEach(function(r){sub+=r.qty*r.price;});
+  var gst=sub*0.1,total=sub+gst;
+  $('mob_sub').textContent=fmt(sub);$('mob_gst').textContent=fmt(gst);$('mob_total').textContent=fmt(total);
+  updateVisitTotal();
+}
+
+function addMobRow(codeVal,qtyVal,priceVal){
+  var idx=mobParts.length;
+  var rowData={qty:qtyVal||1,price:priceVal||0,cat:'Mobilisation',code:codeVal||''};
+  mobParts.push(rowData);
+
+  var tr=document.createElement('tr');tr.dataset.idx=idx;
+
+  var tdItem=document.createElement('td');
+  var itemSel=document.createElement('select');itemSel.className='part-item';itemSel.style.width='100%';
+  (pb['Mobilisation']||[]).forEach(function(item){
+    var o=document.createElement('option');o.value=item.code;o.dataset.price=item.price;o.dataset.qty=item.qty;
+    o.textContent='['+item.code+'] '+item.desc+' — '+fmt(item.price);
+    if(codeVal&&item.code===codeVal)o.selected=true;
+    itemSel.appendChild(o);
+  });
+  if(itemSel.options[0]){
+    var chosen=codeVal?Array.from(itemSel.options).find(function(o){return o.value===codeVal;}):itemSel.options[0];
+    if(chosen){rowData.code=chosen.value;rowData.price=parseFloat(chosen.dataset.price)||0;}
+  }
+  tdItem.appendChild(itemSel);
+
+  var tdQty=document.createElement('td');
+  var qtyInp=document.createElement('input');qtyInp.type='number';qtyInp.min='0';qtyInp.step='1';qtyInp.className='qty-inp';qtyInp.value=rowData.qty;
+  tdQty.appendChild(qtyInp);
+
+  var tdPrice=document.createElement('td');tdPrice.className='num';
+  var priceSpan=document.createElement('span');priceSpan.textContent=fmt(rowData.price);
+  tdPrice.appendChild(priceSpan);
+
+  var tdTotal=document.createElement('td');tdTotal.className='num';
+  function updateLineTotal(){tdTotal.textContent=fmt((parseFloat(qtyInp.value)||0)*rowData.price);}
+  updateLineTotal();
+
+  itemSel.addEventListener('change',function(){
+    var opt=itemSel.options[itemSel.selectedIndex];
+    rowData.code=opt.value;rowData.price=parseFloat(opt.dataset.price)||0;
+    qtyInp.value=parseFloat(opt.dataset.qty)||1;rowData.qty=parseFloat(qtyInp.value);
+    priceSpan.textContent=fmt(rowData.price);updateLineTotal();rebuildMobTotals();
+  });
+  qtyInp.addEventListener('input',function(){rowData.qty=parseFloat(this.value)||0;updateLineTotal();rebuildMobTotals();});
+
+  var tdRm=document.createElement('td');
+  var rmBtn=document.createElement('button');rmBtn.className='rm-btn';rmBtn.type='button';rmBtn.textContent='×';
+  rmBtn.addEventListener('click',function(){
+    mobParts.splice(idx,1);tr.remove();
+    document.querySelectorAll('#mobBody tr').forEach(function(r,i){r.dataset.idx=i;});
+    rebuildMobTotals();
+  });
+  tdRm.appendChild(rmBtn);
+
+  tr.appendChild(tdItem);tr.appendChild(tdQty);tr.appendChild(tdPrice);tr.appendChild(tdTotal);tr.appendChild(tdRm);
+  $('mobBody').appendChild(tr);
+  rebuildMobTotals();
+}
+
+function loadMobIntoForm(items){
+  $('mobBody').innerHTML='';mobParts=[];
+  (items||[]).forEach(function(p){addMobRow(p.code,p.qty,p.price);});
+  if(!items||!items.length)rebuildMobTotals();
+}
+
+$('addMobBtn').addEventListener('click',function(){addMobRow();});
 
 /* ─── TOWER MODEL — a Visit holds N Towers; the form always shows ONE tower at a time ─── */
 function blankTower(){
@@ -1299,8 +1453,7 @@ function switchTower(idx){
 function addTower(){
   if(curTowerIdx!==null&&curTowerIdx<curTowers.length){curTowers[curTowerIdx]=collectTowerFromForm();}
   var t=blankTower();
-  var used=curTowers.map(function(x){return x.towerNumber;});
-  for(var i=1;i<=20;i++){if(used.indexOf('#'+i)===-1){t.towerNumber='#'+i;break;}}
+  t.towerNumber='#'+(curTowers.length+1);
   curTowers.push(t);
   switchTower(curTowers.length-1);
   toast('Tower added — '+curTowers.length+' on this visit.');
@@ -1323,15 +1476,20 @@ function techName(){return $('f_tech').value==='__other'?$('f_tech_other').value
 function collectVisit(){
   if(curTowerIdx!==null&&curTowerIdx<curTowers.length){curTowers[curTowerIdx]=collectTowerFromForm();}
   var towersOut=curTowers.map(function(t){return t;});
-  var sub=towersOut.reduce(function(a,t){return a+(t.subtotal||0);},0);
-  var gst=towersOut.reduce(function(a,t){return a+(t.gst||0);},0);
-  var total=towersOut.reduce(function(a,t){return a+(t.total||0);},0);
+  var mobSub=mobParts.reduce(function(a,p){return a+p.qty*p.price;},0);
+  var mobGst=mobSub*0.1,mobTotal=mobSub+mobGst;
+  var sub=towersOut.reduce(function(a,t){return a+(t.subtotal||0);},0)+mobSub;
+  var gst=towersOut.reduce(function(a,t){return a+(t.gst||0);},0)+mobGst;
+  var total=towersOut.reduce(function(a,t){return a+(t.total||0);},0)+mobTotal;
   return{
     id:currentId||(currentId=uid()),
     visitNo:$('f_auditno').value,date:$('f_date').value,
     tech:techName(),client:$('f_client').value,location:$('f_location').value,
+    contactPhone:$('f_contact_phone').value,contactEmail:$('f_contact_email').value,
     mapLocation:$('f_maploc').value,
-    towers:towersOut,subtotal:sub,gst:gst,total:total,
+    towers:towersOut,
+    mobilisation:mobParts.slice(),mobSubtotal:mobSub,mobGst:mobGst,mobTotal:mobTotal,
+    subtotal:sub,gst:gst,total:total,
     savedAt:new Date().toISOString()
   };
 }
@@ -1340,12 +1498,14 @@ function loadVisit(v){
   currentId=v.id;
   $('f_auditno').value=v.visitNo||'';$('f_date').value=v.date||'';
   $('f_client').value=v.client||'';$('f_location').value=v.location||'';
+  $('f_contact_phone').value=v.contactPhone||'';$('f_contact_email').value=v.contactEmail||'';
   $('f_maploc').value=v.mapLocation||'';
   if(v.tech){
     var techSel=$('f_tech');var found=false;
     Array.from(techSel.options).forEach(function(o){if(o.value===v.tech){techSel.value=v.tech;found=true;}});
     if(!found){techSel.value='__other';$('f_tech_other').style.display='block';$('f_tech_other').value=v.tech;}
   }else{$('f_tech').value='';$('f_tech_other').style.display='none';}
+  loadMobIntoForm(v.mobilisation||[]);
   curTowers=(v.towers&&v.towers.length?v.towers:[blankTower()]).slice();
   curTowerIdx=null;
   switchTower(0);
@@ -1357,10 +1517,11 @@ function loadVisit(v){
 function newVisit(){
   if(!confirm('Start a fresh visit? Unsaved changes will be lost.'))return;
   currentId=null;
-  document.querySelectorAll('#panel-audit input[type=text],#panel-audit input[type=email],#panel-audit input[type=date]').forEach(function(el){if(el.id!=='f_maploc')el.value='';});
+  document.querySelectorAll('#panel-audit input[type=text],#panel-audit input[type=email],#panel-audit input[type=date],#panel-audit input[type=tel]').forEach(function(el){if(el.id!=='f_maploc')el.value='';});
   $('f_client').value='';$('f_location').value='';$('f_maploc').value='';
   $('f_tech').value='';$('f_tech_other').style.display='none';$('f_tech_other').value='';
-  curTowers=[blankTower()];curTowerIdx=null;switchTower(0);
+  loadMobIntoForm([]);
+  var t0=blankTower();t0.towerNumber='#1';curTowers=[t0];curTowerIdx=null;switchTower(0);
   $('f_date').value=new Date().toISOString().split('T')[0];
   var d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),r=String(Math.floor(Math.random()*900)+100);
   $('f_auditno').value='EL-SSR-'+y+m+'-'+r;
@@ -1421,10 +1582,10 @@ window.delVisit=function(id){
 
 $('exportJsonBtn').addEventListener('click',function(){saveFile('el-visits.json',JSON.stringify(visits,null,2),'application/json');});
 $('exportCsvBtn').addEventListener('click',function(){
-  var rows=[['Visit ID','Visit No','Date','Client','Location','Technician','Tower','Serial','Model','Overall','Severity','Findings','Tower Total','Visit Total','OneDrive','Sent']];
+  var rows=[['Visit ID','Visit No','Date','Client','Location','Site Contact Phone','Site Contact Email','Technician','Tower','Serial','Model','Overall','Severity','Findings','Tower Total','Mobilisation Total','Visit Total','OneDrive','Sent']];
   visits.forEach(function(v){
     (v.towers||[]).forEach(function(t){
-      rows.push([v.id,v.visitNo,v.date,v.client,v.location,v.tech,t.towerNumber,t.serial,t.model,t.overall,t.severity,(t.findingsChecked||[]).join('; '),t.total,v.total,v.odSynced?'Yes':'No',v.sent?'Yes':'No']);
+      rows.push([v.id,v.visitNo,v.date,v.client,v.location,v.contactPhone,v.contactEmail,v.tech,t.towerNumber,t.serial,t.model,t.overall,t.severity,(t.findingsChecked||[]).join('; '),t.total,v.mobTotal||0,v.total,v.odSynced?'Yes':'No',v.sent?'Yes':'No']);
     });
   });
   saveFile('el-visits.csv',rows.map(function(r){return r.map(function(c){return'"'+(c===undefined||c===null?'':c).toString().replace(/"/g,'""')+'"';}).join(',');}).join('\n'),'text/csv');
@@ -1457,12 +1618,40 @@ function generatePDF(v,opts){
   function row1(l,v){chk(11);sf(7,'normal',[139,139,139]);doc.text(l.toUpperCase(),ML,y);y+=3.5;sf(9,'bold',[17,17,17]);var lines=doc.splitTextToSize(v||'—',CW-2);doc.text(lines,ML,y);y+=lines.length*4.5+4;}
 
   var towers=v.towers||[];
+  var mob=v.mobilisation||[];
 
   secHead('Visit Summary');
   row2('Client',v.client,'Visit Number',v.visitNo);
   row2('Location',v.location,'Date',v.date);
   row2('Technician',v.tech,'Towers on this visit',String(towers.length));
+  if(v.contactPhone||v.contactEmail)row2('Site Contact Phone',v.contactPhone,'Site Contact Email',v.contactEmail);
   if(v.mapLocation)row1('GPS / Map Location',v.mapLocation);
+
+  if(mob.length){
+    secHead('Mobilisation & Callout Costs');
+    chk(20);
+    doc.setFillColor(235,235,235);doc.rect(ML,y,CW,7,'F');
+    doc.setDrawColor(196,196,196);doc.setLineWidth(0.25);doc.line(ML,y,PW-MR,y);doc.line(ML,y+7,PW-MR,y+7);
+    sf(7,'bold',[68,68,68]);
+    doc.text('DESCRIPTION',ML+2,y+4.5);doc.text('QTY',ML+CW*0.58,y+4.5);doc.text('UNIT',ML+CW*0.70,y+4.5);doc.text('TOTAL',ML+CW*0.84,y+4.5);
+    y+=7;
+    mob.forEach(function(p,i){
+      var lt=(p.qty||0)*(p.price||0);
+      var dl=doc.splitTextToSize(p.desc||p.code||'',CW*0.54);var rh=Math.max(7,dl.length*4.5+3);
+      chk(rh+2);if(i%2===0){doc.setFillColor(248,248,248);doc.rect(ML,y,CW,rh,'F');}
+      doc.setDrawColor(225,225,225);doc.setLineWidth(0.2);doc.line(ML,y+rh,PW-MR,y+rh);
+      sf(8,'normal',[17,17,17]);doc.text(dl,ML+2,y+4.5);
+      doc.text(String(p.qty||1),ML+CW*0.58,y+4.5);
+      doc.text(fmt(p.price||0),ML+CW*0.70,y+4.5);
+      sf(8,'bold',[17,17,17]);doc.text(fmt(lt),ML+CW*0.84,y+4.5);
+      y+=rh;
+    });
+    chk(20);y+=2;
+    var mtx=ML+CW*0.58;
+    sf(8,'normal',[139,139,139]);doc.text('Subtotal (ex-GST)',mtx,y);sf(8,'normal',[17,17,17]);doc.text(fmt(v.mobSubtotal||0),PW-MR-1,y,{align:'right'});y+=5;
+    sf(8,'normal',[139,139,139]);doc.text('GST (10%)',mtx,y);sf(8,'normal',[17,17,17]);doc.text(fmt(v.mobGst||0),PW-MR-1,y,{align:'right'});y+=8;
+  }
+
   chk(10);
   doc.setFillColor(230,255,0);doc.roundedRect(ML,y,CW,9,1.5,1.5,'F');sf(10,'bold',[0,0,0]);
   doc.text('VISIT GRAND TOTAL (inc. GST)',ML+4,y+5.8);doc.text(fmt(v.total||0),PW-MR-4,y+5.8,{align:'right'});
@@ -1613,13 +1802,23 @@ function buildTowerReportHtml(t,ti,total){
 
 function buildReportHtml(v){
   var towers=v.towers||[];
+  var mob=v.mobilisation||[];
+  var mobRows=mob.map(function(p){
+    return '<tr><td><code style="font-size:9px;background:#f0f0f0;padding:1px 4px;border-radius:2px;">'+esc(p.code)+'</code></td><td>'+esc(p.desc||'')+'</td><td class="r">'+p.qty+'</td><td class="r">'+fmt(p.price)+'</td><td class="r">'+fmt(p.qty*p.price)+'</td></tr>';
+  }).join('');
   var body='<div class="rp-header">'+
     '<div class="rp-logo"><svg width="20" height="20" viewBox="0 0 192 192"><rect width="192" height="192" rx="33.18" ry="33.18" fill="#231f20"/><path fill="#e0e31c" d="M98.21,50.65c23.17.12,43.47,21.09,43.15,44.02-.03.85.04,1.71,0,2.56-1.93,41.85-53.46,59.86-80.33,27.55-23.84-28.67-4.11-72.1,32.74-74.13h4.43ZM84.74,68.57h-10.75v44.1l10.83,10.83h33.17v-10.92h-33.26v-44.02ZM118,68.57h-26.27l10.83,10.92h15.44v-10.92ZM118,90.58h-26.27l10.83,10.92h15.44v-10.92Z"/><path fill="#fff" d="M179.62,90.32c-.11-1.64-1.39-2.96-3.03-3.1l-1.35-.12c-11.75-1.06-15.81-16.19-6.16-23l1.11-.78c1.35-.95,1.8-2.73,1.07-4.21-1.68-3.42-3.58-6.71-5.7-9.85-.92-1.36-2.69-1.86-4.17-1.17l-1.23.57c-10.7,4.96-21.79-6.13-16.83-16.83l.57-1.23c.69-1.49.19-3.26-1.17-4.17-3.14-2.12-6.43-4.02-9.85-5.7-1.48-.72-3.26-.27-4.21,1.08l-.78,1.11c-6.8,9.65-21.94,5.6-23-6.16l-.12-1.35c-.15-1.64-1.47-2.92-3.1-3.03-1.88-.13-3.78-.19-5.68-.19s-3.81.06-5.68.19c-1.64.11-2.96,1.39-3.1,3.03l-.12,1.35c-1.06,11.75-16.19,15.81-23,6.16l-.78-1.11c-.95-1.35-2.73-1.8-4.21-1.08-3.42,1.68-6.71,3.58-9.85,5.7-1.36.92-1.86,2.69-1.17,4.17l.57,1.23c4.96,10.7-6.13,21.79-16.83,16.83l-1.23-.57c-1.49-.69-3.26-.19-4.17,1.17-2.11,3.14-4.02,6.43-5.7,9.85-.72,1.48-.27,3.26,1.07,4.21l1.11.78c9.65,6.8,5.6,21.94-6.16,23l-1.35.12c-1.64.15-2.92,1.47-3.03,3.1-.13,1.88-.19,3.77-.19,5.68s.06,3.8.19,5.68c.11,1.64,1.39,2.96,3.03,3.1l1.35.12c11.75,1.06,15.81,16.19,6.16,23l-1.11.78c-1.35.95-1.8,2.73-1.07,4.21,1.68,3.42,3.58,6.71,5.7,9.85.92,1.36,2.69,1.86,4.17,1.17l1.23-.57c10.7-4.96,21.79,6.13,16.83,16.83l-.57,1.23c-.69,1.49-.19,3.26,1.17,4.17,3.14,2.12,6.43,4.02,9.85,5.7,1.48.72,3.26.27,4.21-1.08l.78-1.11c6.8-9.65,21.94-5.6,23,6.16l.12,1.35c.15,1.64,1.47,2.92,3.1,3.03,1.88.13,3.78.19,5.68.19s3.81-.06,5.68-.19c1.64-.11,2.96-1.39,3.1-3.03l.12-1.35c1.06-11.75,16.19-15.81,23-6.16l.78,1.11c.95,1.35,2.73,1.8,4.21,1.08,3.42-1.68,6.71-3.58,9.85-5.7,1.36-.92,1.86-2.69,1.17-4.17l-.57-1.23c-4.96-10.7,6.13-21.79,16.83-16.83l1.23.57c1.49.69,3.26.19,4.17-1.17,2.11-3.14,4.02-6.43,5.7-9.85.72-1.48.27-3.26-1.07-4.21l-1.11-.78c-9.65-6.8-5.6-21.94,6.16-23l1.35-.12c1.64-.15,2.92-1.47,3.03-3.1.13-1.88.19-3.77.19-5.68s-.06-3.8-.19-5.68ZM97.83,151.94c-32.36,1.03-58.81-25.41-57.77-57.77.93-29.31,24.8-53.18,54.11-54.11,32.36-1.03,58.81,25.41,57.77,57.77-.93,29.31-24.8,53.18-54.11,54.11Z"/></svg>EarthLight Site Service Report</div>'+
     '<div class="rp-meta">'+esc(v.visitNo||'—')+'<br>'+esc(v.date||'—')+'</div></div>'+
     '<div class="rp-section">Visit Summary</div>'+
     '<div class="rp-grid"><div><span>Client</span>'+esc(v.client)+'</div><div><span>Location</span>'+esc(v.location)+'</div>'+
     '<div><span>Technician</span>'+esc(v.tech)+'</div><div><span>Towers on visit</span>'+towers.length+'</div>'+
+    (v.contactPhone||v.contactEmail?'<div><span>Site Contact Phone</span>'+esc(v.contactPhone)+'</div><div><span>Site Contact Email</span>'+esc(v.contactEmail)+'</div>':'')+
     '<div style="grid-column:1/-1"><span>GPS / Map</span>'+esc(v.mapLocation)+'</div></div>'+
+    (mob.length?(
+      '<div class="rp-section">Mobilisation &amp; Callout Costs</div>'+
+      '<table class="rp-table"><thead><tr><th>Code</th><th>Description</th><th>Qty</th><th class="r">Unit</th><th class="r">Total</th></tr></thead><tbody>'+mobRows+'</tbody></table>'+
+      '<div class="rp-totals"><div>Subtotal (ex-GST): '+fmt(v.mobSubtotal||0)+'</div><div>GST 10%: '+fmt(v.mobGst||0)+'</div></div>'
+    ):'')+
     '<div class="rp-totals"><div class="grand">Visit grand total (inc. GST): '+fmt(v.total||0)+'</div></div>';
   towers.forEach(function(t,ti){body+=buildTowerReportHtml(t,ti,v.total);});
   body+='<div class="rp-footer">EarthLight Site Service Report · Generated '+new Date().toLocaleString()+' · All prices ex-GST unless otherwise stated.</div>';
@@ -1676,12 +1875,29 @@ $('printBtn').addEventListener('click',function(){
   w.document.write('</body></html>');w.document.close();setTimeout(function(){w.print();},300);
 });
 
-/* ─── EMAIL — sent from the app itself via EmailJS, PDF attached, no mail app ─── */
-$('emailBtn').addEventListener('click',function(){
+/* ─── EMAIL — sent from the app itself via the signed-in tech's own Microsoft mailbox (Graph sendMail) ─── */
+async function getMailToken(){
+  await ensureMsal();
+  if(!msalApp||!odAccount)throw new Error('Not signed in');
+  try{
+    var r=await msalApp.acquireTokenSilent({scopes:['Mail.Send'],account:odAccount});
+    return r.accessToken;
+  }catch(e){
+    var r2=await msalApp.acquireTokenPopup({scopes:['Mail.Send'],account:odAccount});
+    return r2.accessToken;
+  }
+}
+
+$('emailBtn').addEventListener('click',async function(){
   var v=collectVisit();lastVisit=v;
-  if(!settings.inbox){toast('Set the service inbox email in Price Book & Send-to → Send-to Settings.');return;}
-  if(!ejConfig.serviceId||!ejConfig.templateId||!ejConfig.publicKey){toast('Set up EmailJS first — see Price Book & Send-to → EmailJS (steps in "How it works").');return;}
-  if(!window.emailjs){toast('Email library still loading — try again in a moment.');return;}
+  if(!settings.inbox){toast('Set the office inbox in Price Book & Send-to → Send-to Settings.');return;}
+
+  var ready=await ensureMsal();
+  if(!ready||!odAccount){
+    toast('Sign in with Microsoft first — same sign-in as OneDrive.',4000);
+    document.querySelector('.tab[data-tab="onedrive"]').click();
+    return;
+  }
 
   toast('Preparing report…');
   var doc=generatePDF(v,{forEmail:true});
@@ -1689,10 +1905,15 @@ $('emailBtn').addEventListener('click',function(){
   var dataUri=doc.output('datauristring');
   var b64=dataUri.split(',')[1]||'';
   var approxKB=Math.round(b64.length*0.75/1024);
-  var cap=ejConfig.capKB||45;
-  if(approxKB>cap){
-    toast('PDF too large to email ('+approxKB+'KB, cap '+cap+'KB). Shorten notes/findings, or raise the cap on a paid EmailJS plan. Full report is still in OneDrive / manual download.',5000);
+  if(approxKB>3000){
+    toast('PDF too large to email ('+approxKB+'KB). Shorten notes/findings, or use OneDrive / manual download instead.',5000);
     return;
+  }
+
+  var ccList=[];
+  if(settings.cc)ccList.push({emailAddress:{address:settings.cc}});
+  if(v.contactEmail&&confirm('Also send a copy to the site contact ('+v.contactEmail+')?')){
+    ccList.push({emailAddress:{address:v.contactEmail}});
   }
 
   var fname=('EL-SSR_'+(v.client||'Report')+'_'+v.visitNo+'_'+v.date+'.pdf').replace(/[^a-zA-Z0-9._-]/g,'_');
@@ -1705,19 +1926,37 @@ $('emailBtn').addEventListener('click',function(){
     lines.push('— Tower '+(i+1)+': '+(t.towerNumber||t.serial||'—')+' — '+(t.overall||'—')+' — '+fmt(t.total||0));
     if(t.severity)lines.push('   Severity: '+t.severity+(t.findingsChecked&&t.findingsChecked.length?' — '+t.findingsChecked.join(', '):''));
   });
-  lines.push('','VISIT TOTAL: '+fmt(v.total||0),'','Full PDF report attached (photos omitted from this copy — see OneDrive for the full version with photos).','','EarthLight.com.au');
+  if(v.mobTotal)lines.push('— Mobilisation & callout: '+fmt(v.mobTotal||0));
+  lines.push('','VISIT TOTAL: '+fmt(v.total||0),'','Full PDF report attached.','','EarthLight.com.au');
   var message=lines.join('\n');
 
-  var params={to_email:settings.inbox,cc_email:settings.cc||'',subject:subject,message:message,pdf_base64:b64,pdf_filename:fname};
-
-  toast('Sending email…');
-  emailjs.send(ejConfig.serviceId,ejConfig.templateId,params,ejConfig.publicKey).then(function(){
+  toast('Sending…');
+  try{
+    var token=await getMailToken();
+    var mail={
+      message:{
+        subject:subject,
+        body:{contentType:'Text',content:message},
+        toRecipients:[{emailAddress:{address:settings.inbox}}],
+        ccRecipients:ccList,
+        attachments:[{
+          '@odata.type':'#microsoft.graph.fileAttachment',
+          name:fname,contentType:'application/pdf',contentBytes:b64
+        }]
+      },
+      saveToSentItems:true
+    };
+    var resp=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{
+      method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(mail)
+    });
+    if(!resp.ok){var errText=await resp.text();throw new Error('HTTP '+resp.status+' — '+errText.slice(0,200));}
     v.sent=true;upsertVisit(v);renderSaved();
-    toast('✅ Email sent to '+settings.inbox);
-  },function(err){
-    var msg=(err&&err.text)?err.text:((err&&err.message)?err.message:'unknown error');
+    toast('✅ Email sent to '+settings.inbox+(ccList.length?' (+ '+ccList.length+' cc)':''));
+  }catch(e){
+    var msg=(e&&e.message)||'unknown error';
     toast('Email failed: '+msg,5000);
-  });
+    logSync('Email failed: '+msg,'err');
+  }
 });
 
 /* ─── ONEDRIVE — MSAL ─── */
@@ -1752,13 +1991,13 @@ async function ensureMsal(){
 window.odSignIn=async function(){
   var ready=await ensureMsal();
   if(!ready||!msalApp){toast('Save your Azure Client ID first.');return;}
-  msalApp.loginPopup({scopes:['User.Read','Files.ReadWrite']}).then(function(r){
+  msalApp.loginPopup({scopes:['User.Read','Files.ReadWrite','Mail.Send']}).then(function(r){
     odAccount=r.account;updateOdUI();logSync('Signed in as '+r.account.username,'ok');
-    toast('✅ Signed in to OneDrive — '+r.account.username);
+    toast('✅ Signed in — '+r.account.username);
     if(uploadQueue.length)processQueue();
   }).catch(function(e){
     if(e.errorCode==='popup_window_error'){
-      msalApp.loginRedirect({scopes:['User.Read','Files.ReadWrite']});
+      msalApp.loginRedirect({scopes:['User.Read','Files.ReadWrite','Mail.Send']});
     }else{logSync('Sign-in failed: '+e.message,'err');toast('Sign-in failed. See sync log.');}
   });
 };
@@ -2021,21 +2260,10 @@ $('resetPbBtn').addEventListener('click',function(){if(confirm('Reset to EarthLi
 /* ─── SETTINGS ─── */
 function loadSettingsUI(){
   $('s_inbox').value=settings.inbox||'';$('s_cc').value=settings.cc||'';
-  $('ej_service').value=ejConfig.serviceId||'';$('ej_template').value=ejConfig.templateId||'';
-  $('ej_publickey').value=ejConfig.publicKey||'';$('ej_cap').value=ejConfig.capKB||45;
 }
 ['s_inbox','s_cc'].forEach(function(id){
   document.getElementById(id).addEventListener('input',function(){settings.inbox=$('s_inbox').value;settings.cc=$('s_cc').value;lsSet(K.SETTINGS,settings);});
 });
-
-window.saveEjConfig=function(){
-  ejConfig.serviceId=$('ej_service').value.trim();
-  ejConfig.templateId=$('ej_template').value.trim();
-  ejConfig.publicKey=$('ej_publickey').value.trim();
-  ejConfig.capKB=parseFloat($('ej_cap').value)||45;
-  lsSet(K.EJ,ejConfig);
-  toast('✅ EmailJS config saved.');
-};
 
 /* ─── FILE SAVE ─── */
 function saveFile(name,content,type){
@@ -2058,7 +2286,7 @@ lsSet(K.PB,pb);
 loadSettingsUI();
 initMsal();
 updateOdUI();
-curTowers=[blankTower()];curTowerIdx=null;switchTower(0);
+var t0=blankTower();t0.towerNumber='#1';curTowers=[t0];curTowerIdx=null;switchTower(0);
 $('f_date').value=new Date().toISOString().split('T')[0];
 (function(){var d=new Date();var y=d.getFullYear();var m=String(d.getMonth()+1).padStart(2,'0');var r=String(Math.floor(Math.random()*900)+100);$('f_auditno').value='EL-SSR-'+y+m+'-'+r;})();
 
