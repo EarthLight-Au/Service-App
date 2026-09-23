@@ -2002,7 +2002,7 @@ function initMsal(){
     try{
       var authority='https://login.microsoftonline.com/'+(odConfig.tenantId||'common');
       msalApp=new msal.PublicClientApplication({
-        auth:{clientId:clientId,authority:authority,redirectUri:window.location.href.split('?')[0].split('#')[0]},
+        auth:{clientId:clientId,authority:authority,redirectUri:window.location.href.split('?')[0].split('#')[0].replace(/index\.html$/,'')},
         cache:{cacheLocation:'localStorage',storeAuthStateInCookie:false}
       });
       await msalApp.initialize();

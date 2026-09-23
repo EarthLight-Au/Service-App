@@ -4,7 +4,7 @@
    whenever there IS a connection. Bump CACHE_NAME when you change
    index.html so devices pick up the update next time they're online. */
 
-const CACHE_NAME = 'earthlight-audit-v4';
+const CACHE_NAME = 'earthlight-audit-v5';
 
 const SHELL = [
   './',

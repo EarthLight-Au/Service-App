@@ -2,7 +2,7 @@
   "name": "EarthLight Solar Tower Audit",
   "short_name": "EL Audit",
   "description": "EarthLight field service audit tool — works fully offline, generates branded PDF reports, syncs to OneDrive and emails the office when back in signal.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
