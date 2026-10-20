@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -283,7 +283,108 @@ section.panel.active{display:block;}
 .help-copy code{font-family:var(--mono);background:var(--surface-2);padding:1px 5px;border-radius:3px;font-size:11px;color:var(--teal);}
 .help-copy ul{margin-left:16px;}
 .help-copy li{margin-bottom:4px;}
+
+/* ═══ v3 UI — staged flow, bigger inputs, less clutter ═══ */
+.field input,.field select,.field textarea{font-size:16px;padding:13px 14px;min-height:50px;border-radius:8px;}
+.field textarea{min-height:100px;line-height:1.5;}
+.field input[type=checkbox]{min-height:0;width:22px;height:22px;padding:0;}
+.field label{font-size:11px;letter-spacing:.07em;color:var(--text-dim);}
+.grid{gap:18px 16px;}
+.cond-row{grid-template-columns:1fr;gap:6px;margin-bottom:16px;}
+.cond-row label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);}
+.cond-row select{font-size:16px;padding:13px 14px;min-height:50px;border-radius:8px;}
+.chip{padding:11px 14px;font-size:14px;border-radius:8px;}
+.chip input{width:18px;height:18px;}
+.sev-btn{padding:12px 18px;font-size:14px;min-height:46px;}
+.btn{min-height:46px;padding:12px 18px;font-size:14px;border-radius:8px;}
+.bottombar .btn{min-height:52px;font-size:15px;padding:12px 8px;}
+.tower-tab{padding:10px 10px 10px 16px;font-size:12px;min-height:42px;}
+.add-tower-btn{padding:10px 16px;font-size:12px;min-height:42px;}
+.tower-nav{padding:0 0 18px;}
+.wrap{padding-bottom:130px;}
+
+.stagebar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 16px;}
+.stagebar::-webkit-scrollbar{display:none;}
+.stage-pill{flex:none;display:flex;align-items:center;gap:8px;font-family:var(--font);font-size:13px;font-weight:600;color:var(--text-dim);background:var(--surface-2);border:1px solid var(--line);border-radius:24px;padding:8px 14px 8px 8px;cursor:pointer;min-height:42px;}
+.stage-pill b{width:24px;height:24px;border-radius:50%;background:var(--surface-3);color:var(--text);font-size:12px;display:flex;align-items:center;justify-content:center;}
+.stage-pill.active{color:var(--amber-ink);background:var(--amber);border-color:var(--amber);}
+.stage-pill.active b{background:var(--amber-ink);color:var(--amber);}
+.stage{display:none;}
+.stage.active{display:block;animation:stagein .18s ease;}
+@keyframes stagein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.stage-head{margin-bottom:20px;}
+.stage-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--amber);text-transform:uppercase;margin-bottom:6px;}
+.stage-title{font-size:26px;font-weight:700;line-height:1.15;}
+.stage-sub{font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.55;}
+.card{background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;padding:18px;margin-bottom:16px;}
+.card-title{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px;display:flex;justify-content:space-between;gap:8px;}
+.card-title .badge{font-family:var(--mono);font-weight:400;font-size:10px;color:var(--text-faint);text-transform:none;letter-spacing:0;}
+
+.combo{position:relative;}
+.combo-list{position:absolute;left:0;right:0;top:100%;z-index:30;background:var(--surface-2);border:1px solid var(--amber);border-radius:8px;margin-top:4px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.45);}
+.combo-list[hidden]{display:none;}
+.combo-item{padding:13px 14px;font-family:var(--mono);font-size:14px;border-bottom:1px solid var(--line-soft);cursor:pointer;}
+.combo-item:active,.combo-item:hover{background:var(--amber);color:var(--amber-ink);}
+.combo-empty{padding:13px 14px;font-size:12px;color:var(--text-faint);}
+.pin-row{display:flex;gap:8px;}
+.pin-row input{flex:1;}
+.pin-row .btn{flex:none;min-width:56px;justify-content:center;}
+
+.part-card{background:var(--surface-2);border:1px solid var(--line-soft);border-radius:12px;padding:14px;margin-bottom:12px;}
+.part-top{display:grid;grid-template-columns:1fr;gap:8px;}
+.part-cat,.part-item{width:100%;font-size:15px;padding:11px 12px;min-height:46px;border-radius:8px;background:var(--surface-3);border:1px solid var(--line);color:var(--text);margin:0;}
+.part-desc{font-size:12px;color:var(--text-dim);line-height:1.45;margin:10px 2px 12px;min-height:1em;}
+.part-bot{display:grid;grid-template-columns:78px 1fr 1fr 44px;gap:10px;align-items:end;}
+.pcell label{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px;}
+.pcell .qty-inp{width:100%;min-height:46px;font-size:16px;}
+.pval{display:block;font-family:var(--mono);font-size:14px;padding:12px 0;min-height:46px;}
+.pval.strong{font-weight:700;color:var(--amber);}
+.part-bot .rm-btn{width:44px;height:46px;}
+
+.toggle{display:flex;gap:14px;align-items:flex-start;cursor:pointer;}
+.toggle input{width:26px;height:26px;accent-color:var(--amber);flex:none;margin-top:1px;}
+.toggle b{display:block;font-size:16px;line-height:1.3;}
+.toggle small{display:block;color:var(--text-dim);font-size:12px;margin-top:4px;line-height:1.5;font-weight:400;}
+.travel-fields{display:none;margin-top:18px;}
+.travel-item.on{border-color:var(--amber);}
+.travel-item.on .travel-fields{display:block;}
+.travel-line{display:flex;justify-content:space-between;margin-top:16px;font-family:var(--mono);font-size:14px;color:var(--text-dim);}
+.travel-line b{color:var(--amber);}
+.labour-card{border-color:var(--amber);}
+.labour-desc{font-size:13px;line-height:1.55;color:var(--text);background:var(--surface-2);border-radius:8px;padding:12px 14px;margin-bottom:16px;}
+.labour-result{display:flex;justify-content:space-between;margin-top:16px;font-family:var(--mono);font-size:14px;color:var(--text-dim);}
+.labour-result b{color:var(--amber);font-size:16px;}
+
+.summary-wrap{overflow-x:auto;}
+.summary-table{width:100%;border-collapse:collapse;font-size:13px;}
+.summary-table th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:0 8px 8px 0;border-bottom:1px solid var(--line);}
+.summary-table td{padding:11px 8px 11px 0;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+.summary-table th.num,.summary-table td.num{text-align:right;font-family:var(--mono);white-space:nowrap;font-size:12px;}
+.summary-table small{color:var(--text-faint);font-size:11px;}
+.summary-table tr.sub td{color:var(--text-dim);}
+.summary-table tr.grp td{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding-top:16px;}
+.summary-table tr.total td{border-bottom:none;font-weight:700;font-size:16px;color:var(--amber);}
+.indic{border:1px solid var(--amber);border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.6;color:var(--text-dim);background:color-mix(in srgb,var(--amber) 6%,var(--surface));margin-bottom:16px;}
+.indic b{display:block;color:var(--text);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;font-size:12px;}
+.warn-list{margin:0 0 16px;padding:0;list-style:none;}
+.warn-list li{font-size:13px;padding:10px 12px;border-left:3px solid var(--amber);background:var(--surface-2);margin-bottom:6px;border-radius:0 6px 6px 0;line-height:1.4;}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.action-grid .btn{justify-content:center;min-height:54px;font-size:15px;}
+@media(max-width:420px){.action-grid{grid-template-columns:1fr;}}
+
+.rp-link{color:#000;font-weight:700;text-decoration:underline;}
+.rp-indic{border:2px solid #E6FF00;background:#FBFFD6;border-radius:6px;padding:10px 12px;margin:14px 0;font-size:11px;line-height:1.55;color:#222;}
+.rp-indic b{display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#000;}
+.rp-table th.r{text-align:right;}
 </style>
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:_dlc_DocId msdt:dt="string">YRNP74QTP6U2-1741340171-56282</mso:_dlc_DocId>
+<mso:_dlc_DocIdItemGuid msdt:dt="string">9bbae864-661c-4187-a2ba-073ade9f7bec</mso:_dlc_DocIdItemGuid>
+<mso:_dlc_DocIdUrl msdt:dt="string">https://earthtrackminesupplies.sharepoint.com/sites/EL/_layouts/15/DocIdRedir.aspx?ID=YRNP74QTP6U2-1741340171-56282, YRNP74QTP6U2-1741340171-56282</mso:_dlc_DocIdUrl>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
 </head>
 <body>
 
@@ -326,80 +427,107 @@ section.panel.active{display:block;}
 <!-- ═══════════════ AUDIT PANEL ═══════════════ -->
 <section class="panel active" id="panel-audit">
 
-  <div class="blk">
-    <div class="blk-head">
-      <div class="blk-title">Site Service Visit</div>
-      <div class="blk-badge" id="auditIdLabel">DRAFT</div>
-    </div>
-    <div class="grid">
-      <div class="field"><label>Date</label><input type="date" id="f_date"></div>
-      <div class="field"><label>Visit Number</label><input type="text" id="f_auditno" placeholder="EL-SSR-YYMMDD-SITE" class="mono"></div>
-      <div class="field">
-        <label>Technician</label>
-        <select id="f_tech">
-          <option value="">Select…</option>
-          <option>Barry Bloomfield</option>
-          <option>James Huddart</option>
-          <option>Barry Vermeulen</option>
-          <option value="__other">Other (type below)</option>
-        </select>
-        <input type="text" id="f_tech_other" placeholder="Technician name" style="display:none;margin-top:6px;">
-      </div>
-      <div class="field"><label>Client / Company</label><input type="text" id="f_client" placeholder="Company / site owner"></div>
-      <div class="field"><label>Location / Site</label><input type="text" id="f_location" placeholder="Site name or area"></div>
-      <div class="field"><label>Site Contact Phone</label><input type="tel" id="f_contact_phone" placeholder="04xx xxx xxx"></div>
-      <div class="field"><label>Site Contact Email</label><input type="email" id="f_contact_email" placeholder="contact@client.com.au"></div>
-      <div class="field span2">
-        <label>Map Location / GPS</label>
-        <div style="display:flex;gap:6px;">
-          <input type="text" id="f_maploc" placeholder="Grid ref / GPS coords / description" style="flex:1;">
-          <button class="btn ghost" style="flex:none;padding:9px 12px;" onclick="captureGPS()">📍</button>
-        </div>
-        <div class="hint">One GPS pin per visit. In reception, tap 📍 to capture it automatically; out of reception, type a grid ref or description — same field, no signal needed.</div>
-      </div>
-    </div>
+  <div class="stagebar" id="stageBar">
+    <button type="button" class="stage-pill active" data-go="site"><b>1</b>Site</button>
+    <button type="button" class="stage-pill" data-go="details"><b>2</b>Tower</button>
+    <button type="button" class="stage-pill" data-go="condition"><b>3</b>Condition</button>
+    <button type="button" class="stage-pill" data-go="repairs"><b>4</b>Repairs</button>
+    <button type="button" class="stage-pill" data-go="photos"><b>5</b>Photos</button>
+    <button type="button" class="stage-pill" data-go="travel"><b>6</b>Travel</button>
+    <button type="button" class="stage-pill" data-go="summary"><b>7</b>Summary</button>
   </div>
 
-  <div class="blk">
-    <div class="blk-head"><div class="blk-title">Mobilisation &amp; Callout Costs (this visit)</div><div class="blk-badge">Not tied to any one tower</div></div>
-    <p class="hint" style="margin-bottom:10px;">Technician mobilisation, vehicle/day rates, accommodation — costs for the visit as a whole, kept separate from each tower's parts.</p>
-    <table class="parts-table" id="mobTable">
-      <thead><tr>
-        <th style="width:48%">Item</th>
-        <th style="width:54px">Qty</th>
-        <th class="num" style="width:82px">Unit</th>
-        <th class="num" style="width:90px">Line Total</th>
-        <th style="width:30px"></th>
-      </tr></thead>
-      <tbody id="mobBody"></tbody>
-    </table>
-    <button class="add-part-btn" id="addMobBtn" type="button">+ Add mobilisation / callout item</button>
-    <div class="totals">
-      <div class="tot-line"><span>Subtotal (ex-GST)</span><span class="amt" id="mob_sub">$0.00</span></div>
-      <div class="tot-line"><span>GST 10%</span><span class="amt" id="mob_gst">$0.00</span></div>
-      <div class="tot-grand"><span>Mobilisation total (inc. GST)</span><span class="amt" id="mob_total">$0.00</span></div>
-    </div>
-  </div>
-
-  <!-- ── TOWER TABS — one visit can hold several towers ── -->
-  <div class="tower-nav">
+  <div class="tower-nav" id="towerNav" style="display:none;">
     <div class="tower-tabs" id="towerTabs"></div>
     <button class="add-tower-btn" id="addTowerBtn" type="button">+ Add tower</button>
   </div>
+  <input type="hidden" id="f_maploc">
 
-  <div class="blk" style="border-top:1px solid var(--line);padding-top:18px;">
-    <div class="blk-head"><div class="blk-title">Tower Details</div><div class="blk-badge" id="towerPosLabel">Tower 1</div></div>
-    <div class="grid">
-      <div class="field">
-        <label>Tower Number</label>
-        <select id="f_towernum"><option value="">Select…</option></select>
+  <!-- ═════ 1 · SITE ═════ -->
+  <div class="stage active" data-stage="site">
+    <div class="stage-head">
+      <div class="stage-kicker">Step 1 of 7 · <span id="auditIdLabel">DRAFT</span></div>
+      <div class="stage-title">Site visit</div>
+      <div class="stage-sub">Who you're visiting and when. This is shared by every tower on the visit.</div>
+    </div>
+    <div class="card">
+      <div class="grid">
+        <div class="field span2"><label>Client / Company</label><input type="text" id="f_client" placeholder="Company / site owner" autocomplete="organization"></div>
+        <div class="field span2"><label>Location / Site</label><input type="text" id="f_location" placeholder="Site name or area"></div>
+        <div class="field"><label>Date</label><input type="date" id="f_date"></div>
+        <div class="field">
+          <label>Technician</label>
+          <select id="f_tech">
+            <option value="">Select…</option>
+            <option>Barry Bloomfield</option>
+            <option>James Huddart</option>
+            <option>Barry Vermeulen</option>
+            <option value="__other">Other (type below)</option>
+          </select>
+          <input type="text" id="f_tech_other" placeholder="Technician name" style="display:none;margin-top:8px;">
+        </div>
       </div>
-      <div class="field"><label>Tower Serial</label><input type="text" id="f_serial" class="mono" placeholder="EL-XXXXXXXX"></div>
-      <div class="field"><label>Asset Number</label><input type="text" id="f_asset"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Site contact</div>
+      <div class="grid">
+        <div class="field"><label>Phone</label><input type="tel" id="f_contact_phone" placeholder="04xx xxx xxx"></div>
+        <div class="field"><label>Email</label><input type="email" id="f_contact_email" placeholder="contact@client.com.au"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="field"><label>Visit Number</label><input type="text" id="f_auditno" placeholder="EL-SSR-YYMMDD-SITE" class="mono">
+        <div class="hint">Filled in automatically from the date and site name — type over it to use your own.</div></div>
+    </div>
+  </div>
+
+  <!-- ═════ 2 · TOWER DETAILS ═════ -->
+  <div class="stage" data-stage="details">
+    <div class="stage-head">
+      <div class="stage-kicker"><span id="towerPosLabel">Tower 1 of 1</span></div>
+      <div class="stage-title">Tower details</div>
+      <div class="stage-sub">Identify the unit and drop a location pin at the tower.</div>
+    </div>
+    <div class="card">
+      <div class="grid">
+        <div class="field"><label>Tower Number</label><select id="f_towernum"><option value="">Select…</option></select></div>
+        <div class="field"><label>Serial Number</label><input type="text" id="f_serial" class="mono" placeholder="EL-XXXXXXXX"></div>
+        <div class="field span2 combo">
+          <label>Model</label>
+          <input type="text" id="f_model" class="mono" placeholder="Tap to search or pick a model…" autocomplete="off" autocapitalize="characters">
+          <div class="combo-list" id="modelCombo" hidden></div>
+          <div class="hint">Type part of the code (e.g. “slmt100”) or pick from the list. Anything you type is accepted if it's not listed.</div>
+        </div>
+        <div class="field"><label>Asset Number</label><input type="text" id="f_asset"></div>
+        <div class="field">
+          <label>Year (manufactured / installed)</label>
+          <select id="f_year"><option value="">Select…</option></select>
+          <div class="hint">Use the manufacture year from the certification plate if shown; otherwise “Unknown”.</div>
+        </div>
+        <div class="field"><label>Overall Condition</label>
+          <select id="f_overall"><option value="">Select…</option><option>Excellent</option><option>Good</option><option>Fair</option><option>Poor</option><option>Failed</option></select>
+        </div>
+        <div class="field"><label>Scope of Work</label>
+          <select id="f_scope_type">
+            <option value="">Select scope…</option>
+            <option>Routine Inspection</option><option>Battery Replacement</option><option>Controller Upgrade</option>
+            <option>Lithium Upgrade</option><option>Winch Replacement</option><option>Full Recommissioning</option>
+            <option>Fault Diagnosis</option><option>Emergency Call-Out</option><option>Custom (see notes)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tower location pin</div>
       <div class="field">
-        <label>Model</label>
-        <input type="text" id="f_model" class="mono" list="modelList" placeholder="Type to search or select…" autocomplete="off">
-        <datalist id="modelList">
+        <div class="pin-row">
+          <input type="text" id="f_gps" placeholder="-23.360000, 119.730000" inputmode="text">
+          <button class="btn accent" type="button" onclick="captureGPS()" aria-label="Drop pin at my location">📍 Pin</button>
+        </div>
+        <div class="hint">Stand at the tower and tap Pin (needs GPS signal). No signal? Type the coordinates as “lat, long” — it becomes a Google Maps link in the PDF.</div>
+      </div>
+    </div>
+    <datalist id="modelList">
           <option value="ETG-01MI011"></option>
           <option value="ETG-01MI090"></option>
           <option value="ETG-01MT101"></option>
@@ -484,102 +612,34 @@ section.panel.active{display:block;}
           <option value="ETMS-PLS150TWIN-FCB"></option>
           <option value="ETG-ESLP50-TWIN"></option>
           <option value="ETG-PLS100QUAD-FCB"></option>
-        </datalist>
-      </div>
-      <div class="field"><label>Year Installed</label><input type="text" id="f_year" placeholder="e.g. 2019" class="mono"></div>
-      <div class="field">
-        <label>Overall Condition</label>
-        <select id="f_overall">
-          <option value="">Select…</option>
-          <option>Excellent</option>
-          <option>Good</option>
-          <option>Fair</option>
-          <option>Poor</option>
-          <option>Failed</option>
-        </select>
-      </div>
-      <div class="field span2">
-        <label>Scope of Work (this tower)</label>
-        <select id="f_scope_type">
-          <option value="">Select scope…</option>
-          <option>Routine Inspection</option>
-          <option>Battery Replacement</option>
-          <option>Controller Upgrade</option>
-          <option>Lithium Upgrade</option>
-          <option>Winch Replacement</option>
-          <option>Full Recommissioning</option>
-          <option>Fault Diagnosis</option>
-          <option>Emergency Call-Out</option>
-          <option>Custom (see notes)</option>
-        </select>
-      </div>
-    </div>
+    </datalist>
   </div>
 
-  <div class="blk">
-    <div class="blk-head"><div class="blk-title">Condition Assessment</div><div class="blk-badge">On-site findings</div></div>
-
-    <div class="cond-row">
-      <label>Tower</label>
-      <select id="f_cond_tower">
-        <option value="">Choose…</option>
-        <option>Solar tower is operational.</option>
-        <option>Solar tower is semi-operational.</option>
-        <option>Solar Tower is Non-Operational.</option>
-      </select>
+  <!-- ═════ 3 · CONDITION ═════ -->
+  <div class="stage" data-stage="condition">
+    <div class="stage-head">
+      <div class="stage-kicker">Tower condition</div>
+      <div class="stage-title">What did you find?</div>
+      <div class="stage-sub">Choose what's on the tower now, then flag any issues.</div>
     </div>
-    <div class="cond-row">
-      <label>Battery</label>
-      <select id="f_cond_battery">
-        <option value="">Choose…</option>
-        <option>AGM Batteries.</option>
-        <option>Lithium Batteries.</option>
-        <option>Non-EarthLight Battery.</option>
-        <option>No battery present.</option>
-      </select>
+    <div class="card">
+      <div class="card-title">Components</div>
+      <div class="cond-row"><label>Tower</label>
+        <select id="f_cond_tower"><option value="">Choose…</option><option>Solar tower is operational.</option><option>Solar tower is semi-operational.</option><option>Solar Tower is Non-Operational.</option></select></div>
+      <div class="cond-row"><label>Battery</label>
+        <select id="f_cond_battery"><option value="">Choose…</option><option>AGM Batteries.</option><option>Lithium Batteries.</option><option>Non-EarthLight Battery.</option><option>No battery present.</option></select></div>
+      <div class="cond-row"><label>Controller</label>
+        <select id="f_cond_controller"><option value="">Choose…</option><option>Legacy Controller.</option><option>Lithium Blackstart Controller.</option><option>Non-EarthLight controller.</option></select></div>
+      <div class="cond-row"><label>Lights</label>
+        <select id="f_cond_lights"><option value="">Choose…</option><option>Legacy-model floodlights.</option><option>Veva Sirius Pro Flood Lights.</option><option>Metro Curve LED(s).</option><option>Solar Pro Self-Cleaning Light.</option><option>Non-EarthLight light fittings.</option><option>Legacy EarthLight All-in-One Solar Light.</option></select></div>
+      <div class="cond-row"><label>Winch</label>
+        <select id="f_cond_winch"><option value="">Choose…</option><option>Legacy steel winch.</option><option>Auto Brake Hand Winch.</option></select></div>
+      <div class="cond-row" style="margin-bottom:0;"><label>Pole</label>
+        <select id="f_cond_pole"><option value="">Choose…</option><option>Hinged Pole.</option><option>Tilt Pole.</option><option>Legacy Non-Tilt Pole.</option></select></div>
     </div>
-    <div class="cond-row">
-      <label>Controller</label>
-      <select id="f_cond_controller">
-        <option value="">Choose…</option>
-        <option>Legacy Controller.</option>
-        <option>Lithium Blackstart Controller.</option>
-        <option>Non-EarthLight controller.</option>
-      </select>
-    </div>
-    <div class="cond-row">
-      <label>Lights</label>
-      <select id="f_cond_lights">
-        <option value="">Choose…</option>
-        <option>Legacy-model floodlights.</option>
-        <option>Veva Sirius Pro Flood Lights.</option>
-        <option>Metro Curve LED(s).</option>
-        <option>Solar Pro Self-Cleaning Light.</option>
-        <option>Non-EarthLight light fittings.</option>
-        <option>Legacy EarthLight All-in-One Solar Light.</option>
-      </select>
-    </div>
-    <div class="cond-row">
-      <label>Winch</label>
-      <select id="f_cond_winch">
-        <option value="">Choose…</option>
-        <option>Legacy steel winch.</option>
-        <option>Auto Brake Hand Winch.</option>
-      </select>
-    </div>
-    <div class="cond-row">
-      <label>Pole</label>
-      <select id="f_cond_pole">
-        <option value="">Choose…</option>
-        <option>Hinged Pole.</option>
-        <option>Tilt Pole.</option>
-        <option>Legacy Non-Tilt Pole.</option>
-      </select>
-    </div>
-
-    <div style="margin-top:14px;">
-      <div class="blk-title" style="margin-bottom:10px;">Issues Found</div>
-      <div class="field" style="margin-bottom:8px;">
+    <div class="card">
+      <div class="card-title">Issues found</div>
+      <div class="field" style="margin-bottom:14px;">
         <label>Severity</label>
         <div class="sev-row">
           <button class="sev-btn" onclick="setSev('Low')" type="button">Low</button>
@@ -590,65 +650,139 @@ section.panel.active{display:block;}
       </div>
       <div class="chip-grid" id="findings-chips"></div>
     </div>
-
-    <div class="field" style="margin-top:14px;">
-      <label>Components / Free Notes</label>
-      <textarea id="f_components" placeholder="Anything not captured above (component serial numbers, photos taken, anomalies)"></textarea>
-    </div>
-    <div class="field" style="margin-top:10px;">
-      <label>Detailed Findings</label>
-      <textarea id="f_findings" placeholder="Describe defects, wear, damage, measurements, safety issues…" style="min-height:80px;"></textarea>
+    <div class="card">
+      <div class="card-title">Notes</div>
+      <div class="field"><label>Components / free notes</label><textarea id="f_components" placeholder="Anything not captured above (component serial numbers, anomalies)"></textarea></div>
+      <div class="field" style="margin-top:16px;"><label>Detailed findings</label><textarea id="f_findings" placeholder="Describe defects, wear, damage, measurements, safety issues…" style="min-height:130px;"></textarea></div>
     </div>
   </div>
 
-  <div class="blk">
-    <div class="blk-head"><div class="blk-title">Solution — Parts &amp; Cost (this tower)</div><div class="blk-badge" id="partsCount">0 lines</div></div>
-    <table class="parts-table" id="partsTable">
-      <thead><tr>
-        <th style="width:48%">Part</th>
-        <th style="width:54px">Qty</th>
-        <th class="num" style="width:82px">Unit</th>
-        <th class="num" style="width:90px">Line Total</th>
-        <th style="width:30px"></th>
-      </tr></thead>
-      <tbody id="partsBody"></tbody>
-    </table>
-    <button class="add-part-btn" id="addPartBtn" type="button">+ Add part from price book</button>
-
-    <div class="totals">
-      <div class="tot-line"><span>Subtotal (ex-GST)</span><span class="amt" id="t_sub">$0.00</span></div>
-      <div class="tot-line"><span>GST 10%</span><span class="amt" id="t_gst">$0.00</span></div>
-      <div class="tot-grand"><span>This tower (inc. GST)</span><span class="amt" id="t_total">$0.00</span></div>
-      <div class="tot-visit"><span id="visitTotalLabel">Visit total — 1 tower</span><span class="amt" id="t_visit_total">$0.00</span></div>
+  <!-- ═════ 4 · REPAIRS & COST ═════ -->
+  <div class="stage" data-stage="repairs">
+    <div class="stage-head">
+      <div class="stage-kicker">Estimate for this tower</div>
+      <div class="stage-title">Repairs &amp; cost</div>
+      <div class="stage-sub">Pick the parts needed, then estimate the labour hours. Pricing here is indicative only.</div>
     </div>
-
-    <div class="field" style="margin-top:14px;">
-      <label><input type="checkbox" id="f_optional" style="width:auto;margin-right:6px;accent-color:var(--amber);">Optional installation recommended (pending approval)</label>
+    <div class="card">
+      <div class="card-title">Parts to supply <span class="badge" id="partsCount">0 items</span></div>
+      <div id="partsList"></div>
+      <button class="add-part-btn" id="addPartBtn" type="button">+ Add part from price book</button>
     </div>
-    <div class="field" id="optNoteWrap" style="display:none;margin-top:8px;">
-      <label>Optional installation note</label>
-      <textarea id="f_optnote"></textarea>
+    <div class="card labour-card">
+      <div class="card-title">Labour</div>
+      <div class="labour-desc">Earthlight service technicians to remove existing items and install the new components listed, then field test and commission the system to ensure full functionality.</div>
+      <div class="grid">
+        <div class="field"><label>Estimated hours</label><input type="number" id="f_labour_hours" min="0" step="0.25" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label>Hourly rate ($, ex-GST)</label><input type="number" id="f_labour_rate" min="0" step="1" inputmode="decimal"></div>
+      </div>
+      <div class="hint" style="margin-top:10px;">Include travel time between towers and an allowance for extra work found on site — for example damaged or burnt solar plugs.</div>
+      <div class="labour-result"><span>Estimated labour (ex-GST)</span><b id="labour_cost">$0.00</b></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Estimate for this tower</div>
+      <div class="totals" style="margin-top:0;">
+        <div class="tot-line"><span>Parts (ex-GST)</span><span class="amt" id="t_parts">$0.00</span></div>
+        <div class="tot-line"><span>Labour (ex-GST)</span><span class="amt" id="t_labour">$0.00</span></div>
+        <div class="tot-line"><span>Subtotal (ex-GST)</span><span class="amt" id="t_sub">$0.00</span></div>
+        <div class="tot-line"><span>GST 10%</span><span class="amt" id="t_gst">$0.00</span></div>
+        <div class="tot-grand"><span>This tower (inc. GST)</span><span class="amt" id="t_total">$0.00</span></div>
+        <div class="tot-visit"><span id="visitTotalLabel">Visit total — 1 tower</span><span class="amt" id="t_visit_total">$0.00</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <label class="toggle"><input type="checkbox" id="f_optional"><span><b>Optional installation recommended</b><small>Tick if there's additional work worth recommending, pending customer approval.</small></span></label>
+      <div class="field" id="optNoteWrap" style="display:none;margin-top:16px;"><label>Optional installation note</label><textarea id="f_optnote"></textarea></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Solution &amp; notes</div>
+      <div class="field"><label>Recommended solution / next steps</label><textarea id="f_solution" placeholder="Recommended solution, next steps, actions completed…"></textarea></div>
+      <div class="field" style="margin-top:16px;"><label>Anything else for the office or client</label><textarea id="f_notes"></textarea></div>
     </div>
   </div>
 
-  <div class="blk">
-    <div class="blk-head"><div class="blk-title">Solution Summary &amp; Notes (this tower)</div></div>
-    <div class="field"><textarea id="f_solution" placeholder="Recommended solution, next steps, actions completed…" style="min-height:70px;"></textarea></div>
-    <div class="field" style="margin-top:10px;"><textarea id="f_notes" placeholder="Anything else for the office or client"></textarea></div>
+  <!-- ═════ 5 · PHOTOS ═════ -->
+  <div class="stage" data-stage="photos">
+    <div class="stage-head">
+      <div class="stage-kicker">This tower</div>
+      <div class="stage-title">Site photos</div>
+      <div class="stage-sub">Tower, damage, serial plates or completed work. They go into the full PDF (download / OneDrive copy); emailed copies leave photos out to stay small.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Photos <span class="badge" id="photosCount">0 photos</span></div>
+      <div class="photo-grid" id="photoGrid"><div class="photo-empty" id="photoEmptyMsg">No photos attached yet.</div></div>
+      <div class="btnbar" style="margin-top:14px;">
+        <button class="btn accent photo-add-btn" type="button" id="addPhotoCameraBtn">📷 Take Photo</button>
+        <button class="btn photo-add-btn" type="button" id="addPhotoLibraryBtn">🖼 Add from Library</button>
+      </div>
+      <input type="file" id="photoCameraInput" accept="image/*" capture="environment" multiple style="display:none;">
+      <input type="file" id="photoLibraryInput" accept="image/*" multiple style="display:none;">
+    </div>
   </div>
 
-  <div class="blk">
-    <div class="blk-head"><div class="blk-title">Site Photos (this tower)</div><div class="blk-badge" id="photosCount">0 photos</div></div>
-    <p class="hint" style="margin-bottom:10px;">Attach photos of the tower, damage, serial plates or completed work. They're embedded straight into the full PDF report (downloaded / OneDrive copy). Emailed reports leave photos out to stay small — see "How it works".</p>
-    <div class="photo-grid" id="photoGrid">
-      <div class="photo-empty" id="photoEmptyMsg">No photos attached yet.</div>
+  <!-- ═════ 6 · TRAVEL & ACCOMMODATION ═════ -->
+  <div class="stage" data-stage="travel">
+    <div class="stage-head">
+      <div class="stage-kicker">Whole visit · optional</div>
+      <div class="stage-title">Travel &amp; accommodation</div>
+      <div class="stage-sub">Only add these if the client can't provide them. Costs are editable and are added separately to the project total.</div>
     </div>
-    <div class="btnbar" style="margin-top:10px;">
-      <button class="btn accent photo-add-btn" type="button" id="addPhotoCameraBtn">📷 Take Photo</button>
-      <button class="btn photo-add-btn" type="button" id="addPhotoLibraryBtn">🖼 Add from Library</button>
+    <div class="card travel-item" id="tv_flights_card">
+      <label class="toggle"><input type="checkbox" id="tv_flights_on"><span><b>Flights / technician mobilisation</b><small>Quantity = number of technicians.</small></span></label>
+      <div class="travel-fields">
+        <div class="grid">
+          <div class="field"><label>Qty</label><input type="number" id="tv_flights_qty" min="0" step="1" inputmode="decimal"></div>
+          <div class="field"><label>Unit cost ($, ex-GST)</label><input type="number" id="tv_flights_price" min="0" step="1" inputmode="decimal"></div>
+        </div>
+        <div class="travel-line"><span>Line total</span><b id="tv_flights_total">$0.00</b></div>
+      </div>
     </div>
-    <input type="file" id="photoCameraInput" accept="image/*" capture="environment" multiple style="display:none;">
-    <input type="file" id="photoLibraryInput" accept="image/*" multiple style="display:none;">
+    <div class="card travel-item" id="tv_car_card">
+      <label class="toggle"><input type="checkbox" id="tv_car_on"><span><b>Car hire / mine-spec vehicle</b><small>Quantity = vehicle-days.</small></span></label>
+      <div class="travel-fields">
+        <div class="grid">
+          <div class="field"><label>Qty</label><input type="number" id="tv_car_qty" min="0" step="1" inputmode="decimal"></div>
+          <div class="field"><label>Unit cost ($, ex-GST)</label><input type="number" id="tv_car_price" min="0" step="1" inputmode="decimal"></div>
+        </div>
+        <div class="travel-line"><span>Line total</span><b id="tv_car_total">$0.00</b></div>
+      </div>
+    </div>
+    <div class="card travel-item" id="tv_acc_card">
+      <label class="toggle"><input type="checkbox" id="tv_acc_on"><span><b>Accommodation</b><small>Quantity = person-nights.</small></span></label>
+      <div class="travel-fields">
+        <div class="grid">
+          <div class="field"><label>Qty</label><input type="number" id="tv_acc_qty" min="0" step="1" inputmode="decimal"></div>
+          <div class="field"><label>Unit cost ($, ex-GST)</label><input type="number" id="tv_acc_price" min="0" step="1" inputmode="decimal"></div>
+        </div>
+        <div class="travel-line"><span>Line total</span><b id="tv_acc_total">$0.00</b></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="totals" style="margin-top:0;">
+        <div class="tot-line"><span>Subtotal (ex-GST)</span><span class="amt" id="tv_sub">$0.00</span></div>
+        <div class="tot-line"><span>GST 10%</span><span class="amt" id="tv_gst">$0.00</span></div>
+        <div class="tot-grand"><span>Travel &amp; accommodation (inc. GST)</span><span class="amt" id="tv_total">$0.00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════ 7 · SUMMARY ═════ -->
+  <div class="stage" data-stage="summary">
+    <div class="stage-head">
+      <div class="stage-kicker">Final step</div>
+      <div class="stage-title">Summary of costs</div>
+      <div class="stage-sub">Check the numbers, then save, preview the report or send it.</div>
+    </div>
+    <div id="summaryBody"></div>
+    <div class="card">
+      <div class="card-title">Finish</div>
+      <div class="action-grid">
+        <button class="btn accent" id="genReportBtn" type="button">📄 Report / PDF</button>
+        <button class="btn primary" id="emailBtn" type="button">✉ Email report</button>
+        <button class="btn" id="uploadOdBtn" type="button" style="display:none;">☁ Upload to OneDrive</button>
+      </div>
+      <div class="hint" style="margin-top:12px;">Save is always available in the bar below. Email and OneDrive need your Microsoft sign-in (OneDrive tab).</div>
+    </div>
   </div>
 
 </section>
@@ -806,6 +940,14 @@ section.panel.active{display:block;}
     </div>
     <p class="hint" style="margin-top:8px;">The Email button sends via your own Microsoft sign-in (the same one used for OneDrive) — so it comes from whichever tech is signed in, no separate email setup needed. If the visit has a site contact email filled in, you'll get a one-tap prompt asking whether to send them a copy too.</p>
   </div>
+
+  <div class="settings-box">
+    <div class="blk-title" style="margin-bottom:12px;">Labour rate</div>
+    <div class="grid">
+      <div class="field"><label>Default hourly rate ($, ex-GST)</label><input type="number" id="s_labour_rate" min="0" step="1" inputmode="decimal"></div>
+    </div>
+    <p class="hint" style="margin-top:8px;">Used as the starting rate on every new tower — techs can still adjust the hours and rate per tower. Travel &amp; accommodation default costs come from the <b>Mobilisation</b> category in the price book above (technician mobilisation, mine-spec vehicle, accommodation).</p>
+  </div>
 </section>
 
 <!-- ═══════════════ HELP PANEL ═══════════════ -->
@@ -819,7 +961,13 @@ section.panel.active{display:block;}
       <p>On mobile (iOS/Android), open this page in Safari or Chrome and use <b>Add to Home Screen</b> — it installs properly (icon, splash screen, no browser address bar) because the page ships a manifest + offline service worker. On desktop, use the install icon in Chrome's address bar. Install it once while you still have signal; after that it's yours to use anywhere.</p>
 
       <h4>Multiple towers on one report</h4>
-      <p>A "Visit" is one site call-out and can hold several towers. Use <b>+ Add tower</b> under the visit details to add another — each tower gets its own Tower Details, Condition, Findings, Parts &amp; Cost and Photos, switchable via the tower tabs. Tap <b>Report</b> to generate one combined PDF covering every tower on the visit, each on its own page, with a visit summary and grand total up front.</p>
+      <p>A "Visit" is one site call-out and can hold several towers. Use <b>+ Add tower</b> under the visit details to add another — each tower gets its own Tower Details, Condition, Findings, Parts &amp; Cost and Photos, switchable via the tower tabs. Tap <b>Report</b> to generate one combined PDF covering every tower on the visit, each on its own page, with a visit summary up front and a Summary of Costs at the end.</p>
+
+      <h4>Labour, travel &amp; the cost summary</h4>
+      <p>Each tower has a standard labour line — enter the estimated <b>hours</b> (include travel time between towers and extra work found on site, e.g. damaged or burnt solar plugs); the hourly rate starts from the admin default and can be adjusted per tower. <b>Travel &amp; accommodation</b> (flights / technician mobilisation, mine-spec vehicle, accommodation) are optional and only added when the client can't provide them. The last step shows a <b>Summary of Costs</b> for every tower plus anything travel-related, clearly marked as indicative pricing only.</p>
+
+      <h4>Tower location pins</h4>
+      <p>Drop a pin on each tower (📍 Pin while standing at it, or type coordinates as “lat, long”). In the PDF each pin becomes a Google Maps link, and a position plot of all the towers is included.</p>
 
       <h4>PDF report</h4>
       <p>Tap <b>Report</b> at the bottom to preview, then <b>Download PDF</b> to save a properly formatted EarthLight Site Service Report — with every tower on the visit — to your device. This is the full file (with photos) that gets uploaded to OneDrive.</p>
@@ -845,11 +993,10 @@ section.panel.active{display:block;}
 <!-- ─── BOTTOM BAR ─── -->
 <div class="bottombar" id="bottomBar" style="display:none;">
   <div class="bottombar-inner">
-    <div class="bb-total">VISIT TOTAL<b id="bb_total">$0.00</b></div>
+    <div class="bb-total">EST. TOTAL<b id="bb_total">$0.00</b></div>
     <button class="btn ghost" id="saveBtn">Save</button>
-    <button class="btn accent" id="genReportBtn">Report</button>
-    <button class="btn" id="uploadOdBtn" style="display:none;">☁ Upload</button>
-    <button class="btn primary" id="emailBtn">Email</button>
+    <button class="btn ghost" id="backBtn" style="visibility:hidden;">← Back</button>
+    <button class="btn primary" id="nextBtn">Next →</button>
   </div>
 </div>
 
@@ -971,7 +1118,8 @@ function migrateOldAudits(){
 
 var pb = lsGet(K.PB,null)||defaultPB();
 var visits = lsGet(K.VISITS,null); if(visits===null){visits=migrateOldAudits();lsSet(K.VISITS,visits);}
-var settings = lsGet(K.SETTINGS,{inbox:'service@earthlight.com.au',cc:''});
+var settings = lsGet(K.SETTINGS,{inbox:'service@earthlight.com.au',cc:'',labourRate:108});
+if(settings.labourRate===undefined||settings.labourRate===null){settings.labourRate=108;lsSet(K.SETTINGS,settings);}
 /* Pre-configured for the whole team — the Client ID is a public identifier (safe to ship in the
    build, not a secret), and this shared folder link is where every visit should land. Each
    technician still has to sign in individually (that's what gives per-person accountability),
@@ -1068,15 +1216,7 @@ $('f_optional').addEventListener('change',function(){
 });
 
 /* ─── GPS ─── */
-window.captureGPS=function(){
-  if(!navigator.geolocation){toast('GPS not supported on this device');return;}
-  toast('Locating…');
-  navigator.geolocation.getCurrentPosition(function(p){
-    var lat=p.coords.latitude.toFixed(6),lng=p.coords.longitude.toFixed(6);
-    $('f_maploc').value=lat+', '+lng;
-    toast('GPS: '+lat+', '+lng);
-  },function(){toast('Could not get GPS — enter manually');},{enableHighAccuracy:true,timeout:10000});
-};
+
 
 /* ─── FINDINGS CHIPS ─── */
 var FINDINGS=['Battery Low / Depleted','Battery Swollen / Damaged','Battery Not Holding Charge',
@@ -1180,33 +1320,54 @@ window.setSev=function(v){
   Array.from(document.querySelectorAll('.sev-btn')).find(function(b){return b.textContent.trim()===v||b.textContent.includes(v);}).classList.add(cls);
 };
 
-/* ─── PARTS (scoped to the tower currently on-screen) ─── */
+/* ─── PARTS, LABOUR & TRAVEL (parts + labour are per tower; travel is per visit) ─── */
+var HIDDEN_CATS=['Mobilisation','Service Callouts']; // travel + labour now live in their own sections
+var LABOUR_DESC='Earthlight service technicians to remove existing items and install the new components listed, then field test and commission the system to ensure full functionality.';
+var TRAVEL_ITEMS=[
+  {key:'flights',code:'ETG-20SS021',label:'Flights / technician mobilisation',fallback:2160},
+  {key:'car',code:'ETG-20SS022',label:'Car hire / mine-spec vehicle',fallback:486},
+  {key:'acc',code:'ETG-20SS023',label:'Accommodation',fallback:270}
+];
+
 function rebuildTotals(){
-  var sub=0;
-  partRows.forEach(function(r){sub+=r.qty*r.price;});
-  var gst=sub*0.1,total=sub+gst;
+  var partsSub=0;
+  partRows.forEach(function(r){partsSub+=r.qty*r.price;});
+  var hrs=parseFloat($('f_labour_hours').value)||0,rate=parseFloat($('f_labour_rate').value)||0;
+  var labour=hrs*rate;
+  var sub=partsSub+labour,gst=sub*0.1,total=sub+gst;
+  $('t_parts').textContent=fmt(partsSub);
+  $('t_labour').textContent=fmt(labour);
+  $('labour_cost').textContent=fmt(labour);
   $('t_sub').textContent=fmt(sub);$('t_gst').textContent=fmt(gst);$('t_total').textContent=fmt(total);
-  $('partsCount').textContent=partRows.length+' line'+(partRows.length!==1?'s':'');
+  $('partsCount').textContent=partRows.length+' item'+(partRows.length!==1?'s':'');
   updateVisitTotal(total);
+}
+$('f_labour_hours').addEventListener('input',rebuildTotals);
+$('f_labour_rate').addEventListener('input',rebuildTotals);
+
+function liveTowerTotal(){ // the tower on screen, straight from the form (its stored copy can be stale)
+  var partsSub=0;partRows.forEach(function(r){partsSub+=r.qty*r.price;});
+  var labour=(parseFloat($('f_labour_hours').value)||0)*(parseFloat($('f_labour_rate').value)||0);
+  return (partsSub+labour)*1.1;
 }
 
 function updateVisitTotal(liveCurrentTotal){
   var sum=0;
   curTowers.forEach(function(t,i){
-    if(i===curTowerIdx&&typeof liveCurrentTotal==='number')sum+=liveCurrentTotal;
+    if(i===curTowerIdx)sum+=(typeof liveCurrentTotal==='number'?liveCurrentTotal:liveTowerTotal());
     else sum+=(t.total||0);
   });
-  sum+=mobLiveTotal();
+  sum+=travelTotals(collectTravel()).total;
   $('t_visit_total').textContent=fmt(sum);
   $('bb_total').textContent=fmt(sum);
   var n=curTowers.length;
   $('visitTotalLabel').textContent='Visit total — '+n+' tower'+(n!==1?'s':'');
 }
 
-function buildCatSelect(sel,excludeCat){
+function buildCatSelect(sel,exclude){
   sel.innerHTML='';
   Object.keys(pb).forEach(function(cat){
-    if(excludeCat&&cat===excludeCat)return;
+    if(exclude&&exclude.indexOf(cat)!==-1)return;
     var o=document.createElement('option');o.value=cat;o.textContent=cat;sel.appendChild(o);
   });
 }
@@ -1218,184 +1379,145 @@ function buildItemSelect(catSel,itemSel,selCode){
   pb[cat].forEach(function(item){
     var o=document.createElement('option');
     o.value=item.code;
-    o.dataset.price=item.price;o.dataset.qty=item.qty;
-    o.textContent='['+item.code+'] '+item.desc+' — '+fmt(item.price);
+    o.dataset.price=item.price;o.dataset.qty=item.qty;o.dataset.desc=item.desc;
+    o.textContent=item.desc+' — '+fmt(item.price);
     if(selCode&&item.code===selCode)o.selected=true;
     itemSel.appendChild(o);
   });
 }
 
-function addPartRow(catVal,codeVal,qtyVal,priceVal){
-  var idx=partRows.length;
-  var rowData={qty:qtyVal||1,price:priceVal||0,cat:catVal||Object.keys(pb)[0],code:codeVal||''};
-  partRows.push(rowData);
+function addPartRow(p){
+  p=p||{};
+  var row={cat:'',code:'',desc:'',qty:0,price:0};
+  var card=document.createElement('div');card.className='part-card';
 
-  var tr=document.createElement('tr');
-  tr.dataset.idx=idx;
-
-  var tdPart=document.createElement('td');
+  var top=document.createElement('div');top.className='part-top';
   var catSel=document.createElement('select');catSel.className='part-cat';
   var itemSel=document.createElement('select');itemSel.className='part-item';
-  buildCatSelect(catSel,'Mobilisation');
-  if(catVal)catSel.value=catVal;
-  buildItemSelect(catSel,itemSel,codeVal);
-
-  catSel.addEventListener('change',function(){
-    buildItemSelect(catSel,itemSel,null);
-    var opt=itemSel.options[0];
-    if(opt){rowData.code=opt.value;rowData.price=parseFloat(opt.dataset.price)||0;rowData.cat=catSel.value;rebuildTotals();}
-  });
-  itemSel.addEventListener('change',function(){
-    var opt=itemSel.options[itemSel.selectedIndex];
-    rowData.code=opt.value;rowData.price=parseFloat(opt.dataset.price)||0;
-    qtyInp.value=parseFloat(opt.dataset.qty)||1;rowData.qty=parseFloat(qtyInp.value);
-    rowData.cat=catSel.value;rebuildTotals();
-  });
-  if(itemSel.options[0]){rowData.code=itemSel.options[0].value;rowData.price=parseFloat(itemSel.options[0].dataset.price)||0;}
-  if(codeVal){
-    var chosen=Array.from(itemSel.options).find(function(o){return o.value===codeVal;});
-    if(chosen){chosen.selected=true;rowData.price=parseFloat(chosen.dataset.price)||0;}
+  buildCatSelect(catSel,HIDDEN_CATS);
+  if(p.cat&&pb[p.cat]&&!Array.from(catSel.options).some(function(o){return o.value===p.cat;})){
+    var oc=document.createElement('option');oc.value=p.cat;oc.textContent=p.cat;catSel.appendChild(oc);
   }
-  tdPart.appendChild(catSel);tdPart.appendChild(itemSel);
+  if(p.cat&&pb[p.cat])catSel.value=p.cat;
+  buildItemSelect(catSel,itemSel,p.code);
+  if(p.code&&!Array.from(itemSel.options).some(function(o){return o.value===p.code;})){
+    var oi=document.createElement('option');oi.value=p.code;oi.dataset.price=p.price||0;oi.dataset.qty=p.qty||1;oi.dataset.desc=p.desc||p.code;
+    oi.textContent=(p.desc||p.code)+' — '+fmt(p.price||0)+' (saved)';
+    itemSel.appendChild(oi);itemSel.value=p.code;
+  }
+  top.appendChild(catSel);top.appendChild(itemSel);
 
-  var tdQty=document.createElement('td');
-  var qtyInp=document.createElement('input');qtyInp.type='number';qtyInp.min='0';qtyInp.step='1';qtyInp.className='qty-inp';qtyInp.value=rowData.qty;
-  qtyInp.addEventListener('input',function(){rowData.qty=parseFloat(this.value)||0;rebuildTotals();});
-  tdQty.appendChild(qtyInp);
+  var desc=document.createElement('div');desc.className='part-desc';
 
-  var tdPrice=document.createElement('td');tdPrice.className='num';
-  var priceSpan=document.createElement('span');
-  Object.defineProperty(rowData,'_priceEl',{get:function(){return priceSpan;}});
-  function updatePriceCell(){priceSpan.textContent=fmt(rowData.price);}
-  updatePriceCell();
-  itemSel.addEventListener('change',updatePriceCell);
-  tdPrice.appendChild(priceSpan);
+  var bot=document.createElement('div');bot.className='part-bot';
+  function cell(lbl){var d=document.createElement('div');d.className='pcell';var l=document.createElement('label');l.textContent=lbl;d.appendChild(l);return d;}
+  var cQty=cell('Qty'),qtyInp=document.createElement('input');
+  qtyInp.type='number';qtyInp.min='0';qtyInp.step='1';qtyInp.className='qty-inp';qtyInp.setAttribute('inputmode','numeric');cQty.appendChild(qtyInp);
+  var cUnit=cell('Unit (ex-GST)'),unitVal=document.createElement('span');unitVal.className='pval';cUnit.appendChild(unitVal);
+  var cLine=cell('Line total'),lineVal=document.createElement('span');lineVal.className='pval strong';cLine.appendChild(lineVal);
+  var rm=document.createElement('button');rm.type='button';rm.className='rm-btn';rm.textContent='×';rm.setAttribute('aria-label','Remove item');
+  bot.appendChild(cQty);bot.appendChild(cUnit);bot.appendChild(cLine);bot.appendChild(rm);
 
-  var tdTotal=document.createElement('td');tdTotal.className='num';
-  function updateLineTotal(){tdTotal.textContent=fmt((parseFloat(qtyInp.value)||0)*rowData.price);}
-  updateLineTotal();
-  qtyInp.addEventListener('input',updateLineTotal);
-  itemSel.addEventListener('change',function(){setTimeout(updateLineTotal,0);});
+  function paint(){
+    desc.textContent=row.code?('['+row.code+'] '+row.desc):'';
+    unitVal.textContent=fmt(row.price);lineVal.textContent=fmt(row.qty*row.price);
+  }
+  function pickItem(useDefaultQty){
+    var opt=itemSel.options[itemSel.selectedIndex];
+    row.cat=catSel.value;
+    if(!opt){row.code='';row.desc='';row.price=0;return;}
+    row.code=opt.value;row.desc=opt.dataset.desc||'';row.price=parseFloat(opt.dataset.price)||0;
+    if(useDefaultQty){row.qty=parseFloat(opt.dataset.qty)||1;qtyInp.value=row.qty;}
+  }
+  /* category or item changed: re-read the price from the selected item, refresh every cell */
+  catSel.addEventListener('change',function(){buildItemSelect(catSel,itemSel,null);pickItem(true);paint();rebuildTotals();});
+  itemSel.addEventListener('change',function(){pickItem(true);paint();rebuildTotals();});
+  qtyInp.addEventListener('input',function(){row.qty=parseFloat(this.value)||0;paint();rebuildTotals();});
+  rm.addEventListener('click',function(){var i=partRows.indexOf(row);if(i>-1)partRows.splice(i,1);card.remove();rebuildTotals();});
 
-  var tdRm=document.createElement('td');
-  var rmBtn=document.createElement('button');rmBtn.className='rm-btn';rmBtn.type='button';rmBtn.textContent='×';
-  rmBtn.addEventListener('click',function(){
-    partRows.splice(idx,1);tr.remove();
-    document.querySelectorAll('#partsBody tr').forEach(function(r,i){r.dataset.idx=i;});
-    rebuildTotals();
-  });
-  tdRm.appendChild(rmBtn);
-
-  tr.appendChild(tdPart);tr.appendChild(tdQty);tr.appendChild(tdPrice);tr.appendChild(tdTotal);tr.appendChild(tdRm);
-  $('partsBody').appendChild(tr);
-  rebuildTotals();
+  var saved=!!p.code&&p.price!==undefined&&p.price!==null;
+  pickItem(!saved);
+  if(saved){row.qty=(p.qty!==undefined&&p.qty!==null)?p.qty:1;row.price=p.price;qtyInp.value=row.qty;}
+  partRows.push(row);
+  card.appendChild(top);card.appendChild(desc);card.appendChild(bot);
+  $('partsList').appendChild(card);
+  paint();rebuildTotals();
 }
 
 $('addPartBtn').addEventListener('click',function(){addPartRow();});
 
-/* ─── MOBILISATION & CALLOUT — visit-level, separate from any one tower's parts ─── */
-var mobParts=[];
-
-function mobLiveTotal(){
-  var sub=mobParts.reduce(function(a,p){return a+p.qty*p.price;},0);
-  return sub+sub*0.1;
+/* ─── TRAVEL & ACCOMMODATION — optional, editable, whole visit ─── */
+function pbPrice(code,fb){
+  var found=null;
+  Object.keys(pb).forEach(function(c){(pb[c]||[]).forEach(function(i){if(i.code===code)found=i;});});
+  return found?found.price:fb;
 }
-
-function rebuildMobTotals(){
+function collectTravel(){
+  var out={};
+  TRAVEL_ITEMS.forEach(function(it){
+    out[it.key]={on:$('tv_'+it.key+'_on').checked,qty:parseFloat($('tv_'+it.key+'_qty').value)||0,price:parseFloat($('tv_'+it.key+'_price').value)||0,label:it.label};
+  });
+  return out;
+}
+function travelTotals(tv){
   var sub=0;
-  mobParts.forEach(function(r){sub+=r.qty*r.price;});
-  var gst=sub*0.1,total=sub+gst;
-  $('mob_sub').textContent=fmt(sub);$('mob_gst').textContent=fmt(gst);$('mob_total').textContent=fmt(total);
+  TRAVEL_ITEMS.forEach(function(it){var x=tv[it.key];if(x&&x.on)sub+=(x.qty||0)*(x.price||0);});
+  return{sub:sub,gst:sub*0.1,total:sub*1.1};
+}
+function syncTravelRow(key){
+  $('tv_'+key+'_card').classList.toggle('on',$('tv_'+key+'_on').checked);
+  var q=parseFloat($('tv_'+key+'_qty').value)||0,pr=parseFloat($('tv_'+key+'_price').value)||0;
+  $('tv_'+key+'_total').textContent=fmt(q*pr);
+}
+function rebuildTravelTotals(){
+  var t=travelTotals(collectTravel());
+  $('tv_sub').textContent=fmt(t.sub);$('tv_gst').textContent=fmt(t.gst);$('tv_total').textContent=fmt(t.total);
   updateVisitTotal();
 }
-
-function addMobRow(codeVal,qtyVal,priceVal){
-  var idx=mobParts.length;
-  var rowData={qty:qtyVal||1,price:priceVal||0,cat:'Mobilisation',code:codeVal||''};
-  mobParts.push(rowData);
-
-  var tr=document.createElement('tr');tr.dataset.idx=idx;
-
-  var tdItem=document.createElement('td');
-  var itemSel=document.createElement('select');itemSel.className='part-item';itemSel.style.width='100%';
-  (pb['Mobilisation']||[]).forEach(function(item){
-    var o=document.createElement('option');o.value=item.code;o.dataset.price=item.price;o.dataset.qty=item.qty;
-    o.textContent='['+item.code+'] '+item.desc+' — '+fmt(item.price);
-    if(codeVal&&item.code===codeVal)o.selected=true;
-    itemSel.appendChild(o);
+function loadTravelIntoForm(tv){
+  TRAVEL_ITEMS.forEach(function(it){
+    var x=(tv&&tv[it.key])||{on:false,qty:1,price:pbPrice(it.code,it.fallback)};
+    $('tv_'+it.key+'_on').checked=!!x.on;
+    $('tv_'+it.key+'_qty').value=x.qty;
+    $('tv_'+it.key+'_price').value=x.price;
+    syncTravelRow(it.key);
   });
-  if(itemSel.options[0]){
-    var chosen=codeVal?Array.from(itemSel.options).find(function(o){return o.value===codeVal;}):itemSel.options[0];
-    if(chosen){rowData.code=chosen.value;rowData.price=parseFloat(chosen.dataset.price)||0;}
-  }
-  tdItem.appendChild(itemSel);
-
-  var tdQty=document.createElement('td');
-  var qtyInp=document.createElement('input');qtyInp.type='number';qtyInp.min='0';qtyInp.step='1';qtyInp.className='qty-inp';qtyInp.value=rowData.qty;
-  tdQty.appendChild(qtyInp);
-
-  var tdPrice=document.createElement('td');tdPrice.className='num';
-  var priceSpan=document.createElement('span');priceSpan.textContent=fmt(rowData.price);
-  tdPrice.appendChild(priceSpan);
-
-  var tdTotal=document.createElement('td');tdTotal.className='num';
-  function updateLineTotal(){tdTotal.textContent=fmt((parseFloat(qtyInp.value)||0)*rowData.price);}
-  updateLineTotal();
-
-  itemSel.addEventListener('change',function(){
-    var opt=itemSel.options[itemSel.selectedIndex];
-    rowData.code=opt.value;rowData.price=parseFloat(opt.dataset.price)||0;
-    qtyInp.value=parseFloat(opt.dataset.qty)||1;rowData.qty=parseFloat(qtyInp.value);
-    priceSpan.textContent=fmt(rowData.price);updateLineTotal();rebuildMobTotals();
-  });
-  qtyInp.addEventListener('input',function(){rowData.qty=parseFloat(this.value)||0;updateLineTotal();rebuildMobTotals();});
-
-  var tdRm=document.createElement('td');
-  var rmBtn=document.createElement('button');rmBtn.className='rm-btn';rmBtn.type='button';rmBtn.textContent='×';
-  rmBtn.addEventListener('click',function(){
-    mobParts.splice(idx,1);tr.remove();
-    document.querySelectorAll('#mobBody tr').forEach(function(r,i){r.dataset.idx=i;});
-    rebuildMobTotals();
-  });
-  tdRm.appendChild(rmBtn);
-
-  tr.appendChild(tdItem);tr.appendChild(tdQty);tr.appendChild(tdPrice);tr.appendChild(tdTotal);tr.appendChild(tdRm);
-  $('mobBody').appendChild(tr);
-  rebuildMobTotals();
+  rebuildTravelTotals();
 }
-
-function loadMobIntoForm(items){
-  $('mobBody').innerHTML='';mobParts=[];
-  (items||[]).forEach(function(p){addMobRow(p.code,p.qty,p.price);});
-  if(!items||!items.length)rebuildMobTotals();
+function legacyTravel(mob){ // visits saved before the travel section existed
+  if(!mob||!mob.length)return null;
+  var map={'ETG-20SS021':'flights','ETG-20SS022':'car','ETG-20SS023':'acc'},tv={};
+  TRAVEL_ITEMS.forEach(function(it){tv[it.key]={on:false,qty:1,price:pbPrice(it.code,it.fallback)};});
+  mob.forEach(function(p){var k=map[p.code];if(k)tv[k]={on:true,qty:p.qty||1,price:p.price||0};});
+  return tv;
 }
-
-$('addMobBtn').addEventListener('click',function(){addMobRow();});
+TRAVEL_ITEMS.forEach(function(it){
+  var k=it.key;
+  $('tv_'+k+'_on').addEventListener('change',function(){syncTravelRow(k);rebuildTravelTotals();});
+  ['qty','price'].forEach(function(f){$('tv_'+k+'_'+f).addEventListener('input',function(){syncTravelRow(k);rebuildTravelTotals();});});
+});
 
 /* ─── TOWER MODEL — a Visit holds N Towers; the form always shows ONE tower at a time ─── */
 function blankTower(){
   return{
-    towerNumber:'',serial:'',asset:'',model:'',year:'',overall:'',scopeType:'',
+    towerNumber:'',serial:'',asset:'',model:'',year:'',overall:'',scopeType:'',gps:'',
     cond:{tower:'',battery:'',controller:'',lights:'',winch:'',pole:''},
     severity:'',findingsChecked:[],components:'',findings:'',solution:'',notes:'',
-    optional:false,optionalNote:'',parts:[],subtotal:0,gst:0,total:0,photos:[]
+    optional:false,optionalNote:'',parts:[],
+    labourHours:0,labourRate:(settings.labourRate!==undefined&&settings.labourRate!==null?settings.labourRate:108),labourCost:0,labourDesc:LABOUR_DESC,
+    partsSubtotal:0,subtotal:0,gst:0,total:0,photos:[]
   };
 }
 
 function collectTowerFromForm(){
-  var rows=$('partsBody').querySelectorAll('tr');
-  var parts=[];
-  rows.forEach(function(tr){
-    var cats=tr.querySelector('.part-cat');var items=tr.querySelector('.part-item');var qty=tr.querySelector('.qty-inp');
-    if(!items)return;
-    var opt=items.options[items.selectedIndex];if(!opt||!opt.value)return;
-    parts.push({cat:cats?cats.value:'',code:opt.value,desc:opt.textContent.replace(/\[.*?\]\s*/,'').replace(/ — \$[\d,.]+$/,''),qty:parseFloat(qty.value)||1,price:parseFloat(opt.dataset.price)||0});
-  });
-  var sub=parts.reduce(function(a,p){return a+p.qty*p.price;},0);
-  var gst=sub*0.1;
+  var parts=partRows.filter(function(r){return r.code;}).map(function(r){return{cat:r.cat,code:r.code,desc:r.desc,qty:r.qty,price:r.price};});
+  var partsSub=parts.reduce(function(a,p){return a+p.qty*p.price;},0);
+  var hrs=parseFloat($('f_labour_hours').value)||0,rate=parseFloat($('f_labour_rate').value)||0;
+  var labour=hrs*rate,sub=partsSub+labour;
   return{
     towerNumber:$('f_towernum').value,serial:$('f_serial').value,asset:$('f_asset').value,
     model:$('f_model').value,year:$('f_year').value,overall:$('f_overall').value,scopeType:$('f_scope_type').value,
+    gps:$('f_gps').value.trim(),
     cond:{tower:$('f_cond_tower').value,battery:$('f_cond_battery').value,
       controller:$('f_cond_controller').value,lights:$('f_cond_lights').value,
       winch:$('f_cond_winch').value,pole:$('f_cond_pole').value},
@@ -1403,7 +1525,9 @@ function collectTowerFromForm(){
     components:$('f_components').value,findings:$('f_findings').value,
     solution:$('f_solution').value,notes:$('f_notes').value,
     optional:$('f_optional').checked,optionalNote:$('f_optnote').value,
-    parts:parts,subtotal:sub,gst:gst,total:sub+gst,
+    parts:parts,
+    labourHours:hrs,labourRate:rate,labourCost:labour,labourDesc:LABOUR_DESC,
+    partsSubtotal:partsSub,subtotal:sub,gst:sub*0.1,total:sub*1.1,
     photos:photos.slice()
   };
 }
@@ -1412,7 +1536,8 @@ function loadTowerIntoForm(t){
   t=t||blankTower();
   $('f_towernum').value=t.towerNumber||'';$('f_serial').value=t.serial||'';
   $('f_asset').value=t.asset||'';$('f_model').value=t.model||'';
-  $('f_year').value=t.year||'';$('f_overall').value=t.overall||'';$('f_scope_type').value=t.scopeType||'';
+  setYear(t.year);$('f_overall').value=t.overall||'';$('f_scope_type').value=t.scopeType||'';
+  $('f_gps').value=t.gps||'';
   var c=t.cond||{};
   $('f_cond_tower').value=c.tower||'';$('f_cond_battery').value=c.battery||'';
   $('f_cond_controller').value=c.controller||'';$('f_cond_lights').value=c.lights||'';
@@ -1424,8 +1549,10 @@ function loadTowerIntoForm(t){
   $('f_components').value=t.components||'';$('f_findings').value=t.findings||'';
   $('f_solution').value=t.solution||'';$('f_notes').value=t.notes||'';
   $('f_optional').checked=!!t.optional;$('optNoteWrap').style.display=t.optional?'block':'none';$('f_optnote').value=t.optionalNote||'';
-  $('partsBody').innerHTML='';partRows=[];
-  (t.parts||[]).forEach(function(p){addPartRow(p.cat,p.code,p.qty,p.price);});
+  $('f_labour_hours').value=t.labourHours?t.labourHours:'';
+  $('f_labour_rate').value=(t.labourRate!==undefined&&t.labourRate!==null)?t.labourRate:(settings.labourRate||'');
+  $('partsList').innerHTML='';partRows=[];
+  (t.parts||[]).forEach(function(p){addPartRow(p);});
   photos=(t.photos||[]).slice();renderPhotos();
   rebuildTotals();
 }
@@ -1464,7 +1591,7 @@ function addTower(){
   t.towerNumber='#'+(curTowers.length+1);
   curTowers.push(t);
   switchTower(curTowers.length-1);
-  toast('Tower added — '+curTowers.length+' on this visit.');
+  toast('Tower added — '+curTowers.length+' on this visit.');goStage('details');
 }
 $('addTowerBtn').addEventListener('click',function(){addTower();});
 
@@ -1507,12 +1634,10 @@ $('f_auditno').addEventListener('input',function(){visitNoAutoGen=false;});
 
 function collectVisit(){
   if(curTowerIdx!==null&&curTowerIdx<curTowers.length){curTowers[curTowerIdx]=collectTowerFromForm();}
-  var towersOut=curTowers.map(function(t){return t;});
-  var mobSub=mobParts.reduce(function(a,p){return a+p.qty*p.price;},0);
-  var mobGst=mobSub*0.1,mobTotal=mobSub+mobGst;
-  var sub=towersOut.reduce(function(a,t){return a+(t.subtotal||0);},0)+mobSub;
-  var gst=towersOut.reduce(function(a,t){return a+(t.gst||0);},0)+mobGst;
-  var total=towersOut.reduce(function(a,t){return a+(t.total||0);},0)+mobTotal;
+  var towersOut=curTowers.slice();
+  var travel=collectTravel(),tt=travelTotals(travel);
+  var sub=towersOut.reduce(function(a,t){return a+(t.subtotal||0);},0)+tt.sub;
+  var gst=sub*0.1,total=sub+gst;
   return{
     id:currentId||(currentId=uid()),
     visitNo:$('f_auditno').value,date:$('f_date').value,
@@ -1520,7 +1645,7 @@ function collectVisit(){
     contactPhone:$('f_contact_phone').value,contactEmail:$('f_contact_email').value,
     mapLocation:$('f_maploc').value,
     towers:towersOut,
-    mobilisation:mobParts.slice(),mobSubtotal:mobSub,mobGst:mobGst,mobTotal:mobTotal,
+    travel:travel,travelSubtotal:tt.sub,travelGst:tt.gst,travelTotal:tt.total,
     subtotal:sub,gst:gst,total:total,
     savedAt:new Date().toISOString()
   };
@@ -1538,28 +1663,30 @@ function loadVisit(v){
     Array.from(techSel.options).forEach(function(o){if(o.value===v.tech){techSel.value=v.tech;found=true;}});
     if(!found){techSel.value='__other';$('f_tech_other').style.display='block';$('f_tech_other').value=v.tech;}
   }else{$('f_tech').value='';$('f_tech_other').style.display='none';}
-  loadMobIntoForm(v.mobilisation||[]);
   curTowers=(v.towers&&v.towers.length?v.towers:[blankTower()]).slice();
   curTowerIdx=null;
   switchTower(0);
+  loadTravelIntoForm(v.travel||legacyTravel(v.mobilisation));
   $('auditIdLabel').textContent=v.visitNo||'DRAFT';
   document.querySelector('.tab[data-tab="audit"]').click();
+  goStage('site');
   toast('Visit loaded — '+(v.client||'')+' · '+curTowers.length+' tower'+(curTowers.length!==1?'s':''));
 }
 
 function newVisit(){
   if(!confirm('Start a fresh visit? Unsaved changes will be lost.'))return;
   currentId=null;
-  document.querySelectorAll('#panel-audit input[type=text],#panel-audit input[type=email],#panel-audit input[type=date],#panel-audit input[type=tel]').forEach(function(el){if(el.id!=='f_maploc')el.value='';});
+  document.querySelectorAll('#panel-audit input[type=text],#panel-audit input[type=email],#panel-audit input[type=date],#panel-audit input[type=tel]').forEach(function(el){if(el.id!=='f_maploc'&&el.id!=='f_model')el.value='';});
   $('f_client').value='';$('f_location').value='';$('f_maploc').value='';
   $('f_tech').value='';$('f_tech_other').style.display='none';$('f_tech_other').value='';
-  loadMobIntoForm([]);
   var t0=blankTower();t0.towerNumber='#1';curTowers=[t0];curTowerIdx=null;switchTower(0);
+  loadTravelIntoForm(null);
   $('f_date').value=new Date().toISOString().split('T')[0];
   visitNoAutoGen=true;
   regenVisitNo();
   $('auditIdLabel').textContent='DRAFT';
   document.querySelector('.tab[data-tab="audit"]').click();
+  goStage('site');
 }
 
 function upsertVisit(v){
@@ -1615,17 +1742,86 @@ window.delVisit=function(id){
 
 $('exportJsonBtn').addEventListener('click',function(){saveFile('el-visits.json',JSON.stringify(visits,null,2),'application/json');});
 $('exportCsvBtn').addEventListener('click',function(){
-  var rows=[['Visit ID','Visit No','Date','Client','Location','Site Contact Phone','Site Contact Email','Technician','Tower','Serial','Model','Overall','Severity','Findings','Tower Total','Mobilisation Total','Visit Total','OneDrive','Sent']];
+  var rows=[['Visit ID','Visit No','Date','Client','Location','Site Contact Phone','Site Contact Email','Technician','Tower','Serial','Model','Location Pin','Overall','Severity','Findings','Labour Hours','Labour Rate','Labour Cost','Tower Total','Travel & Accommodation Total','Visit Total','OneDrive','Sent']];
   visits.forEach(function(v){
     (v.towers||[]).forEach(function(t){
-      rows.push([v.id,v.visitNo,v.date,v.client,v.location,v.contactPhone,v.contactEmail,v.tech,t.towerNumber,t.serial,t.model,t.overall,t.severity,(t.findingsChecked||[]).join('; '),t.total,v.mobTotal||0,v.total,v.odSynced?'Yes':'No',v.sent?'Yes':'No']);
+      rows.push([v.id,v.visitNo,v.date,v.client,v.location,v.contactPhone,v.contactEmail,v.tech,t.towerNumber,t.serial,t.model,t.gps,t.overall,t.severity,(t.findingsChecked||[]).join('; '),t.labourHours||0,t.labourRate||0,t.labourCost||0,t.total,v.travelTotal||0,v.total,v.odSynced?'Yes':'No',v.sent?'Yes':'No']);
     });
   });
-  saveFile('el-visits.csv',rows.map(function(r){return r.map(function(c){return'"'+(c===undefined||c===null?'':c).toString().replace(/"/g,'""')+'"';}).join(',');}).join('\n'),'text/csv');
+  saveFile('el-visits.csv',rows.map(function(r){return r.map(function(x){return'"'+(x===undefined||x===null?'':x).toString().replace(/"/g,'""')+'"';}).join(',');}).join('\n'),'text/csv');
 });
 $('clearAllBtn').addEventListener('click',function(){if(confirm('Clear ALL saved visits from this device?')){visits=[];lsSet(K.VISITS,visits);renderSaved();updateSavedCount();}});
 
-/* ─── PDF GENERATION — one PDF, every tower on the visit, page break between towers ─── */
+/* ─── COSTS, LOCATIONS & REPORT HELPERS ─── */
+var LOGO_SVG='<svg width="20" height="20" viewBox="0 0 192 192"><rect width="192" height="192" rx="33.18" ry="33.18" fill="#231f20"/><path fill="#e0e31c" d="M98.21,50.65c23.17.12,43.47,21.09,43.15,44.02-.03.85.04,1.71,0,2.56-1.93,41.85-53.46,59.86-80.33,27.55-23.84-28.67-4.11-72.1,32.74-74.13h4.43ZM84.74,68.57h-10.75v44.1l10.83,10.83h33.17v-10.92h-33.26v-44.02ZM118,68.57h-26.27l10.83,10.92h15.44v-10.92ZM118,90.58h-26.27l10.83,10.92h15.44v-10.92Z"/><path fill="#fff" d="M179.62,90.32c-.11-1.64-1.39-2.96-3.03-3.1l-1.35-.12c-11.75-1.06-15.81-16.19-6.16-23l1.11-.78c1.35-.95,1.8-2.73,1.07-4.21-1.68-3.42-3.58-6.71-5.7-9.85-.92-1.36-2.69-1.86-4.17-1.17l-1.23.57c-10.7,4.96-21.79-6.13-16.83-16.83l.57-1.23c.69-1.49.19-3.26-1.17-4.17-3.14-2.12-6.43-4.02-9.85-5.7-1.48-.72-3.26-.27-4.21,1.08l-.78,1.11c-6.8,9.65-21.94,5.6-23-6.16l-.12-1.35c-.15-1.64-1.47-2.92-3.1-3.03-1.88-.13-3.78-.19-5.68-.19s-3.81.06-5.68.19c-1.64.11-2.96,1.39-3.1,3.03l-.12,1.35c-1.06,11.75-16.19,15.81-23,6.16l-.78-1.11c-.95-1.35-2.73-1.8-4.21-1.08-3.42,1.68-6.71,3.58-9.85,5.7-1.36.92-1.86,2.69-1.17,4.17l.57,1.23c4.96,10.7-6.13,21.79-16.83,16.83l-1.23-.57c-1.49-.69-3.26-.19-4.17,1.17-2.11,3.14-4.02,6.43-5.7,9.85-.72,1.48-.27,3.26,1.07,4.21l1.11.78c9.65,6.8,5.6,21.94-6.16,23l-1.35.12c-1.64.15-2.92,1.47-3.03,3.1-.13,1.88-.19,3.77-.19,5.68s.06,3.8.19,5.68c.11,1.64,1.39,2.96,3.03,3.1l1.35.12c11.75,1.06,15.81,16.19,6.16,23l-1.11.78c-1.35.95-1.8,2.73-1.07,4.21,1.68,3.42,3.58,6.71,5.7,9.85.92,1.36,2.69,1.86,4.17,1.17l1.23-.57c10.7-4.96,21.79,6.13,16.83,16.83l-.57,1.23c-.69,1.49-.19,3.26,1.17,4.17,3.14,2.12,6.43,4.02,9.85,5.7,1.48.72,3.26.27,4.21-1.08l.78-1.11c6.8-9.65,21.94-5.6,23,6.16l.12,1.35c.15,1.64,1.47,2.92,3.1,3.03,1.88.13,3.78.19,5.68.19s3.81-.06,5.68-.19c1.64-.11,2.96-1.39,3.1-3.03l.12-1.35c1.06-11.75,16.19-15.81,23-6.16l.78,1.11c.95,1.35,2.73,1.8,4.21,1.08,3.42-1.68,6.71-3.58,9.85-5.7,1.36-.92,1.86-2.69,1.17-4.17l-.57-1.23c-4.96-10.7,6.13-21.79,16.83-16.83l1.23.57c1.49.69,3.26.19,4.17-1.17,2.11-3.14,4.02-6.43,5.7-9.85.72-1.48.27-3.26-1.07-4.21l-1.11-.78c-9.65-6.8-5.6-21.94,6.16-23l1.35-.12c1.64-.15,2.92-1.47,3.03-3.1.13-1.88.19-3.77.19-5.68s-.06-3.8-.19-5.68ZM97.83,151.94c-32.36,1.03-58.81-25.41-57.77-57.77.93-29.31,24.8-53.18,54.11-54.11,32.36-1.03,58.81,25.41,57.77,57.77-.93,29.31-24.8,53.18-54.11,54.11Z"/></svg>';
+var QUOTE_NOTE_TITLE='Indicative pricing only';
+var QUOTE_NOTE='All figures in this report are estimates based on this audit and are indicative only — they are not a formal quotation. A formal quotation will follow once the customer has reviewed the audit and confirmed which repairs they wish to proceed with.';
+var TERMS_NOTE='Labour is estimated on the hours shown for each tower and may vary with conditions found during installation, such as damaged or burnt solar plugs or travel time between towers. Delays outside EarthLight\'s control — including site access or escort availability, machinery or equipment not being ready, or parts or units not being located on site — may require additional labour time or a further site visit, which would be charged in addition to this estimate.';
+
+function tParts(t){return t.partsSubtotal!==undefined?t.partsSubtotal:Math.max(0,(t.subtotal||0)-(t.labourCost||0));}
+
+function costSummary(v){
+  var rows=(v.towers||[]).map(function(t,i){
+    return{label:towerLabel(t,i),hours:t.labourHours||0,rate:t.labourRate||0,parts:tParts(t),labour:t.labourCost||0,sub:t.subtotal||0};
+  });
+  var tv=v.travel||{},tl=[];
+  TRAVEL_ITEMS.forEach(function(it){var x=tv[it.key];if(x&&x.on)tl.push({label:it.label,qty:x.qty||0,price:x.price||0,total:(x.qty||0)*(x.price||0)});});
+  var towersSub=rows.reduce(function(a,r){return a+r.sub;},0);
+  var travelSub=tl.reduce(function(a,r){return a+r.total;},0);
+  var sub=towersSub+travelSub;
+  return{rows:rows,travel:tl,towersSub:towersSub,travelSub:travelSub,sub:sub,gst:sub*0.1,total:sub*1.1};
+}
+
+function parseLatLng(s){
+  var m=/(-?\d{1,3}(?:\.\d+)?)(?:\s*[,;]\s*|\s+)(-?\d{1,3}(?:\.\d+)?)/.exec(s||'');
+  if(!m)return null;
+  var lat=parseFloat(m[1]),lng=parseFloat(m[2]);
+  if(!isFinite(lat)||!isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180)return null;
+  return{lat:lat,lng:lng};
+}
+function mapsUrl(gps){var ll=parseLatLng(gps);return ll?'https://www.google.com/maps/search/?api=1&query='+ll.lat+','+ll.lng:null;}
+function towerPins(v){
+  var pts=[];
+  (v.towers||[]).forEach(function(t,i){var ll=parseLatLng(t.gps);if(ll)pts.push({i:i,label:towerLabel(t,i),ll:ll,gps:t.gps});});
+  return pts;
+}
+function routeUrl(pts){
+  if(pts.length<2)return null;
+  function f(p){return p.ll.lat+','+p.ll.lng;}
+  var mid=pts.slice(1,-1).slice(0,9).map(f).join('%7C');
+  return 'https://www.google.com/maps/dir/?api=1&origin='+f(pts[0])+'&destination='+f(pts[pts.length-1])+(mid?'&waypoints='+mid:'');
+}
+
+/* Relative-position plot of the tower pins (north up). Works offline — no map tiles needed. */
+function plotPoints(lls,W,H,pad){
+  var lat0=lls.reduce(function(a,p){return a+p.lat;},0)/lls.length;
+  var kx=111320*Math.cos(lat0*Math.PI/180),ky=110540;
+  var xs=lls.map(function(p){return p.lng*kx;}),ys=lls.map(function(p){return p.lat*ky;});
+  var minX=Math.min.apply(null,xs),maxX=Math.max.apply(null,xs),minY=Math.min.apply(null,ys),maxY=Math.max.apply(null,ys);
+  var spanX=maxX-minX,spanY=maxY-minY,availW=W-2*pad,availH=H-2*pad,scale;
+  if(spanX<1&&spanY<1)scale=availW/200;
+  else scale=Math.min(availW/Math.max(spanX,1),availH/Math.max(spanY,1));
+  var offX=pad+(availW-spanX*scale)/2,offY=pad+(availH-spanY*scale)/2;
+  var pts=lls.map(function(p,i){return{x:offX+(xs[i]-minX)*scale,y:H-(offY+(ys[i]-minY)*scale)};});
+  var cands=[5,10,20,25,50,100,200,250,500,1000,2000,5000,10000,20000,50000,100000],L=cands[0];
+  cands.forEach(function(c){if(c*scale<=W*0.28)L=c;});
+  return{pts:pts,scaleLen:L*scale,scaleLabel:L>=1000?(L/1000)+' km':L+' m'};
+}
+function plotSvg(pts){
+  var W=640,H=240,pl=plotPoints(pts.map(function(p){return p.ll;}),W,H,36),gx,gy;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:680px;display:block;margin:8px 0;" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="'+(W-2)+'" height="'+(H-2)+'" rx="8" fill="#F5F5F5" stroke="#C4C4C4"/>';
+  for(gx=1;gx<4;gx++)s+='<line x1="'+(W*gx/4)+'" y1="1" x2="'+(W*gx/4)+'" y2="'+(H-1)+'" stroke="#E2E2E2"/>';
+  for(gy=1;gy<3;gy++)s+='<line x1="1" y1="'+(H*gy/3)+'" x2="'+(W-1)+'" y2="'+(H*gy/3)+'" stroke="#E2E2E2"/>';
+  pts.forEach(function(p,k){
+    var q=pl.pts[k];
+    s+='<circle cx="'+q.x.toFixed(1)+'" cy="'+q.y.toFixed(1)+'" r="13" fill="#E6FF00" stroke="#000" stroke-width="2"/><text x="'+q.x.toFixed(1)+'" y="'+(q.y+4.5).toFixed(1)+'" text-anchor="middle" font-family="Arial" font-weight="700" font-size="13" fill="#000">'+(p.i+1)+'</text>';
+  });
+  s+='<polygon points="'+(W-24)+',22 '+(W-31)+',38 '+(W-17)+',38" fill="#444"/><text x="'+(W-24)+'" y="16" text-anchor="middle" font-family="Arial" font-weight="700" font-size="11" fill="#444">N</text>';
+  s+='<line x1="20" y1="'+(H-20)+'" x2="'+(20+pl.scaleLen)+'" y2="'+(H-20)+'" stroke="#000" stroke-width="3"/><text x="20" y="'+(H-26)+'" font-family="Arial" font-size="11" fill="#444">'+pl.scaleLabel+'</text></svg>';
+  return s;
+}
+
+/* ─── PDF GENERATION — one PDF: visit summary, tower locations, every tower, travel, summary of costs ─── */
 function generatePDF(v,opts){
   opts=opts||{};
   var jspdf=window.jspdf;if(!jspdf){toast('PDF library loading, try again in a moment.');return null;}
@@ -1634,6 +1830,11 @@ function generatePDF(v,opts){
 
   function chk(n){if(y+n>PH-16){doc.addPage();y=MT;}}
   function sf(sz,st,col){doc.setFontSize(sz);doc.setFont('helvetica',st||'normal');if(col)doc.setTextColor(col[0],col[1],col[2]);else doc.setTextColor(17,17,17);}
+  function linkText(txt,url,x,yy,size){
+    sf(size||8,'bold',[17,17,17]);
+    if(url){doc.textWithLink(txt,x,yy,{url:url});var w=doc.getTextWidth(txt);doc.setDrawColor(17,17,17);doc.setLineWidth(0.2);doc.line(x,yy+0.7,x+w,yy+0.7);}
+    else doc.text(txt,x,yy);
+  }
 
   // Header
   doc.setFillColor(0,0,0);doc.rect(0,0,PW,26,'F');
@@ -1646,49 +1847,60 @@ function generatePDF(v,opts){
   doc.text('Tech: '+(v.tech||'—'),PW-MR-70,19,{align:'left'});
   y=32;
 
-  function secHead(title){chk(12);doc.setFillColor(0,0,0);doc.roundedRect(ML,y,CW,7.5,1.5,1.5,'F');sf(8,'bold',[230,255,0]);doc.text(title.toUpperCase(),ML+4,y+5.3);y+=11;}
+  function secHead(title){chk(26);doc.setFillColor(0,0,0);doc.roundedRect(ML,y,CW,7.5,1.5,1.5,'F');sf(8,'bold',[230,255,0]);doc.text(title.toUpperCase(),ML+4,y+5.3);y+=11;}
   function row2(l1,v1,l2,v2){chk(11);var hw=CW/2-3;sf(7,'normal',[139,139,139]);doc.text(l1.toUpperCase(),ML,y);doc.text((l2||'').toUpperCase(),ML+CW/2,y);y+=3.5;sf(9,'bold',[17,17,17]);var lines1=doc.splitTextToSize(v1||'—',hw);var lines2=doc.splitTextToSize(v2||'—',hw);doc.text(lines1,ML,y);doc.text(lines2,ML+CW/2,y);y+=Math.max(lines1.length,lines2.length)*4.5+3;}
-  function row1(l,v){chk(11);sf(7,'normal',[139,139,139]);doc.text(l.toUpperCase(),ML,y);y+=3.5;sf(9,'bold',[17,17,17]);var lines=doc.splitTextToSize(v||'—',CW-2);doc.text(lines,ML,y);y+=lines.length*4.5+4;}
+  function row1(l,val){chk(11);sf(7,'normal',[139,139,139]);doc.text(l.toUpperCase(),ML,y);y+=3.5;sf(9,'bold',[17,17,17]);var lines=doc.splitTextToSize(val||'—',CW-2);doc.text(lines,ML,y);y+=lines.length*4.5+4;}
+  function tableHead(cols){ // cols: [label, x] ; label may be right-aligned via {r:true}
+    chk(16);doc.setFillColor(235,235,235);doc.rect(ML,y,CW,7,'F');
+    doc.setDrawColor(196,196,196);doc.setLineWidth(0.25);doc.line(ML,y,PW-MR,y);doc.line(ML,y+7,PW-MR,y+7);
+    sf(7,'bold',[68,68,68]);
+    cols.forEach(function(c){doc.text(c[0],c[1],y+4.5,c[2]?{align:'right'}:undefined);});
+    y+=7;
+  }
 
-  var towers=v.towers||[];
-  var mob=v.mobilisation||[];
+  var towers=v.towers||[];var cs=costSummary(v);
 
   secHead('Visit Summary');
   row2('Client',v.client,'Visit Number',v.visitNo);
   row2('Location',v.location,'Date',v.date);
   row2('Technician',v.tech,'Towers on this visit',String(towers.length));
   if(v.contactPhone||v.contactEmail)row2('Site Contact Phone',v.contactPhone,'Site Contact Email',v.contactEmail);
-  if(v.mapLocation)row1('GPS / Map Location',v.mapLocation);
+  if(v.mapLocation)row1('Site reference',v.mapLocation);
+  chk(8);sf(7.5,'italic',[139,139,139]);doc.text('All pricing in this report is indicative only — see the Summary of Costs at the end.',ML,y);y+=8;
 
-  if(mob.length){
-    secHead('Mobilisation & Callout Costs');
-    chk(20);
-    doc.setFillColor(235,235,235);doc.rect(ML,y,CW,7,'F');
-    doc.setDrawColor(196,196,196);doc.setLineWidth(0.25);doc.line(ML,y,PW-MR,y);doc.line(ML,y+7,PW-MR,y+7);
-    sf(7,'bold',[68,68,68]);
-    doc.text('DESCRIPTION',ML+2,y+4.5);doc.text('QTY',ML+CW*0.58,y+4.5);doc.text('UNIT',ML+CW*0.70,y+4.5);doc.text('TOTAL',ML+CW*0.84,y+4.5);
-    y+=7;
-    mob.forEach(function(p,i){
-      var lt=(p.qty||0)*(p.price||0);
-      var dl=doc.splitTextToSize(p.desc||p.code||'',CW*0.54);var rh=Math.max(7,dl.length*4.5+3);
-      chk(rh+2);if(i%2===0){doc.setFillColor(248,248,248);doc.rect(ML,y,CW,rh,'F');}
-      doc.setDrawColor(225,225,225);doc.setLineWidth(0.2);doc.line(ML,y+rh,PW-MR,y+rh);
-      sf(8,'normal',[17,17,17]);doc.text(dl,ML+2,y+4.5);
-      doc.text(String(p.qty||1),ML+CW*0.58,y+4.5);
-      doc.text(fmt(p.price||0),ML+CW*0.70,y+4.5);
-      sf(8,'bold',[17,17,17]);doc.text(fmt(lt),ML+CW*0.84,y+4.5);
-      y+=rh;
+  // Tower locations
+  if(towers.some(function(t){return t.gps;})){
+    var pins=towerPins(v);
+    secHead('Tower Locations');
+    if(pins.length){
+      var PHt=62;chk(PHt+12);
+      var pl=plotPoints(pins.map(function(p){return p.ll;}),CW,PHt,10),gx,gy;
+      doc.setFillColor(245,245,245);doc.setDrawColor(196,196,196);doc.setLineWidth(0.25);doc.roundedRect(ML,y,CW,PHt,2,2,'FD');
+      doc.setDrawColor(228,228,228);doc.setLineWidth(0.15);
+      for(gx=1;gx<4;gx++)doc.line(ML+CW*gx/4,y+0.5,ML+CW*gx/4,y+PHt-0.5);
+      for(gy=1;gy<3;gy++)doc.line(ML+0.5,y+PHt*gy/3,ML+CW-0.5,y+PHt*gy/3);
+      pins.forEach(function(p,k){
+        var q=pl.pts[k];
+        doc.setFillColor(230,255,0);doc.setDrawColor(0,0,0);doc.setLineWidth(0.5);doc.circle(ML+q.x,y+q.y,3.4,'FD');
+        sf(7,'bold',[0,0,0]);doc.text(String(p.i+1),ML+q.x,y+q.y+1,{align:'center'});
+      });
+      doc.setFillColor(68,68,68);doc.triangle(ML+CW-6,y+6,ML+CW-8,y+11,ML+CW-4,y+11,'F');
+      sf(7,'bold',[68,68,68]);doc.text('N',ML+CW-6,y+4.5,{align:'center'});
+      doc.setDrawColor(0,0,0);doc.setLineWidth(0.6);doc.line(ML+5,y+PHt-6,ML+5+pl.scaleLen,y+PHt-6);
+      sf(6.5,'normal',[68,68,68]);doc.text(pl.scaleLabel,ML+5,y+PHt-8);
+      y+=PHt+3;sf(6.5,'italic',[139,139,139]);doc.text('Schematic of tower positions (north up, scale approximate) — not a map. Use the links below to open Google Maps.',ML,y);y+=6;
+    }
+    towers.forEach(function(t,ti){
+      if(!t.gps)return;chk(8);
+      sf(8,'bold',[17,17,17]);doc.text((ti+1)+'.  '+towerLabel(t,ti),ML,y);
+      sf(8,'normal',[17,17,17]);doc.text(String(t.gps),ML+50,y);
+      var u=mapsUrl(t.gps);if(u)linkText('Open in Google Maps ›',u,ML+CW-36,y,8);
+      y+=6;
     });
-    chk(20);y+=2;
-    var mtx=ML+CW*0.58;
-    sf(8,'normal',[139,139,139]);doc.text('Subtotal (ex-GST)',mtx,y);sf(8,'normal',[17,17,17]);doc.text(fmt(v.mobSubtotal||0),PW-MR-1,y,{align:'right'});y+=5;
-    sf(8,'normal',[139,139,139]);doc.text('GST (10%)',mtx,y);sf(8,'normal',[17,17,17]);doc.text(fmt(v.mobGst||0),PW-MR-1,y,{align:'right'});y+=8;
+    var ru=routeUrl(pins);
+    if(ru){chk(8);linkText('Route all towers in Google Maps ›',ru,ML,y,8);y+=7;}
+    y+=2;
   }
-
-  chk(10);
-  doc.setFillColor(230,255,0);doc.roundedRect(ML,y,CW,9,1.5,1.5,'F');sf(10,'bold',[0,0,0]);
-  doc.text('VISIT GRAND TOTAL (inc. GST)',ML+4,y+5.8);doc.text(fmt(v.total||0),PW-MR-4,y+5.8,{align:'right'});
-  y+=14;
 
   towers.forEach(function(t,ti){
     if(ti>0){doc.addPage();y=MT;}
@@ -1697,8 +1909,14 @@ function generatePDF(v,opts){
     secHead('Tower Details');
     row2('Tower Number',t.towerNumber,'Serial Number',t.serial);
     row2('Model',t.model,'Asset Number',t.asset);
-    row2('Year Installed',t.year,'Overall Condition',t.overall);
+    row2('Year (manufactured / installed)',t.year,'Overall Condition',t.overall);
     if(t.scopeType)row1('Scope of Work',t.scopeType);
+    if(t.gps){
+      chk(12);sf(7,'normal',[139,139,139]);doc.text('TOWER LOCATION PIN',ML,y);y+=3.5;
+      sf(9,'bold',[17,17,17]);doc.text(String(t.gps),ML,y);
+      var mu=mapsUrl(t.gps);if(mu)linkText('Open in Google Maps ›',mu,ML+CW/2,y,8);
+      y+=7;
+    }
 
     secHead('Condition Assessment');
     var cond=t.cond||{};
@@ -1710,13 +1928,12 @@ function generatePDF(v,opts){
       secHead('Findings');
       chk(10);
       if(t.severity){
-        var sevIsHigh=t.severity!=='Low'&&t.severity!=='Medium';
         var sfill=t.severity==='Low'?[196,196,196]:t.severity==='Medium'?[230,255,0]:[0,0,0];
         var stxt=t.severity==='Low'?[17,17,17]:t.severity==='Medium'?[0,0,0]:[230,255,0];
         doc.setFillColor(sfill[0],sfill[1],sfill[2]);doc.roundedRect(ML,y,32,6,1.5,1.5,'F');sf(7.5,'bold',stxt);doc.text(t.severity.toUpperCase(),ML+3,y+4.3);y+=9;
       }
       if(t.findingsChecked&&t.findingsChecked.length){
-        var fc=t.findingsChecked;var cols2=2;var colW2=CW/cols2;var fi=0;
+        var fc=t.findingsChecked,cols2=2,colW2=CW/cols2,fi=0;
         fc.forEach(function(f,i){if(i>0&&i%cols2===0){y+=7;chk(8);}var cx=ML+(fi*colW2);doc.setFillColor(0,0,0);doc.circle(cx+2,y-1,1.2,'F');sf(8,'normal',[17,17,17]);doc.text(f,cx+5,y);fi=(fi+1)%cols2;});y+=9;
       }
     }
@@ -1724,17 +1941,12 @@ function generatePDF(v,opts){
     if(t.findings){secHead('Detailed Notes');chk(14);var fLines=doc.splitTextToSize(t.findings,CW-6);var fH=fLines.length*4.5+6;doc.setFillColor(235,235,235);doc.roundedRect(ML,y,CW,fH,1.5,1.5,'F');sf(9,'normal',[17,17,17]);doc.text(fLines,ML+3,y+4.5);y+=fH+5;}
     if(t.solution){secHead('Solution / Next Steps');chk(14);var sLines=doc.splitTextToSize(t.solution,CW-6);var sH=sLines.length*4.5+6;doc.setFillColor(235,235,235);doc.roundedRect(ML,y,CW,sH,1.5,1.5,'F');sf(9,'normal',[17,17,17]);doc.text(sLines,ML+3,y+4.5);y+=sH+5;}
 
-    secHead('Parts & Cost');
-    chk(28);
-    doc.setFillColor(235,235,235);doc.rect(ML,y,CW,7,'F');
-    doc.setDrawColor(196,196,196);doc.setLineWidth(0.25);doc.line(ML,y,PW-MR,y);doc.line(ML,y+7,PW-MR,y+7);
-    sf(7,'bold',[68,68,68]);
-    doc.text('DESCRIPTION',ML+2,y+4.5);doc.text('QTY',ML+CW*0.58,y+4.5);doc.text('UNIT',ML+CW*0.70,y+4.5);doc.text('TOTAL',ML+CW*0.84,y+4.5);
-    y+=7;
-    var sub=0;
+    secHead('Parts');
+    tableHead([['DESCRIPTION',ML+2],['QTY',ML+CW*0.58],['UNIT',ML+CW*0.70],['TOTAL',ML+CW*0.84]]);
+    var psub=0;
     (t.parts||[]).forEach(function(p,i){
-      var lt=(p.qty||0)*(p.price||0);sub+=lt;
-      var dl=doc.splitTextToSize(p.desc||'',CW*0.54);var rh=Math.max(7,dl.length*4.5+3);
+      var lt=(p.qty||0)*(p.price||0);psub+=lt;
+      var dl=doc.splitTextToSize(p.desc||p.code||'',CW*0.54);var rh=Math.max(7,dl.length*4.5+3);
       chk(rh+2);if(i%2===0){doc.setFillColor(248,248,248);doc.rect(ML,y,CW,rh,'F');}
       doc.setDrawColor(225,225,225);doc.setLineWidth(0.2);doc.line(ML,y+rh,PW-MR,y+rh);
       sf(8,'normal',[17,17,17]);doc.text(dl,ML+2,y+4.5);
@@ -1743,24 +1955,37 @@ function generatePDF(v,opts){
       sf(8,'bold',[17,17,17]);doc.text(fmt(lt),ML+CW*0.84,y+4.5);
       y+=rh;
     });
-    var gst=sub*0.1,total=sub+gst;
-    chk(28);y+=3;
-    var tx=ML+CW*0.58;
-    sf(8,'normal',[139,139,139]);doc.text('Subtotal (ex-GST)',tx,y);sf(8,'normal',[17,17,17]);doc.text(fmt(sub),PW-MR-1,y,{align:'right'});y+=5;
-    sf(8,'normal',[139,139,139]);doc.text('GST (10%)',tx,y);sf(8,'normal',[17,17,17]);doc.text(fmt(gst),PW-MR-1,y,{align:'right'});y+=5;
-    doc.setFillColor(230,255,0);doc.roundedRect(tx-2,y,CW-(tx-ML)+2,9,1.5,1.5,'F');sf(10,'bold',[0,0,0]);doc.text('TOWER TOTAL (inc. GST)',tx,y+5.5);doc.text(fmt(total),PW-MR-2,y+5.5,{align:'right'});y+=14;
+    if(!(t.parts||[]).length){chk(8);sf(8,'italic',[139,139,139]);doc.text('No parts selected.',ML+2,y+5);y+=8;}
 
-    if(t.optional&&t.optionalNote){chk(10);sf(7,'normal',[139,139,139]);doc.text('OPTIONAL INSTALLATION',ML,y);y+=4;sf(9,'normal',[17,17,17]);doc.text(t.optionalNote,ML,y);y+=7;}
+    y+=3;secHead('Labour');
+    tableHead([['DESCRIPTION',ML+2],['HOURS',ML+CW*0.58],['RATE',ML+CW*0.70],['TOTAL',ML+CW*0.84]]);
+    var hrs=t.labourHours||0,rate=t.labourRate||0,lab=hrs*rate;
+    var ld=doc.splitTextToSize(t.labourDesc||LABOUR_DESC,CW*0.54);var lrh=Math.max(10,ld.length*4.5+4);
+    chk(lrh+2);
+    doc.setDrawColor(225,225,225);doc.setLineWidth(0.2);doc.line(ML,y+lrh,PW-MR,y+lrh);
+    sf(8,'normal',[17,17,17]);doc.text(ld,ML+2,y+4.5);
+    doc.text(String(hrs),ML+CW*0.58,y+4.5);doc.text(fmt(rate),ML+CW*0.70,y+4.5);
+    sf(8,'bold',[17,17,17]);doc.text(fmt(lab),ML+CW*0.84,y+4.5);
+    y+=lrh;
+
+    var sub=psub+lab,gst=sub*0.1,total=sub+gst;
+    chk(40);y+=4;
+    var tx=ML+CW*0.58;
+    function totLine(lbl,val){sf(8,'normal',[139,139,139]);doc.text(lbl,tx,y);sf(8,'normal',[17,17,17]);doc.text(fmt(val),PW-MR-1,y,{align:'right'});y+=5;}
+    totLine('Parts (ex-GST)',psub);totLine('Labour (ex-GST)',lab);totLine('Subtotal (ex-GST)',sub);totLine('GST (10%)',gst);
+    doc.setFillColor(230,255,0);doc.roundedRect(tx-2,y,CW-(tx-ML)+2,9,1.5,1.5,'F');sf(9,'bold',[0,0,0]);doc.text('TOWER ESTIMATE (inc. GST)',tx,y+5.7);doc.text(fmt(total),PW-MR-2,y+5.7,{align:'right'});y+=14;
+
+    if(t.optional&&t.optionalNote){chk(10);sf(7,'normal',[139,139,139]);doc.text('OPTIONAL INSTALLATION',ML,y);y+=4;sf(9,'normal',[17,17,17]);var oLines=doc.splitTextToSize(t.optionalNote,CW);doc.text(oLines,ML,y);y+=oLines.length*4.5+3;}
     if(t.notes){chk(14);sf(7,'normal',[139,139,139]);doc.text('ADDITIONAL NOTES',ML,y);y+=4;var nLines=doc.splitTextToSize(t.notes,CW-6);var nH=nLines.length*4.5+6;doc.setFillColor(235,235,235);doc.roundedRect(ML,y,CW,nH,1.5,1.5,'F');sf(9,'normal',[17,17,17]);doc.text(nLines,ML+3,y+4.5);y+=nH+5;}
 
     if(t.photos&&t.photos.length){
       if(opts.forEmail){
-        chk(10);sf(8,'italic',[139,139,139]);doc.text(t.photos.length+' site photo'+(t.photos.length!==1?'s':'')+' attached — see OneDrive or the full downloaded PDF.',ML,y);y+=8;
+        chk(10);sf(8,'italic',[139,139,139]);doc.text(t.photos.length+' site photo'+(t.photos.length!==1?'s':'')+' taken — see OneDrive or the full downloaded PDF.',ML,y);y+=8;
       }else{
         secHead('Site Photos');
         var cols=2,gap=5,cellW=(CW-gap*(cols-1))/cols,maxH=62;
         var rowItems=[],rowMaxH=0;
-        function flushPhotoRow(){
+        var flushPhotoRow=function(){
           if(!rowItems.length)return;
           var hasCap=rowItems.some(function(it){return it.caption;});
           chk(rowMaxH+(hasCap?9:4));
@@ -1773,7 +1998,7 @@ function generatePDF(v,opts){
           });
           y+=rowMaxH+(hasCap?9:5);
           rowItems=[];rowMaxH=0;
-        }
+        };
         t.photos.forEach(function(p){
           var propsW=4,propsH=3;
           try{var props=doc.getImageProperties(p.dataUrl);propsW=props.width;propsH=props.height;}catch(e){}
@@ -1788,6 +2013,57 @@ function generatePDF(v,opts){
     }
   });
 
+  // ── Travel & accommodation, then the Summary of Costs (always last) ──
+  doc.addPage();y=MT;
+  secHead('Travel & Accommodation');
+  if(cs.travel.length){
+    tableHead([['ITEM',ML+2],['QTY',ML+CW*0.58],['UNIT',ML+CW*0.70],['TOTAL',ML+CW*0.84]]);
+    cs.travel.forEach(function(r,i){
+      var dl=doc.splitTextToSize(r.label,CW*0.54);var rh=Math.max(7,dl.length*4.5+3);
+      chk(rh+2);if(i%2===0){doc.setFillColor(248,248,248);doc.rect(ML,y,CW,rh,'F');}
+      doc.setDrawColor(225,225,225);doc.setLineWidth(0.2);doc.line(ML,y+rh,PW-MR,y+rh);
+      sf(8,'normal',[17,17,17]);doc.text(dl,ML+2,y+4.5);
+      doc.text(String(r.qty),ML+CW*0.58,y+4.5);doc.text(fmt(r.price),ML+CW*0.70,y+4.5);
+      sf(8,'bold',[17,17,17]);doc.text(fmt(r.total),ML+CW*0.84,y+4.5);
+      y+=rh;
+    });
+    y+=3;sf(8,'normal',[139,139,139]);doc.text('Travel & accommodation (ex-GST)',ML+CW*0.58,y);sf(8,'bold',[17,17,17]);doc.text(fmt(cs.travelSub),PW-MR-1,y,{align:'right'});y+=9;
+  }else{
+    sf(8.5,'italic',[90,90,90]);doc.text('No travel, accommodation or mobilisation charges are included in this estimate (assumed to be provided by the client).',ML,y+1);y+=10;
+  }
+
+  secHead('Summary of Costs — Indicative Only');
+  var xP=ML+CW*0.62,xL=ML+CW*0.80,xS=ML+CW-2;
+  tableHead([['TOWER',ML+2],['PARTS',xP,true],['LABOUR',xL,true],['SUBTOTAL (EX-GST)',xS,true]]);
+  cs.rows.forEach(function(r,i){
+    chk(12);if(i%2===0){doc.setFillColor(248,248,248);doc.rect(ML,y,CW,11,'F');}
+    doc.setDrawColor(225,225,225);doc.setLineWidth(0.2);doc.line(ML,y+11,PW-MR,y+11);
+    sf(8.5,'bold',[17,17,17]);doc.text(doc.splitTextToSize((i+1)+'. '+r.label,CW*0.55)[0],ML+2,y+4.5);
+    sf(7,'normal',[139,139,139]);doc.text(r.hours?(r.hours+' h @ '+fmt(r.rate)+'/h'):'Labour hours not entered',ML+2,y+8.5);
+    sf(8,'normal',[17,17,17]);doc.text(fmt(r.parts),xP,y+4.5,{align:'right'});doc.text(fmt(r.labour),xL,y+4.5,{align:'right'});
+    sf(8,'bold',[17,17,17]);doc.text(fmt(r.sub),xS,y+4.5,{align:'right'});
+    y+=11;
+  });
+  function sumLine(lbl,val,bold){chk(7);sf(8,bold?'bold':'normal',bold?[17,17,17]:[100,100,100]);doc.text(lbl,ML+2,y+5);doc.text(fmt(val),xS,y+5,{align:'right'});y+=6.5;}
+  sumLine('Towers subtotal (ex-GST)',cs.towersSub,true);
+  if(cs.travel.length){
+    cs.travel.forEach(function(r){sumLine('+ '+r.label+' ('+r.qty+' × '+fmt(r.price)+')',r.total,false);});
+    sumLine('Travel & accommodation subtotal (ex-GST)',cs.travelSub,true);
+  }
+  y+=2;sumLine('Estimated subtotal (ex-GST)',cs.sub,false);sumLine('GST (10%)',cs.gst,false);
+  chk(14);y+=1;
+  doc.setFillColor(230,255,0);doc.roundedRect(ML,y,CW,10,1.5,1.5,'F');sf(10,'bold',[0,0,0]);
+  doc.text('ESTIMATED PROJECT TOTAL (inc. GST)',ML+4,y+6.5);doc.text(fmt(cs.total),PW-MR-4,y+6.5,{align:'right'});y+=16;
+
+  var nt=doc.splitTextToSize(QUOTE_NOTE,CW-8),tt=doc.splitTextToSize(TERMS_NOTE,CW-8);
+  var bh=(nt.length+tt.length)*3.2+17;
+  chk(bh+4);
+  doc.setFillColor(251,255,214);doc.setDrawColor(230,255,0);doc.setLineWidth(0.6);doc.roundedRect(ML,y,CW,bh,1.5,1.5,'FD');
+  sf(8,'bold',[0,0,0]);doc.text('INDICATIVE PRICING ONLY',ML+4,y+5.5);
+  sf(7.5,'normal',[34,34,34]);doc.text(nt,ML+4,y+10.5);
+  doc.text(tt,ML+4,y+10.5+nt.length*3.2+3);
+  y+=bh+4;
+
   // Footer
   var pn=doc.internal.getNumberOfPages();
   for(var pi=1;pi<=pn;pi++){
@@ -1801,20 +2077,39 @@ function generatePDF(v,opts){
   return doc;
 }
 
-/* ─── REPORT HTML PREVIEW ─── */
-function buildTowerReportHtml(t,ti,total){
+/* ─── REPORT HTML (in-app preview, downloadable .html, print) ─── */
+function locationsHtml(v){
+  var towers=v.towers||[];
+  if(!towers.some(function(t){return t.gps;}))return '';
+  var pts=towerPins(v),h='<div class="rp-section">Tower Locations</div>';
+  if(pts.length)h+=plotSvg(pts)+'<p class="rp-notes" style="font-size:10px;color:#666;">Schematic of tower positions (north up, scale approximate) — not a map. Use the links below to open each tower in Google Maps.</p>';
+  h+='<table class="rp-table"><thead><tr><th>Tower</th><th>Pin</th><th class="r"></th></tr></thead><tbody>';
+  towers.forEach(function(t,i){
+    if(!t.gps)return;var u=mapsUrl(t.gps);
+    h+='<tr><td>'+(i+1)+'. '+esc(towerLabel(t,i))+'</td><td>'+esc(t.gps)+'</td><td class="r">'+(u?'<a class="rp-link" href="'+u+'" target="_blank" rel="noopener">Open in Google Maps ›</a>':'')+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  var ru=routeUrl(pts);
+  if(ru)h+='<p class="rp-notes"><a class="rp-link" href="'+ru+'" target="_blank" rel="noopener">Route all towers in Google Maps ›</a></p>';
+  return h;
+}
+
+function buildTowerReportHtml(t,ti){
   var parts=t.parts||[];
   var partsRows=parts.map(function(p){
     return '<tr><td><code style="font-size:9px;background:#f0f0f0;padding:1px 4px;border-radius:2px;">'+esc(p.code)+'</code></td><td>'+esc(p.desc)+'</td><td class="r">'+p.qty+'</td><td class="r">'+fmt(p.price)+'</td><td class="r">'+fmt(p.qty*p.price)+'</td></tr>';
   }).join('');
-  var c=t.cond||{};
-  var fc=(t.findingsChecked||[]);
+  var c=t.cond||{},fc=t.findingsChecked||[];
+  var mu=t.gps?mapsUrl(t.gps):null;
+  var hrs=t.labourHours||0,rate=t.labourRate||0,lab=t.labourCost||0;
   return '<div class="rp-tower-head">Tower '+(ti+1)+' — '+esc(t.towerNumber||t.serial||'Unlabelled')+'</div>'+
     (t.scopeType?'<div class="rp-notes"><b>Scope:</b> '+esc(t.scopeType)+'</div>':'')+
     '<div class="rp-section">Tower</div>'+
     '<div class="rp-grid"><div><span>Tower No.</span>'+esc(t.towerNumber)+'</div><div><span>Serial</span>'+esc(t.serial)+'</div>'+
     '<div><span>Model</span>'+esc(t.model)+'</div><div><span>Asset</span>'+esc(t.asset)+'</div>'+
-    '<div><span>Year</span>'+esc(t.year)+'</div><div><span>Overall</span>'+esc(t.overall)+'</div></div>'+
+    '<div><span>Year (manufactured / installed)</span>'+esc(t.year)+'</div><div><span>Overall</span>'+esc(t.overall)+'</div>'+
+    (t.gps?'<div style="grid-column:1/-1"><span>Tower location pin</span>'+esc(t.gps)+(mu?' &nbsp;·&nbsp; <a class="rp-link" href="'+mu+'" target="_blank" rel="noopener">Open in Google Maps ›</a>':'')+'</div>':'')+
+    '</div>'+
     '<div class="rp-section">Condition</div>'+
     '<div class="rp-grid"><div><span>Tower</span>'+esc(c.tower)+'</div><div><span>Battery</span>'+esc(c.battery)+'</div>'+
     '<div><span>Controller</span>'+esc(c.controller)+'</div><div><span>Lights</span>'+esc(c.lights)+'</div>'+
@@ -1822,10 +2117,12 @@ function buildTowerReportHtml(t,ti,total){
     (fc.length?'<div class="rp-section">Findings</div><p class="rp-notes"><b>Severity:</b> '+esc(t.severity||'—')+'<br><b>Issues:</b> '+esc(fc.join(', '))+'</p>':'')+
     (t.findings?'<p class="rp-notes">'+esc(t.findings)+'</p>':'')+
     (t.solution?'<div class="rp-section">Solution</div><p class="rp-notes">'+esc(t.solution)+'</p>':'')+
-    '<div class="rp-section">Parts & Cost</div>'+
+    '<div class="rp-section">Parts</div>'+
     '<table class="rp-table"><thead><tr><th>Code</th><th>Description</th><th>Qty</th><th class="r">Unit</th><th class="r">Total</th></tr></thead><tbody>'+
     (partsRows||'<tr><td colspan="5" style="color:#889">No parts selected</td></tr>')+'</tbody></table>'+
-    '<div class="rp-totals"><div>Subtotal (ex-GST): '+fmt(t.subtotal||0)+'</div><div>GST 10%: '+fmt(t.gst||0)+'</div><div class="grand">Tower total (inc. GST): '+fmt(t.total||0)+'</div></div>'+
+    '<div class="rp-section">Labour</div>'+
+    '<table class="rp-table"><thead><tr><th>Description</th><th class="r">Hours</th><th class="r">Rate</th><th class="r">Total</th></tr></thead><tbody><tr><td>'+esc(t.labourDesc||LABOUR_DESC)+'</td><td class="r">'+hrs+'</td><td class="r">'+fmt(rate)+'</td><td class="r">'+fmt(lab)+'</td></tr></tbody></table>'+
+    '<div class="rp-totals"><div>Parts (ex-GST): '+fmt(tParts(t))+'</div><div>Labour (ex-GST): '+fmt(lab)+'</div><div>Subtotal (ex-GST): '+fmt(t.subtotal||0)+'</div><div>GST 10%: '+fmt(t.gst||0)+'</div><div class="grand">Tower estimate (inc. GST): '+fmt(t.total||0)+'</div></div>'+
     (t.optional?'<p class="rp-notes"><b>Optional installation:</b> '+esc(t.optionalNote||'Recommended — pending approval')+'</p>':'')+
     (t.notes?'<p class="rp-notes"><b>Notes:</b> '+esc(t.notes)+'</p>':'')+
     ((t.photos&&t.photos.length)?'<div class="rp-section">Site Photos</div><div class="rp-photos">'+
@@ -1834,27 +2131,40 @@ function buildTowerReportHtml(t,ti,total){
 }
 
 function buildReportHtml(v){
-  var towers=v.towers||[];
-  var mob=v.mobilisation||[];
-  var mobRows=mob.map(function(p){
-    return '<tr><td><code style="font-size:9px;background:#f0f0f0;padding:1px 4px;border-radius:2px;">'+esc(p.code)+'</code></td><td>'+esc(p.desc||'')+'</td><td class="r">'+p.qty+'</td><td class="r">'+fmt(p.price)+'</td><td class="r">'+fmt(p.qty*p.price)+'</td></tr>';
-  }).join('');
+  var towers=v.towers||[],cs=costSummary(v);
   var body='<div class="rp-header">'+
-    '<div class="rp-logo"><svg width="20" height="20" viewBox="0 0 192 192"><rect width="192" height="192" rx="33.18" ry="33.18" fill="#231f20"/><path fill="#e0e31c" d="M98.21,50.65c23.17.12,43.47,21.09,43.15,44.02-.03.85.04,1.71,0,2.56-1.93,41.85-53.46,59.86-80.33,27.55-23.84-28.67-4.11-72.1,32.74-74.13h4.43ZM84.74,68.57h-10.75v44.1l10.83,10.83h33.17v-10.92h-33.26v-44.02ZM118,68.57h-26.27l10.83,10.92h15.44v-10.92ZM118,90.58h-26.27l10.83,10.92h15.44v-10.92Z"/><path fill="#fff" d="M179.62,90.32c-.11-1.64-1.39-2.96-3.03-3.1l-1.35-.12c-11.75-1.06-15.81-16.19-6.16-23l1.11-.78c1.35-.95,1.8-2.73,1.07-4.21-1.68-3.42-3.58-6.71-5.7-9.85-.92-1.36-2.69-1.86-4.17-1.17l-1.23.57c-10.7,4.96-21.79-6.13-16.83-16.83l.57-1.23c.69-1.49.19-3.26-1.17-4.17-3.14-2.12-6.43-4.02-9.85-5.7-1.48-.72-3.26-.27-4.21,1.08l-.78,1.11c-6.8,9.65-21.94,5.6-23-6.16l-.12-1.35c-.15-1.64-1.47-2.92-3.1-3.03-1.88-.13-3.78-.19-5.68-.19s-3.81.06-5.68.19c-1.64.11-2.96,1.39-3.1,3.03l-.12,1.35c-1.06,11.75-16.19,15.81-23,6.16l-.78-1.11c-.95-1.35-2.73-1.8-4.21-1.08-3.42,1.68-6.71,3.58-9.85,5.7-1.36.92-1.86,2.69-1.17,4.17l.57,1.23c4.96,10.7-6.13,21.79-16.83,16.83l-1.23-.57c-1.49-.69-3.26-.19-4.17,1.17-2.11,3.14-4.02,6.43-5.7,9.85-.72,1.48-.27,3.26,1.07,4.21l1.11.78c9.65,6.8,5.6,21.94-6.16,23l-1.35.12c-1.64.15-2.92,1.47-3.03,3.1-.13,1.88-.19,3.77-.19,5.68s.06,3.8.19,5.68c.11,1.64,1.39,2.96,3.03,3.1l1.35.12c11.75,1.06,15.81,16.19,6.16,23l-1.11.78c-1.35.95-1.8,2.73-1.07,4.21,1.68,3.42,3.58,6.71,5.7,9.85.92,1.36,2.69,1.86,4.17,1.17l1.23-.57c10.7-4.96,21.79,6.13,16.83,16.83l-.57,1.23c-.69,1.49-.19,3.26,1.17,4.17,3.14,2.12,6.43,4.02,9.85,5.7,1.48.72,3.26.27,4.21-1.08l.78-1.11c6.8-9.65,21.94-5.6,23,6.16l.12,1.35c.15,1.64,1.47,2.92,3.1,3.03,1.88.13,3.78.19,5.68.19s3.81-.06,5.68-.19c1.64-.11,2.96-1.39,3.1-3.03l.12-1.35c1.06-11.75,16.19-15.81,23-6.16l.78,1.11c.95,1.35,2.73,1.8,4.21,1.08,3.42-1.68,6.71-3.58,9.85-5.7,1.36-.92,1.86-2.69,1.17-4.17l-.57-1.23c-4.96-10.7,6.13-21.79,16.83-16.83l1.23.57c1.49.69,3.26.19,4.17-1.17,2.11-3.14,4.02-6.43,5.7-9.85.72-1.48.27-3.26-1.07-4.21l-1.11-.78c-9.65-6.8-5.6-21.94,6.16-23l1.35-.12c1.64-.15,2.92-1.47,3.03-3.1.13-1.88.19-3.77.19-5.68s-.06-3.8-.19-5.68ZM97.83,151.94c-32.36,1.03-58.81-25.41-57.77-57.77.93-29.31,24.8-53.18,54.11-54.11,32.36-1.03,58.81,25.41,57.77,57.77-.93,29.31-24.8,53.18-54.11,54.11Z"/></svg>EarthLight Site Service Report</div>'+
+    '<div class="rp-logo">'+LOGO_SVG+'EarthLight Site Service Report</div>'+
     '<div class="rp-meta">'+esc(v.visitNo||'—')+'<br>'+esc(v.date||'—')+'</div></div>'+
     '<div class="rp-section">Visit Summary</div>'+
     '<div class="rp-grid"><div><span>Client</span>'+esc(v.client)+'</div><div><span>Location</span>'+esc(v.location)+'</div>'+
     '<div><span>Technician</span>'+esc(v.tech)+'</div><div><span>Towers on visit</span>'+towers.length+'</div>'+
     (v.contactPhone||v.contactEmail?'<div><span>Site Contact Phone</span>'+esc(v.contactPhone)+'</div><div><span>Site Contact Email</span>'+esc(v.contactEmail)+'</div>':'')+
-    '<div style="grid-column:1/-1"><span>GPS / Map</span>'+esc(v.mapLocation)+'</div></div>'+
-    (mob.length?(
-      '<div class="rp-section">Mobilisation &amp; Callout Costs</div>'+
-      '<table class="rp-table"><thead><tr><th>Code</th><th>Description</th><th>Qty</th><th class="r">Unit</th><th class="r">Total</th></tr></thead><tbody>'+mobRows+'</tbody></table>'+
-      '<div class="rp-totals"><div>Subtotal (ex-GST): '+fmt(v.mobSubtotal||0)+'</div><div>GST 10%: '+fmt(v.mobGst||0)+'</div></div>'
-    ):'')+
-    '<div class="rp-totals"><div class="grand">Visit grand total (inc. GST): '+fmt(v.total||0)+'</div></div>';
-  towers.forEach(function(t,ti){body+=buildTowerReportHtml(t,ti,v.total);});
-  body+='<div class="rp-footer">EarthLight Site Service Report · Generated '+new Date().toLocaleString()+' · All prices ex-GST unless otherwise stated.</div>';
+    (v.mapLocation?'<div style="grid-column:1/-1"><span>Site reference</span>'+esc(v.mapLocation)+'</div>':'')+
+    '</div><p class="rp-notes" style="font-size:10px;color:#666;"><i>All pricing in this report is indicative only — see the Summary of Costs at the end.</i></p>'+
+    locationsHtml(v);
+  towers.forEach(function(t,ti){body+=buildTowerReportHtml(t,ti);});
+
+  body+='<div class="rp-section">Travel &amp; Accommodation</div>';
+  if(cs.travel.length){
+    body+='<table class="rp-table"><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Unit</th><th class="r">Total</th></tr></thead><tbody>'+
+      cs.travel.map(function(r){return '<tr><td>'+esc(r.label)+'</td><td class="r">'+r.qty+'</td><td class="r">'+fmt(r.price)+'</td><td class="r">'+fmt(r.total)+'</td></tr>';}).join('')+
+      '</tbody></table><div class="rp-totals"><div>Travel &amp; accommodation (ex-GST): '+fmt(cs.travelSub)+'</div></div>';
+  }else{
+    body+='<p class="rp-notes"><i>No travel, accommodation or mobilisation charges are included in this estimate (assumed to be provided by the client).</i></p>';
+  }
+
+  body+='<div class="rp-section">Summary of Costs — Indicative Only</div>'+
+    '<table class="rp-table"><thead><tr><th>Tower</th><th class="r">Parts</th><th class="r">Labour</th><th class="r">Subtotal (ex-GST)</th></tr></thead><tbody>'+
+    cs.rows.map(function(r,i){return '<tr><td><b>'+(i+1)+'. '+esc(r.label)+'</b><br><span style="color:#8B8B8B;font-size:10px;">'+(r.hours?(r.hours+' h @ '+fmt(r.rate)+'/h'):'Labour hours not entered')+'</span></td><td class="r">'+fmt(r.parts)+'</td><td class="r">'+fmt(r.labour)+'</td><td class="r">'+fmt(r.sub)+'</td></tr>';}).join('')+
+    '<tr><td colspan="3"><b>Towers subtotal (ex-GST)</b></td><td class="r"><b>'+fmt(cs.towersSub)+'</b></td></tr>'+
+    cs.travel.map(function(r){return '<tr><td colspan="3">+ '+esc(r.label)+' ('+r.qty+' × '+fmt(r.price)+')</td><td class="r">'+fmt(r.total)+'</td></tr>';}).join('')+
+    (cs.travel.length?'<tr><td colspan="3"><b>Travel &amp; accommodation subtotal (ex-GST)</b></td><td class="r"><b>'+fmt(cs.travelSub)+'</b></td></tr>':'')+
+    '<tr><td colspan="3">Estimated subtotal (ex-GST)</td><td class="r">'+fmt(cs.sub)+'</td></tr>'+
+    '<tr><td colspan="3">GST 10%</td><td class="r">'+fmt(cs.gst)+'</td></tr></tbody></table>'+
+    '<div class="rp-totals"><div class="grand">Estimated project total (inc. GST): '+fmt(cs.total)+'</div></div>'+
+    '<div class="rp-indic"><b>'+QUOTE_NOTE_TITLE+'</b>'+esc(QUOTE_NOTE)+'<br><br>'+esc(TERMS_NOTE)+'</div>';
+
+  body+='<div class="rp-footer">EarthLight Site Service Report · Generated '+new Date().toLocaleString()+' · Prices ex-GST unless otherwise stated · Indicative only.</div>';
   return body;
 }
 
@@ -1867,45 +2177,54 @@ $('genReportBtn').addEventListener('click',function(){
 });
 $('closeReport').addEventListener('click',function(){$('reportModal').classList.remove('show');});
 
+function reportFileName(v,ext){return ('EL-SSR_'+(v.client||'Report')+'_'+v.visitNo+'_'+v.date+'.'+ext).replace(/[^a-zA-Z0-9._-]/g,'_');}
+
 $('dlPdfBtn').addEventListener('click',function(){
   if(!lastVisit){toast('Generate report first.');return;}
   var doc=generatePDF(lastVisit);
   if(!doc)return;
-  var fname=('EL-SSR_'+(lastVisit.client||'Report')+'_'+lastVisit.visitNo+'_'+lastVisit.date+'.pdf').replace(/[^a-zA-Z0-9._-]/g,'_');
-  doc.save(fname);
+  doc.save(reportFileName(lastVisit,'pdf'));
   toast('PDF downloading…');
 });
 
+var REPORT_CSS=[
+  '*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}',
+  'body{font-family:Arial,sans-serif;color:#111;max-width:780px;margin:24px auto;padding:0 20px;font-size:13px;}',
+  '.rp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:10px;}',
+  '.rp-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;color:#000;}',
+  '.rp-logo svg{width:28px;height:28px;}',
+  '.rp-meta{text-align:right;font-size:11px;color:#666;}',
+  '.rp-section{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#000;border-bottom:2px solid #E6FF00;padding-bottom:3px;margin:14px 0 8px;}',
+  '.rp-tower-head{font-size:14px;font-weight:700;color:#E6FF00;background:#000;padding:8px 10px;border-radius:4px;margin:22px 0 8px;page-break-before:always;}',
+  '.rp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:12px;margin:8px 0 12px;}',
+  '.rp-grid div span{color:#8B8B8B;display:block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;}',
+  '.rp-table{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0;}',
+  '.rp-table th{text-align:left;border-bottom:1px solid #ccc;padding:5px 3px;font-size:10px;text-transform:uppercase;color:#444;}',
+  '.rp-table td{border-bottom:1px solid #eee;padding:5px 3px;vertical-align:top;}',
+  '.rp-table .r{text-align:right;}',
+  '.rp-totals{text-align:right;margin-top:8px;font-size:12px;color:#444;}',
+  '.rp-totals .grand{font-size:16px;font-weight:700;color:#000;margin-top:4px;}',
+  '.rp-notes{font-size:12px;color:#222;line-height:1.5;margin:6px 0;}',
+  '.rp-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 4px;}',
+  '.rp-photo img{width:100%;height:90px;object-fit:cover;border-radius:4px;display:block;border:1px solid #ddd;}',
+  '.rp-photo-cap{font-size:9px;color:#666;margin-top:3px;text-align:center;line-height:1.3;}',
+  '.rp-link{color:#000;font-weight:700;text-decoration:underline;}',
+  '.rp-indic{border:2px solid #E6FF00;background:#FBFFD6;border-radius:6px;padding:10px 12px;margin:14px 0;font-size:11px;line-height:1.55;color:#222;}',
+  '.rp-indic b{display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#000;}',
+  '.rp-footer{font-size:10px;color:#8B8B8B;margin-top:14px;border-top:1px solid #eee;padding-top:6px;}'
+].join('');
+
 $('dlHtmlBtn').addEventListener('click',function(){
   if(!lastVisit)return;
-  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>EarthLight SSR - '+esc(lastVisit.client)+'</title>'+
-    '<style>body{font-family:Arial,sans-serif;color:#111;max-width:720px;margin:30px auto;padding:0 20px;font-size:13px;}'+
-    '.rp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}'+
-    '.rp-logo{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;color:#000;}'+
-    '.rp-meta{text-align:right;font-size:11px;color:#666;}'+
-    '.rp-section{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#000;border-bottom:2px solid #E6FF00;padding-bottom:3px;margin:12px 0 7px;}'+
-    '.rp-tower-head{font-size:14px;font-weight:700;color:#E6FF00;background:#000;padding:8px 10px;border-radius:4px;margin:18px 0 8px;}'+
-    '.rp-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:12px;margin:8px 0 12px;}'+
-    '.rp-grid div span{color:#8B8B8B;display:block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;}'+
-    '.rp-table{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0;}'+
-    '.rp-table th{text-align:left;border-bottom:1px solid #ccc;padding:5px 3px;font-size:10px;text-transform:uppercase;color:#444;}'+
-    '.rp-table td{border-bottom:1px solid #eee;padding:5px 3px;}.r{text-align:right;}'+
-    '.rp-totals{text-align:right;margin-top:8px;font-size:12px;color:#444;}.rp-totals .grand{font-size:16px;font-weight:700;color:#000;margin-top:4px;}'+
-    '.rp-notes{font-size:12px;color:#222;line-height:1.5;margin:6px 0;}'+
-    '.rp-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 4px;}'+
-    '.rp-photo img{width:100%;height:90px;object-fit:cover;border-radius:4px;display:block;border:1px solid #ddd;}'+
-    '.rp-photo-cap{font-size:9px;color:#666;margin-top:3px;text-align:center;line-height:1.3;}'+
-    '.rp-footer{font-size:10px;color:#8B8B8B;margin-top:14px;border-top:1px solid #eee;padding-top:6px;}</style></head><body>'+
-    buildReportHtml(lastVisit)+'</body></html>';
-  saveFile(('EL-SSR_'+(lastVisit.client||'Report')+'_'+lastVisit.visitNo+'_'+lastVisit.date+'.html').replace(/[^a-zA-Z0-9._-]/g,'_'),html,'text/html');
+  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>EarthLight SSR - '+esc(lastVisit.client)+'</title><style>'+REPORT_CSS+'</style></head><body>'+buildReportHtml(lastVisit)+'</body></html>';
+  saveFile(reportFileName(lastVisit,'html'),html,'text/html');
 });
 
 $('printBtn').addEventListener('click',function(){
   if(!lastVisit)return;
   var w=window.open('','_blank');if(!w){toast('Allow pop-ups to print.');return;}
-  w.document.write('<html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px;color:#111;max-width:720px;margin:0 auto;}.rp-section{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#000;border-bottom:2px solid #E6FF00;margin:12px 0 6px;padding-bottom:3px;}.rp-tower-head{font-size:13px;font-weight:700;color:#E6FF00;background:#000;padding:7px 9px;border-radius:4px;margin:16px 0 8px;}.rp-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:11px;margin:6px 0 10px;}.rp-grid div span{color:#8B8B8B;display:block;font-size:9px;text-transform:uppercase;}.rp-table{width:100%;border-collapse:collapse;font-size:11px;}.rp-table th{text-align:left;border-bottom:1px solid #ccc;padding:4px;font-size:9px;text-transform:uppercase;color:#444;}.rp-table td{border-bottom:1px solid #eee;padding:4px;}.r{text-align:right;}.rp-totals{text-align:right;font-size:12px;}.grand{font-size:15px;font-weight:700;}.rp-notes{font-size:11px;line-height:1.5;margin:6px 0;}.rp-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 4px;}.rp-photo img{width:100%;height:90px;object-fit:cover;border-radius:4px;border:1px solid #ddd;}.rp-photo-cap{font-size:9px;color:#666;margin-top:3px;text-align:center;}.rp-footer{font-size:9px;color:#8B8B8B;margin-top:12px;border-top:1px solid #eee;padding-top:5px;}.rp-header{display:flex;justify-content:space-between;margin-bottom:10px;}.rp-logo{font-weight:700;font-size:14px;color:#000;}</style></head><body>');
-  w.document.write($('reportContent').innerHTML);
-  w.document.write('</body></html>');w.document.close();setTimeout(function(){w.print();},300);
+  w.document.write('<html><head><meta charset="utf-8"><title>EarthLight SSR</title><style>'+REPORT_CSS+'</style></head><body>'+$('reportContent').innerHTML+'</body></html>');
+  w.document.close();setTimeout(function(){w.print();},300);
 });
 
 /* ─── EMAIL — sent from the app itself via the signed-in tech's own Microsoft mailbox (Graph sendMail) ─── */
@@ -1959,8 +2278,8 @@ $('emailBtn').addEventListener('click',async function(){
     lines.push('— Tower '+(i+1)+': '+(t.towerNumber||t.serial||'—')+' — '+(t.overall||'—')+' — '+fmt(t.total||0));
     if(t.severity)lines.push('   Severity: '+t.severity+(t.findingsChecked&&t.findingsChecked.length?' — '+t.findingsChecked.join(', '):''));
   });
-  if(v.mobTotal)lines.push('— Mobilisation & callout: '+fmt(v.mobTotal||0));
-  lines.push('','VISIT TOTAL: '+fmt(v.total||0),'','Full PDF report attached.','','EarthLight.com.au');
+  if(v.travelTotal)lines.push('— Travel & accommodation (indicative): '+fmt(v.travelTotal||0));
+  lines.push('','ESTIMATED PROJECT TOTAL (indicative, inc. GST): '+fmt(v.total||0),'','These figures are indicative only. A formal quotation will follow once the customer has reviewed the audit and confirmed which repairs to proceed with.','','Full PDF report attached.','','EarthLight.com.au');
   var message=lines.join('\n');
 
   toast('Sending…');
@@ -2295,7 +2614,9 @@ $('resetPbBtn').addEventListener('click',function(){if(confirm('Reset to EarthLi
 /* ─── SETTINGS ─── */
 function loadSettingsUI(){
   $('s_inbox').value=settings.inbox||'';$('s_cc').value=settings.cc||'';
+  $('s_labour_rate').value=(settings.labourRate!==undefined&&settings.labourRate!==null)?settings.labourRate:'';
 }
+$('s_labour_rate').addEventListener('input',function(){settings.labourRate=parseFloat(this.value)||0;lsSet(K.SETTINGS,settings);});
 ['s_inbox','s_cc'].forEach(function(id){
   document.getElementById(id).addEventListener('input',function(){settings.inbox=$('s_inbox').value;settings.cc=$('s_cc').value;lsSet(K.SETTINGS,settings);});
 });
@@ -2314,6 +2635,113 @@ if('serviceWorker' in navigator){
   });
 }
 
+/* ─── STAGED FLOW ─── */
+var STAGES=['site','details','condition','repairs','photos','travel','summary'];
+var TOWER_STAGES=['details','condition','repairs','photos'];
+var curStage='site';
+
+function goStage(s){
+  if(STAGES.indexOf(s)===-1)s='site';
+  curStage=s;
+  document.querySelectorAll('#panel-audit .stage').forEach(function(el){el.classList.toggle('active',el.dataset.stage===s);});
+  document.querySelectorAll('#stageBar .stage-pill').forEach(function(el){
+    el.classList.toggle('active',el.dataset.go===s);
+    if(el.dataset.go===s&&el.scrollIntoView){try{el.scrollIntoView({inline:'center',block:'nearest'});}catch(e){}}
+  });
+  $('towerNav').style.display=TOWER_STAGES.indexOf(s)!==-1?'flex':'none';
+  $('backBtn').style.visibility=s==='site'?'hidden':'visible';
+  $('nextBtn').style.display=s==='summary'?'none':'';
+  $('nextBtn').textContent=s==='travel'?'Review →':'Next →';
+  if(s==='summary')renderSummary();
+  try{window.scrollTo(0,0);}catch(e){}
+}
+document.querySelectorAll('#stageBar .stage-pill').forEach(function(btn){btn.addEventListener('click',function(){goStage(this.dataset.go);});});
+$('nextBtn').addEventListener('click',function(){var i=STAGES.indexOf(curStage);if(i<STAGES.length-1)goStage(STAGES[i+1]);});
+$('backBtn').addEventListener('click',function(){var i=STAGES.indexOf(curStage);if(i>0)goStage(STAGES[i-1]);});
+
+/* ─── MODEL — type-to-search picker (works on phones, accepts custom text too) ─── */
+(function(){
+  var models=Array.from(document.querySelectorAll('#modelList option')).map(function(o){return o.value;});
+  var inp=$('f_model'),list=$('modelCombo');
+  function norm(s){return String(s).toUpperCase().replace(/[^A-Z0-9]/g,'');}
+  function hide(){list.hidden=true;}
+  function render(){
+    var q=norm(inp.value);
+    var hits=models.filter(function(m){return !q||norm(m).indexOf(q)!==-1;});
+    list.innerHTML='';
+    if(!hits.length){var e=document.createElement('div');e.className='combo-empty';e.textContent='No listed match — what you type will be used as a custom model.';list.appendChild(e);}
+    hits.slice(0,100).forEach(function(m){
+      var d=document.createElement('div');d.className='combo-item';d.textContent=m;
+      d.addEventListener('mousedown',function(ev){ev.preventDefault();});
+      d.addEventListener('click',function(){inp.value=m;hide();});
+      list.appendChild(d);
+    });
+    list.hidden=false;
+  }
+  inp.addEventListener('focus',render);
+  inp.addEventListener('input',render);
+  inp.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Enter')hide();});
+  document.addEventListener('click',function(e){if(e.target!==inp&&!list.contains(e.target))hide();});
+})();
+
+/* ─── YEAR — a pick-list with "Unknown" so nobody has to guess ─── */
+function buildYearOptions(){
+  var s=$('f_year');if(s.options.length>2)return;
+  var cy=new Date().getFullYear();
+  s.innerHTML='<option value="">Select…</option><option value="Unknown">Unknown (not on plate)</option>';
+  for(var y=cy;y>=2012;y--){var o=document.createElement('option');o.value=String(y);o.textContent=String(y);s.appendChild(o);}
+  var o2=document.createElement('option');o2.value='Before 2012';o2.textContent='Before 2012';s.appendChild(o2);
+}
+function setYear(val){
+  var s=$('f_year');buildYearOptions();
+  val=(val===undefined||val===null)?'':String(val);
+  if(val&&!Array.from(s.options).some(function(o){return o.value===val;})){var o=document.createElement('option');o.value=val;o.textContent=val;s.appendChild(o);}
+  s.value=val;
+}
+buildYearOptions();
+
+/* ─── LOCATION PIN (per tower) ─── */
+window.captureGPS=function(){
+  if(!navigator.geolocation){toast('GPS not available on this device — type the coordinates instead.');return;}
+  toast('Locating…');
+  navigator.geolocation.getCurrentPosition(function(p){
+    var lat=p.coords.latitude.toFixed(6),lng=p.coords.longitude.toFixed(6);
+    $('f_gps').value=lat+', '+lng;
+    toast('Pin dropped: '+lat+', '+lng);
+  },function(){toast('Could not get GPS — type the coordinates instead.');},{enableHighAccuracy:true,timeout:15000});
+};
+
+/* ─── SUMMARY STEP ─── */
+function renderSummary(){
+  var v=collectVisit(),cs=costSummary(v),warns=[];
+  if(!v.client)warns.push('Client / company is missing (step 1).');
+  if(!v.location)warns.push('Location / site is missing (step 1).');
+  cs.rows.forEach(function(r,i){
+    var t=v.towers[i];
+    if(!r.hours)warns.push(r.label+': labour hours not entered (step 4).');
+    if(!(t.parts&&t.parts.length))warns.push(r.label+': no parts selected (step 4).');
+    if(!t.gps)warns.push(r.label+': no location pin (step 2).');
+  });
+  var h='';
+  if(warns.length)h+='<ul class="warn-list">'+warns.map(function(w){return '<li>'+esc(w)+'</li>';}).join('')+'</ul>';
+  h+='<div class="card"><div class="summary-wrap"><table class="summary-table"><thead><tr><th>Tower</th><th class="num">Parts</th><th class="num">Labour</th><th class="num">Subtotal</th></tr></thead><tbody>';
+  cs.rows.forEach(function(r){
+    h+='<tr><td><b>'+esc(r.label)+'</b><br><small>'+(r.hours?(r.hours+' h @ '+fmt(r.rate)+'/h'):'Labour hours not entered')+'</small></td><td class="num">'+fmt(r.parts)+'</td><td class="num">'+fmt(r.labour)+'</td><td class="num">'+fmt(r.sub)+'</td></tr>';
+  });
+  h+='<tr class="sub"><td colspan="3">Towers subtotal (ex-GST)</td><td class="num">'+fmt(cs.towersSub)+'</td></tr>';
+  if(cs.travel.length){
+    h+='<tr class="grp"><td colspan="4">Travel &amp; accommodation — added separately</td></tr>';
+    cs.travel.forEach(function(r){h+='<tr><td colspan="3">'+esc(r.label)+'<br><small>'+r.qty+' × '+fmt(r.price)+'</small></td><td class="num">'+fmt(r.total)+'</td></tr>';});
+    h+='<tr class="sub"><td colspan="3">Travel &amp; accommodation subtotal (ex-GST)</td><td class="num">'+fmt(cs.travelSub)+'</td></tr>';
+  }
+  h+='<tr class="sub"><td colspan="3">Estimated subtotal (ex-GST)</td><td class="num">'+fmt(cs.sub)+'</td></tr>';
+  h+='<tr class="sub"><td colspan="3">GST 10%</td><td class="num">'+fmt(cs.gst)+'</td></tr>';
+  h+='<tr class="total"><td colspan="3">Estimated project total (inc. GST)</td><td class="num">'+fmt(cs.total)+'</td></tr>';
+  h+='</tbody></table></div></div>';
+  h+='<div class="indic"><b>'+QUOTE_NOTE_TITLE+'</b>'+esc(QUOTE_NOTE)+'<br><br>'+esc(TERMS_NOTE)+'</div>';
+  $('summaryBody').innerHTML=h;
+}
+
 /* ─── INIT ─── */
 updateNet();
 $('bottomBar').style.display='block';
@@ -2321,9 +2749,11 @@ lsSet(K.PB,pb);
 loadSettingsUI();
 initMsal();
 updateOdUI();
+loadTravelIntoForm(null);
 var t0=blankTower();t0.towerNumber='#1';curTowers=[t0];curTowerIdx=null;switchTower(0);
 $('f_date').value=new Date().toISOString().split('T')[0];
 regenVisitNo();
+goStage('site');
 
 })();
 </script>
