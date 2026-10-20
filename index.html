@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -376,15 +376,28 @@ section.panel.active{display:block;}
 .rp-indic{border:2px solid #E6FF00;background:#FBFFD6;border-radius:6px;padding:10px 12px;margin:14px 0;font-size:11px;line-height:1.55;color:#222;}
 .rp-indic b{display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#000;}
 .rp-table th.r{text-align:right;}
-</style>
 
-<!--[if gte mso 9]><xml>
-<mso:CustomDocumentProperties>
-<mso:_dlc_DocId msdt:dt="string">YRNP74QTP6U2-1741340171-56282</mso:_dlc_DocId>
-<mso:_dlc_DocIdItemGuid msdt:dt="string">9bbae864-661c-4187-a2ba-073ade9f7bec</mso:_dlc_DocIdItemGuid>
-<mso:_dlc_DocIdUrl msdt:dt="string">https://earthtrackminesupplies.sharepoint.com/sites/EL/_layouts/15/DocIdRedir.aspx?ID=YRNP74QTP6U2-1741340171-56282, YRNP74QTP6U2-1741340171-56282</mso:_dlc_DocIdUrl>
-</mso:CustomDocumentProperties>
-</xml><![endif]-->
+/* tower overview + per-tower sub-steps */
+.tower-bar{margin:0 0 18px;padding:12px;background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;}
+.tower-bar-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.tower-bar-label{font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:.04em;flex:1;text-align:right;}
+.btn.small{min-height:38px;padding:8px 12px;font-size:13px;}
+.substeps{display:flex;gap:6px;}
+.substep{flex:1;min-width:0;font-family:var(--font);font-size:13px;font-weight:600;padding:10px 4px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text-dim);cursor:pointer;min-height:44px;}
+.substep.active{background:var(--surface-3);border-color:var(--amber);color:var(--text);box-shadow:inset 0 -3px 0 var(--amber);}
+.tower-card{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;cursor:pointer;color:var(--text);font-family:var(--font);}
+.tower-card:active,.tower-card:hover{border-color:var(--amber);}
+.tc-top{display:flex;align-items:center;gap:12px;}
+.tc-num{flex:none;width:34px;height:34px;border-radius:50%;background:var(--amber);color:var(--amber-ink);font-weight:700;display:flex;align-items:center;justify-content:center;}
+.tc-main{flex:1;min-width:0;}
+.tc-main b{display:block;font-size:16px;overflow-wrap:anywhere;}
+.tc-main small{color:var(--text-dim);font-size:12px;}
+.tc-total{font-family:var(--mono);font-weight:700;color:var(--amber);font-size:14px;}
+.tc-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.tc-chip{font-size:11px;padding:4px 9px;border-radius:14px;border:1px solid var(--line);color:var(--text-faint);}
+.tc-chip.done{border-color:var(--amber);color:var(--text);background:color-mix(in srgb,var(--amber) 10%,transparent);}
+.danger-card{border-color:color-mix(in srgb,var(--danger) 45%,var(--line));margin-top:24px;}
+</style>
 </head>
 <body>
 
@@ -429,24 +442,29 @@ section.panel.active{display:block;}
 
   <div class="stagebar" id="stageBar">
     <button type="button" class="stage-pill active" data-go="site"><b>1</b>Site</button>
-    <button type="button" class="stage-pill" data-go="details"><b>2</b>Tower</button>
-    <button type="button" class="stage-pill" data-go="condition"><b>3</b>Condition</button>
-    <button type="button" class="stage-pill" data-go="repairs"><b>4</b>Repairs</button>
-    <button type="button" class="stage-pill" data-go="photos"><b>5</b>Photos</button>
-    <button type="button" class="stage-pill" data-go="travel"><b>6</b>Travel</button>
-    <button type="button" class="stage-pill" data-go="summary"><b>7</b>Summary</button>
+    <button type="button" class="stage-pill" data-go="towers"><b>2</b><span id="towerPillLabel">Towers</span></button>
+    <button type="button" class="stage-pill" data-go="travel"><b>3</b>Travel</button>
+    <button type="button" class="stage-pill" data-go="summary"><b>4</b>Summary</button>
   </div>
 
-  <div class="tower-nav" id="towerNav" style="display:none;">
-    <div class="tower-tabs" id="towerTabs"></div>
-    <button class="add-tower-btn" id="addTowerBtn" type="button">+ Add tower</button>
+  <div class="tower-bar" id="towerNav" style="display:none;">
+    <div class="tower-bar-top">
+      <button class="btn ghost small" id="allTowersBtn" type="button">‹ All towers</button>
+      <div class="tower-bar-label" id="towerBarLabel">Tower 1 of 1</div>
+    </div>
+    <div class="substeps" id="subSteps">
+      <button type="button" class="substep active" data-go="details">Details</button>
+      <button type="button" class="substep" data-go="condition">Condition</button>
+      <button type="button" class="substep" data-go="repairs">Repairs</button>
+      <button type="button" class="substep" data-go="photos">Photos</button>
+    </div>
   </div>
   <input type="hidden" id="f_maploc">
 
   <!-- ═════ 1 · SITE ═════ -->
   <div class="stage active" data-stage="site">
     <div class="stage-head">
-      <div class="stage-kicker">Step 1 of 7 · <span id="auditIdLabel">DRAFT</span></div>
+      <div class="stage-kicker">Step 1 of 4 · <span id="auditIdLabel">DRAFT</span></div>
       <div class="stage-title">Site visit</div>
       <div class="stage-sub">Who you're visiting and when. This is shared by every tower on the visit.</div>
     </div>
@@ -479,6 +497,17 @@ section.panel.active{display:block;}
       <div class="field"><label>Visit Number</label><input type="text" id="f_auditno" placeholder="EL-SSR-YYMMDD-SITE" class="mono">
         <div class="hint">Filled in automatically from the date and site name — type over it to use your own.</div></div>
     </div>
+  </div>
+
+  <!-- ═════ 2 · TOWERS (overview) ═════ -->
+  <div class="stage" data-stage="towers">
+    <div class="stage-head">
+      <div class="stage-kicker">Step 2 of 4</div>
+      <div class="stage-title">Towers</div>
+      <div class="stage-sub">Add every tower on this visit. Tap a tower to work through its details, condition, repairs and photos — then come back here for the next one.</div>
+    </div>
+    <div id="towerList"></div>
+    <button class="add-part-btn" id="addTowerBtn" type="button">+ Add another tower</button>
   </div>
 
   <!-- ═════ 2 · TOWER DETAILS ═════ -->
@@ -526,6 +555,11 @@ section.panel.active{display:block;}
         </div>
         <div class="hint">Stand at the tower and tap Pin (needs GPS signal). No signal? Type the coordinates as “lat, long” — it becomes a Google Maps link in the PDF.</div>
       </div>
+    </div>
+    <div class="card danger-card" id="removeTowerCard">
+      <div class="card-title">Remove this tower</div>
+      <p class="hint" style="margin-bottom:12px;">Deletes this tower and everything entered for it — condition, parts, labour and photos. You'll be asked to confirm.</p>
+      <button class="btn danger" id="removeTowerBtn" type="button">Remove tower</button>
     </div>
     <datalist id="modelList">
           <option value="ETG-01MI011"></option>
@@ -723,7 +757,7 @@ section.panel.active{display:block;}
   <!-- ═════ 6 · TRAVEL & ACCOMMODATION ═════ -->
   <div class="stage" data-stage="travel">
     <div class="stage-head">
-      <div class="stage-kicker">Whole visit · optional</div>
+      <div class="stage-kicker">Step 3 of 4 · optional</div>
       <div class="stage-title">Travel &amp; accommodation</div>
       <div class="stage-sub">Only add these if the client can't provide them. Costs are editable and are added separately to the project total.</div>
     </div>
@@ -769,7 +803,7 @@ section.panel.active{display:block;}
   <!-- ═════ 7 · SUMMARY ═════ -->
   <div class="stage" data-stage="summary">
     <div class="stage-head">
-      <div class="stage-kicker">Final step</div>
+      <div class="stage-kicker">Step 4 of 4</div>
       <div class="stage-title">Summary of costs</div>
       <div class="stage-sub">Check the numbers, then save, preview the report or send it.</div>
     </div>
@@ -1561,22 +1595,19 @@ function towerLabel(t,i){
   return t.towerNumber||t.serial||('Tower '+(i+1));
 }
 
-function renderTowerTabs(){
-  var wrap=$('towerTabs');wrap.innerHTML='';
-  curTowers.forEach(function(t,i){
-    var tab=document.createElement('div');tab.className='tower-tab'+(i===curTowerIdx?' active':'');
-    var lbl=document.createElement('span');lbl.textContent=towerLabel(t,i);
-    tab.appendChild(lbl);
-    if(curTowers.length>1){
-      var x=document.createElement('span');x.className='tw-x';x.textContent='×';
-      x.addEventListener('click',function(ev){ev.stopPropagation();removeTower(i);});
-      tab.appendChild(x);
-    }
-    tab.addEventListener('click',function(){switchTower(i);});
-    wrap.appendChild(tab);
-  });
-  $('towerPosLabel').textContent='Tower '+((curTowerIdx===null?0:curTowerIdx)+1)+' of '+curTowers.length;
+function liveTowerLabel(){
+  var i=curTowerIdx===null?0:curTowerIdx;
+  return $('f_towernum').value||$('f_serial').value||('Tower '+(i+1));
 }
+function renderTowerTabs(){ // keeps the per-tower header + pills in step with the tower on screen
+  var i=curTowerIdx===null?0:curTowerIdx,n=curTowers.length;
+  var pos='Tower '+(i+1)+' of '+n;
+  $('towerPosLabel').textContent=pos;
+  $('towerBarLabel').textContent=pos+' · '+liveTowerLabel();
+  $('towerPillLabel').textContent='Towers ('+n+')';
+  $('removeTowerCard').style.display=n>1?'':'none';
+}
+function syncCurrentTower(){if(curTowerIdx!==null&&curTowerIdx<curTowers.length)curTowers[curTowerIdx]=collectTowerFromForm();}
 
 function switchTower(idx){
   if(curTowerIdx!==null&&curTowerIdx<curTowers.length){curTowers[curTowerIdx]=collectTowerFromForm();}
@@ -1597,7 +1628,7 @@ $('addTowerBtn').addEventListener('click',function(){addTower();});
 
 function removeTower(idx){
   if(curTowers.length<=1){toast('A visit needs at least one tower.');return;}
-  if(!confirm('Remove '+towerLabel(curTowers[idx],idx)+' from this visit? Its details will be lost.'))return;
+  if(!confirm('Remove Tower '+(idx+1)+' ('+(idx===curTowerIdx?liveTowerLabel():towerLabel(curTowers[idx],idx))+') from this visit? Everything entered for it will be lost.'))return;
   curTowers.splice(idx,1);
   var newIdx=Math.min(idx,curTowers.length-1);
   curTowerIdx=null; // force full reload, nothing to save back
@@ -2635,29 +2666,72 @@ if('serviceWorker' in navigator){
   });
 }
 
-/* ─── STAGED FLOW ─── */
-var STAGES=['site','details','condition','repairs','photos','travel','summary'];
+/* ─── STAGED FLOW: Site → Towers (each tower: Details · Condition · Repairs · Photos) → Travel → Summary ─── */
+var STAGES=['site','towers','details','condition','repairs','photos','travel','summary'];
 var TOWER_STAGES=['details','condition','repairs','photos'];
+var NEXT_STAGE={site:'towers',towers:'travel',details:'condition',condition:'repairs',repairs:'photos',photos:'towers',travel:'summary'};
+var BACK_STAGE={towers:'site',details:'towers',condition:'details',repairs:'condition',photos:'repairs',travel:'towers',summary:'travel'};
+var NEXT_LABEL={towers:'Travel →',photos:'Finish tower ✓',travel:'Review →'};
 var curStage='site';
 
 function goStage(s){
   if(STAGES.indexOf(s)===-1)s='site';
   curStage=s;
+  var inTower=TOWER_STAGES.indexOf(s)!==-1;
+  var topPill=inTower?'towers':s;
   document.querySelectorAll('#panel-audit .stage').forEach(function(el){el.classList.toggle('active',el.dataset.stage===s);});
   document.querySelectorAll('#stageBar .stage-pill').forEach(function(el){
-    el.classList.toggle('active',el.dataset.go===s);
-    if(el.dataset.go===s&&el.scrollIntoView){try{el.scrollIntoView({inline:'center',block:'nearest'});}catch(e){}}
+    el.classList.toggle('active',el.dataset.go===topPill);
+    if(el.dataset.go===topPill&&el.scrollIntoView){try{el.scrollIntoView({inline:'center',block:'nearest'});}catch(e){}}
   });
-  $('towerNav').style.display=TOWER_STAGES.indexOf(s)!==-1?'flex':'none';
+  document.querySelectorAll('#subSteps .substep').forEach(function(el){el.classList.toggle('active',el.dataset.go===s);});
+  $('towerNav').style.display=inTower?'block':'none';
   $('backBtn').style.visibility=s==='site'?'hidden':'visible';
   $('nextBtn').style.display=s==='summary'?'none':'';
-  $('nextBtn').textContent=s==='travel'?'Review →':'Next →';
+  $('nextBtn').textContent=NEXT_LABEL[s]||'Next →';
+  if(inTower)renderTowerTabs();
+  if(s==='towers')renderTowerList();
   if(s==='summary')renderSummary();
   try{window.scrollTo(0,0);}catch(e){}
 }
 document.querySelectorAll('#stageBar .stage-pill').forEach(function(btn){btn.addEventListener('click',function(){goStage(this.dataset.go);});});
-$('nextBtn').addEventListener('click',function(){var i=STAGES.indexOf(curStage);if(i<STAGES.length-1)goStage(STAGES[i+1]);});
-$('backBtn').addEventListener('click',function(){var i=STAGES.indexOf(curStage);if(i>0)goStage(STAGES[i-1]);});
+document.querySelectorAll('#subSteps .substep').forEach(function(btn){btn.addEventListener('click',function(){goStage(this.dataset.go);});});
+$('allTowersBtn').addEventListener('click',function(){goStage('towers');});
+$('nextBtn').addEventListener('click',function(){
+  if(curStage==='site'&&curTowers.length===1){switchTower(0);goStage('details');return;} // single tower: straight in
+  var n=NEXT_STAGE[curStage];if(n)goStage(n);
+});
+$('backBtn').addEventListener('click',function(){var b=BACK_STAGE[curStage];if(b)goStage(b);});
+['f_towernum','f_serial'].forEach(function(id){$(id).addEventListener('input',renderTowerTabs);$(id).addEventListener('change',renderTowerTabs);});
+
+function renderTowerList(){
+  syncCurrentTower();
+  var h='';
+  curTowers.forEach(function(t,i){
+    var cond=t.cond||{};
+    var hasCond=Object.keys(cond).some(function(k){return cond[k];})||!!t.severity||!!(t.findingsChecked&&t.findingsChecked.length);
+    var np=(t.parts||[]).length,nph=(t.photos||[]).length;
+    var chips=[
+      [!!t.gps,'Pin'],
+      [hasCond,'Condition'],
+      [np>0,np?np+' part'+(np!==1?'s':''):'Parts'],
+      [!!t.labourHours,t.labourHours?t.labourHours+' h labour':'Labour'],
+      [nph>0,nph?nph+' photo'+(nph!==1?'s':''):'Photos']
+    ];
+    h+='<button type="button" class="tower-card" data-i="'+i+'"><div class="tc-top"><span class="tc-num">'+(i+1)+'</span><div class="tc-main"><b>'+esc(towerLabel(t,i))+(t.model?' · '+esc(t.model):'')+'</b><small>'+(t.serial?'Serial '+esc(t.serial):'No serial yet')+'</small></div><span class="tc-total">'+fmt(t.total||0)+'</span></div><div class="tc-chips">'+
+      chips.map(function(x){return '<span class="tc-chip'+(x[0]?' done':'')+'">'+(x[0]?'✓ ':'')+esc(x[1])+'</span>';}).join('')+'</div></button>';
+  });
+  $('towerList').innerHTML=h;
+  $('towerList').querySelectorAll('.tower-card').forEach(function(b){
+    b.addEventListener('click',function(){switchTower(parseInt(this.dataset.i,10));goStage('details');});
+  });
+}
+
+$('removeTowerBtn').addEventListener('click',function(){
+  var before=curTowers.length;
+  removeTower(curTowerIdx);
+  if(curTowers.length<before)goStage('towers');
+});
 
 /* ─── MODEL — type-to-search picker (works on phones, accepts custom text too) ─── */
 (function(){
@@ -2714,13 +2788,13 @@ window.captureGPS=function(){
 /* ─── SUMMARY STEP ─── */
 function renderSummary(){
   var v=collectVisit(),cs=costSummary(v),warns=[];
-  if(!v.client)warns.push('Client / company is missing (step 1).');
-  if(!v.location)warns.push('Location / site is missing (step 1).');
+  if(!v.client)warns.push('Client / company is missing (Site step).');
+  if(!v.location)warns.push('Location / site is missing (Site step).');
   cs.rows.forEach(function(r,i){
     var t=v.towers[i];
-    if(!r.hours)warns.push(r.label+': labour hours not entered (step 4).');
-    if(!(t.parts&&t.parts.length))warns.push(r.label+': no parts selected (step 4).');
-    if(!t.gps)warns.push(r.label+': no location pin (step 2).');
+    if(!r.hours)warns.push(r.label+': labour hours not entered (Repairs).');
+    if(!(t.parts&&t.parts.length))warns.push(r.label+': no parts selected (Repairs).');
+    if(!t.gps)warns.push(r.label+': no location pin (Details).');
   });
   var h='';
   if(warns.length)h+='<ul class="warn-list">'+warns.map(function(w){return '<li>'+esc(w)+'</li>';}).join('')+'</ul>';
