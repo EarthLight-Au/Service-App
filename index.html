@@ -740,7 +740,7 @@ section.panel.active{display:block;}
     <div class="stage-head">
       <div class="stage-kicker">This tower</div>
       <div class="stage-title">Site photos</div>
-      <div class="stage-sub">Tower, damage, serial plates or completed work. They go into the full PDF (download / OneDrive copy); emailed copies leave photos out to stay small.</div>
+      <div class="stage-sub">Tower, damage, serial plates or completed work. They go into the PDF. Emailed copies include them at a smaller size (if there are too many to fit, the email notes they're on OneDrive).</div>
     </div>
     <div class="card">
       <div class="card-title">Photos <span class="badge" id="photosCount">0 photos</span></div>
@@ -2285,6 +2285,31 @@ async function getGraphToken(scopes){
 
 function getMailToken(){return getGraphToken(['Mail.Send']);}
 
+/* Copy of the visit with every photo re-encoded smaller — used for the emailed PDF only. */
+function shrinkDataUrl(dataUrl,maxDim,quality){
+  return new Promise(function(resolve){
+    var img=new Image();
+    img.onload=function(){
+      var w=img.width,h=img.height,s=Math.min(1,maxDim/Math.max(w,h));
+      var c=document.createElement('canvas');c.width=Math.round(w*s);c.height=Math.round(h*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      try{resolve(c.toDataURL('image/jpeg',quality));}catch(e){resolve(dataUrl);}
+    };
+    img.onerror=function(){resolve(dataUrl);};
+    img.src=dataUrl;
+  });
+}
+async function shrinkVisitPhotos(v,maxDim,quality){
+  var copy=JSON.parse(JSON.stringify(v));
+  for(var i=0;i<(copy.towers||[]).length;i++){
+    var t=copy.towers[i];
+    for(var j=0;j<(t.photos||[]).length;j++){
+      t.photos[j].dataUrl=await shrinkDataUrl(t.photos[j].dataUrl,maxDim,quality);
+    }
+  }
+  return copy;
+}
+
 /* Graph returns a JSON error body — pull out the useful bit for the toast/log. */
 async function graphError(resp,label){
   var txt='';try{txt=await resp.text();}catch(e){}
@@ -2316,16 +2341,31 @@ $('emailBtn').addEventListener('click',async function(){
   try{token=await getMailToken();}
   catch(e){toast('Email failed: '+e.message,6000);logSync('Email token: '+e.message,'err');return;}
 
+  // Graph sendMail caps the whole request at ~4MB (base64 adds a third), so keep the PDF under ~2.8MB.
+  // Try with photos at progressively smaller sizes; only drop photos if even the smallest won't fit.
   toast('Preparing report…');
-  var doc=generatePDF(v,{forEmail:true});
-  if(!doc)return;
-  var dataUri=doc.output('datauristring');
-  var b64=dataUri.split(',')[1]||'';
-  var approxKB=Math.round(b64.length*0.75/1024);
-  if(approxKB>2800){ // Graph sendMail caps the whole request at ~4MB, and base64 adds a third
+  var LIMIT_KB=2800, b64='', approxKB=0, photosNote='';
+  var hasPhotos=(v.towers||[]).some(function(t){return t.photos&&t.photos.length;});
+  var tiers=hasPhotos?[[1100,0.7],[850,0.6],[650,0.5],[480,0.45]]:[];
+  for(var ti=0;ti<tiers.length;ti++){
+    var vSmall=await shrinkVisitPhotos(v,tiers[ti][0],tiers[ti][1]);
+    var d1=generatePDF(vSmall);if(!d1)return;
+    b64=(d1.output('datauristring').split(',')[1]||'');
+    approxKB=Math.round(b64.length*0.75/1024);
+    if(approxKB<=LIMIT_KB)break;
+    b64='';
+  }
+  if(!b64){
+    var d2=generatePDF(v,{forEmail:true});if(!d2)return;
+    b64=(d2.output('datauristring').split(',')[1]||'');
+    approxKB=Math.round(b64.length*0.75/1024);
+    if(hasPhotos)photosNote='Too many photos to fit in an email — they are in the full PDF on OneDrive.';
+  }
+  if(approxKB>LIMIT_KB){
     toast('PDF too large to email ('+approxKB+'KB). Shorten notes/findings, or use OneDrive / manual download instead.',5000);
     return;
   }
+  if(photosNote)logSync(photosNote,'info');
 
   var ccList=[];
   splitEmails(settings.cc).forEach(function(a){ccList.push({emailAddress:{address:a}});});
@@ -2344,7 +2384,7 @@ $('emailBtn').addEventListener('click',async function(){
     if(t.severity)lines.push('   Severity: '+t.severity+(t.findingsChecked&&t.findingsChecked.length?' — '+t.findingsChecked.join(', '):''));
   });
   if(v.travelTotal)lines.push('— Travel & accommodation (indicative): '+fmt(v.travelTotal||0));
-  lines.push('','ESTIMATED PROJECT TOTAL (indicative, inc. GST): '+fmt(v.total||0),'','These figures are indicative only. A formal quotation will follow once the customer has reviewed the audit and confirmed which repairs to proceed with.','','Full PDF report attached.','','EarthLight.com.au');
+  lines.push('','ESTIMATED PROJECT TOTAL (indicative, inc. GST): '+fmt(v.total||0),'','These figures are indicative only. A formal quotation will follow once the customer has reviewed the audit and confirmed which repairs to proceed with.','',(photosNote?photosNote:'Full PDF report attached.'),'','EarthLight.com.au');
   var message=lines.join('\n');
 
   toast('Sending…');
@@ -2463,9 +2503,24 @@ async function odGraphBase(token){
     var tail=decodeURIComponent((d.webUrl||'').split('/').pop()||'').toLowerCase();
     return tail===want||(d.name||'').toLowerCase()===want;
   })||drives.find(function(d){return /^(documents|shared documents)$/i.test(d.name||'');});
-  if(!drive)throw new Error('Couldn\'t find the "'+parsed.library+'" library on '+parsed.sitePath);
-  var encFolder=parsed.folderPath.split('/').map(encodeURIComponent).join('/');
-  var base=G+'/drives/'+drive.id+'/root:/'+encFolder;
+  if(!drive)throw new Error('Couldn\'t find the "'+parsed.library+'" library on '+parsed.sitePath+' (found: '+drives.map(function(d){return d.name;}).join(', ')+')');
+  // Walk the folder tree by name and use item IDs — avoids path-encoding problems with "&", "#", etc.
+  var itemId='root';
+  var segs=parsed.folderPath.split('/').filter(Boolean);
+  for(var i=0;i<segs.length;i++){
+    var next=G+'/drives/'+drive.id+'/items/'+itemId+'/children?$select=id,name,folder&$top=999';
+    var found=null;
+    while(next&&!found){
+      var cResp=await fetch(next,H);
+      if(!cResp.ok)throw await graphError(cResp,'Can\'t read folder "'+(segs[i-1]||parsed.library)+'"');
+      var cj=await cResp.json();
+      found=(cj.value||[]).find(function(x){return x.folder&&x.name.trim().toLowerCase()===segs[i].trim().toLowerCase();});
+      next=cj['@odata.nextLink'];
+    }
+    if(!found)throw new Error('Folder "'+segs[i]+'" not found inside "'+(segs[i-1]||parsed.library)+'" — check the link, or that you have access');
+    itemId=found.id;
+  }
+  var base=G+'/drives/'+drive.id+'/items/'+itemId;
   odBaseCache={link:link,base:base};
   logSync('Upload target: '+drive.name+' / '+parsed.folderPath,'info');
   return base;
@@ -2473,7 +2528,7 @@ async function odGraphBase(token){
 
 /* Simple PUT is capped at 4MB — photo-heavy PDFs go over that, so use an upload session for anything big. */
 async function odPutFile(graphBase,name,blob,contentType,token){
-  var itemUrl=graphBase+'/'+encodeURIComponent(name);
+  var itemUrl=graphBase+':/'+encodeURIComponent(name);
   if(blob.size<=3.5*1024*1024){
     var r=await fetch(itemUrl+':/content',{method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':contentType},body:blob});
     if(!r.ok)throw await graphError(r,name+' upload failed');
