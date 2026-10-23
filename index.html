@@ -2259,16 +2259,42 @@ $('printBtn').addEventListener('click',function(){
 });
 
 /* ─── EMAIL — sent from the app itself via the signed-in tech's own Microsoft mailbox (Graph sendMail) ─── */
-async function getMailToken(){
+/* Shared token helper. Silent first; if Microsoft needs the user (new permission / expired session)
+   try a popup, and if the phone blocks the popup fall back to a full-page redirect. */
+async function getGraphToken(scopes){
   await ensureMsal();
   if(!msalApp||!odAccount)throw new Error('Not signed in');
   try{
-    var r=await msalApp.acquireTokenSilent({scopes:['Mail.Send'],account:odAccount});
+    var r=await msalApp.acquireTokenSilent({scopes:scopes,account:odAccount});
     return r.accessToken;
   }catch(e){
-    var r2=await msalApp.acquireTokenPopup({scopes:['Mail.Send'],account:odAccount});
-    return r2.accessToken;
+    logSync('Silent token failed ('+(e.errorCode||e.message)+') — asking Microsoft interactively','info');
+    try{
+      var r2=await msalApp.acquireTokenPopup({scopes:scopes,account:odAccount});
+      return r2.accessToken;
+    }catch(e2){
+      var code=(e2&&e2.errorCode)||'';
+      if(/popup|block|user_cancelled|interaction_in_progress/i.test(code+' '+(e2.message||''))){
+        toast('Microsoft needs you to confirm — redirecting. Tap the button again after you come back.',5000);
+        await msalApp.acquireTokenRedirect({scopes:scopes,account:odAccount});
+      }
+      throw new Error('Microsoft sign-in/permission problem: '+(code||e2.message));
+    }
   }
+}
+
+function getMailToken(){return getGraphToken(['Mail.Send']);}
+
+/* Graph returns a JSON error body — pull out the useful bit for the toast/log. */
+async function graphError(resp,label){
+  var txt='';try{txt=await resp.text();}catch(e){}
+  var detail=txt;
+  try{var j=JSON.parse(txt);if(j.error)detail=(j.error.code||'')+': '+(j.error.message||'');}catch(e){}
+  return new Error(label+' (HTTP '+resp.status+') '+String(detail).slice(0,250));
+}
+
+function splitEmails(s){
+  return String(s||'').split(/[,;\s]+/).map(function(x){return x.trim();}).filter(function(x){return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x);});
 }
 
 $('emailBtn').addEventListener('click',async function(){
@@ -2282,21 +2308,29 @@ $('emailBtn').addEventListener('click',async function(){
     return;
   }
 
+  var toList=splitEmails(settings.inbox);
+  if(!toList.length){toast('Office inbox address looks invalid — check Send-to Settings.',5000);return;}
+
+  // Get the token straight away, while the tap still counts as a user action (stops phones blocking the Microsoft popup)
+  var token;
+  try{token=await getMailToken();}
+  catch(e){toast('Email failed: '+e.message,6000);logSync('Email token: '+e.message,'err');return;}
+
   toast('Preparing report…');
   var doc=generatePDF(v,{forEmail:true});
   if(!doc)return;
   var dataUri=doc.output('datauristring');
   var b64=dataUri.split(',')[1]||'';
   var approxKB=Math.round(b64.length*0.75/1024);
-  if(approxKB>3000){
+  if(approxKB>2800){ // Graph sendMail caps the whole request at ~4MB, and base64 adds a third
     toast('PDF too large to email ('+approxKB+'KB). Shorten notes/findings, or use OneDrive / manual download instead.',5000);
     return;
   }
 
   var ccList=[];
-  if(settings.cc)ccList.push({emailAddress:{address:settings.cc}});
-  if(v.contactEmail&&confirm('Also send a copy to the site contact ('+v.contactEmail+')?')){
-    ccList.push({emailAddress:{address:v.contactEmail}});
+  splitEmails(settings.cc).forEach(function(a){ccList.push({emailAddress:{address:a}});});
+  if(v.contactEmail&&splitEmails(v.contactEmail).length&&confirm('Also send a copy to the site contact ('+v.contactEmail+')?')){
+    splitEmails(v.contactEmail).forEach(function(a){ccList.push({emailAddress:{address:a}});});
   }
 
   var fname=('EL-SSR_'+(v.client||'Report')+'_'+v.visitNo+'_'+v.date+'.pdf').replace(/[^a-zA-Z0-9._-]/g,'_');
@@ -2315,12 +2349,11 @@ $('emailBtn').addEventListener('click',async function(){
 
   toast('Sending…');
   try{
-    var token=await getMailToken();
     var mail={
       message:{
         subject:subject,
         body:{contentType:'Text',content:message},
-        toRecipients:[{emailAddress:{address:settings.inbox}}],
+        toRecipients:toList.map(function(a){return{emailAddress:{address:a}};}),
         ccRecipients:ccList,
         attachments:[{
           '@odata.type':'#microsoft.graph.fileAttachment',
@@ -2332,9 +2365,11 @@ $('emailBtn').addEventListener('click',async function(){
     var resp=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{
       method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(mail)
     });
-    if(!resp.ok){var errText=await resp.text();throw new Error('HTTP '+resp.status+' — '+errText.slice(0,200));}
+    if(!resp.ok)throw await graphError(resp,'Send rejected');
     v.sent=true;upsertVisit(v);renderSaved();
-    toast('✅ Email sent to '+settings.inbox+(ccList.length?' (+ '+ccList.length+' cc)':''));
+    var sentMsg='Email accepted by Microsoft — to '+toList.join(', ')+(ccList.length?' cc '+ccList.map(function(c){return c.emailAddress.address;}).join(', '):'')+' (from '+odAccount.username+')';
+    logSync(sentMsg,'ok');
+    toast('✅ '+sentMsg,5000);
   }catch(e){
     var msg=(e&&e.message)||'unknown error';
     toast('Email failed: '+msg,5000);
@@ -2376,7 +2411,7 @@ window.odSignIn=async function(){
   if(!ready||!msalApp){toast('Save your Azure Client ID first.');return;}
   toast('Redirecting to Microsoft sign-in…');
   try{
-    await msalApp.loginRedirect({scopes:['User.Read','Files.ReadWrite','Mail.Send']});
+    await msalApp.loginRedirect({scopes:['User.Read'].concat(OD_SCOPES,['Mail.Send'])});
   }catch(e){
     logSync('Sign-in failed: '+e.message,'err');
     toast('Sign-in failed. See sync log.');
@@ -2389,17 +2424,10 @@ window.odSignOut=async function(){
   msalApp.logoutPopup({account:odAccount}).then(function(){odAccount=null;updateOdUI();logSync('Signed out','info');toast('Signed out of OneDrive.');}).catch(function(){odAccount=null;updateOdUI();});
 };
 
-async function getOdToken(){
-  await ensureMsal();
-  if(!msalApp||!odAccount)throw new Error('Not signed in');
-  try{
-    var r=await msalApp.acquireTokenSilent({scopes:['Files.ReadWrite'],account:odAccount});
-    return r.accessToken;
-  }catch(e){
-    var r2=await msalApp.acquireTokenPopup({scopes:['Files.ReadWrite'],account:odAccount});
-    return r2.accessToken;
-  }
-}
+/* Files.ReadWrite only reaches the tech's OWN OneDrive. The shared folder lives in a SharePoint
+   site, which needs the .All permissions (delegated — still limited to what the tech can access). */
+var OD_SCOPES=['Files.ReadWrite.All','Sites.ReadWrite.All'];
+function getOdToken(){return getGraphToken(OD_SCOPES);}
 
 
 function parseSpFolderUrl(url){
@@ -2410,26 +2438,71 @@ function parseSpFolderUrl(url){
     var raw=idParam?decodeURIComponent(idParam):decodeURIComponent(u.pathname);
     var m=raw.match(/^(\/(?:sites|teams)\/[^\/]+)\/([^\/]+)\/(.+)$/i);
     if(!m)return null;
-    return{host:host,sitePath:m[1],folderPath:m[3]};
+    return{host:host,sitePath:m[1],library:m[2],folderPath:m[3]};
   }catch(e){return null;}
 }
 
-function odGraphBase(){
-  var parsed=parseSpFolderUrl(odConfig.sharedLink||'');
+/* Resolve the exact document library from the link (it isn't always the site's default "/drive"),
+   then address the folder by drive ID. Cached per link. */
+var odBaseCache={link:null,base:null};
+async function odGraphBase(token){
+  var link=odConfig.sharedLink||'';
+  if(odBaseCache.link===link&&odBaseCache.base)return odBaseCache.base;
+  var parsed=parseSpFolderUrl(link);
   if(!parsed)return null;
+  var G='https://graph.microsoft.com/v1.0';
+  var H={headers:{Authorization:'Bearer '+token}};
+  var sResp=await fetch(G+'/sites/'+parsed.host+':'+parsed.sitePath+'?$select=id',H);
+  if(!sResp.ok)throw await graphError(sResp,'Can\'t open SharePoint site '+parsed.sitePath);
+  var site=await sResp.json();
+  var dResp=await fetch(G+'/sites/'+site.id+'/drives?$select=id,name,webUrl',H);
+  if(!dResp.ok)throw await graphError(dResp,'Can\'t list document libraries');
+  var drives=(await dResp.json()).value||[];
+  var want=parsed.library.toLowerCase();
+  var drive=drives.find(function(d){
+    var tail=decodeURIComponent((d.webUrl||'').split('/').pop()||'').toLowerCase();
+    return tail===want||(d.name||'').toLowerCase()===want;
+  })||drives.find(function(d){return /^(documents|shared documents)$/i.test(d.name||'');});
+  if(!drive)throw new Error('Couldn\'t find the "'+parsed.library+'" library on '+parsed.sitePath);
   var encFolder=parsed.folderPath.split('/').map(encodeURIComponent).join('/');
-  return 'https://graph.microsoft.com/v1.0/sites/'+parsed.host+':'+parsed.sitePath+':/drive/root:/'+encFolder;
+  var base=G+'/drives/'+drive.id+'/root:/'+encFolder;
+  odBaseCache={link:link,base:base};
+  logSync('Upload target: '+drive.name+' / '+parsed.folderPath,'info');
+  return base;
+}
+
+/* Simple PUT is capped at 4MB — photo-heavy PDFs go over that, so use an upload session for anything big. */
+async function odPutFile(graphBase,name,blob,contentType,token){
+  var itemUrl=graphBase+'/'+encodeURIComponent(name);
+  if(blob.size<=3.5*1024*1024){
+    var r=await fetch(itemUrl+':/content',{method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':contentType},body:blob});
+    if(!r.ok)throw await graphError(r,name+' upload failed');
+    return;
+  }
+  var s=await fetch(itemUrl+':/createUploadSession',{
+    method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify({item:{'@microsoft.graph.conflictBehavior':'replace'}})
+  });
+  if(!s.ok)throw await graphError(s,name+' upload session failed');
+  var uploadUrl=(await s.json()).uploadUrl;
+  var CHUNK=320*1024*10; // must be a multiple of 320KB
+  for(var start=0;start<blob.size;start+=CHUNK){
+    var end=Math.min(start+CHUNK,blob.size);
+    // No Authorization header here — the uploadUrl is pre-authorised and rejects one
+    var c=await fetch(uploadUrl,{method:'PUT',headers:{'Content-Range':'bytes '+start+'-'+(end-1)+'/'+blob.size},body:blob.slice(start,end)});
+    if(!c.ok&&c.status!==202)throw await graphError(c,name+' chunk upload failed');
+  }
 }
 
 async function odUploadVisit(v){
   var token=await getOdToken();
   var fmt2=odConfig.format||'both';
-  var graphBase=odGraphBase();
-  if(!graphBase)throw new Error('Shared folder link isn\'t set up — check Price Book & Send-to → OneDrive settings.');
+  if(!parseSpFolderUrl(odConfig.sharedLink||''))throw new Error('Shared folder link isn\'t set up — check Price Book & Send-to → OneDrive settings.');
+  var graphBase=await odGraphBase(token);
 
   var checkResp=await fetch(graphBase,{headers:{Authorization:'Bearer '+token}});
   if(!checkResp.ok){
-    throw new Error('Shared folder not found (HTTP '+checkResp.status+'). Check the folder link is correct and that you have edit access to it.');
+    throw await graphError(checkResp,'Shared folder not reachable — check the link and that you have Edit access');
   }
 
   var base=('EL-SSR_'+(v.client||'Report')+'_'+(v.visitNo||v.id)+'_'+(v.date||'')).replace(/[^a-zA-Z0-9._-]/g,'_');
@@ -2437,20 +2510,14 @@ async function odUploadVisit(v){
   if(fmt2==='json'||fmt2==='both'){
     var jsonStr=JSON.stringify(v,null,2);
     var jsonBlob=new Blob([jsonStr],{type:'application/json'});
-    var resp2=await fetch(graphBase+'/'+encodeURIComponent(base+'.json')+':/content',{
-      method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:jsonBlob
-    });
-    if(!resp2.ok)throw new Error('JSON upload failed: '+resp2.statusText);
+    await odPutFile(graphBase,base+'.json',jsonBlob,'application/json',token);
     logSync('Uploaded JSON: '+base+'.json','ok');
   }
 
   if(fmt2==='pdf'||fmt2==='both'){
     var pdfDoc=generatePDF(v);if(!pdfDoc)throw new Error('PDF generation failed');
     var pdfBlob=pdfDoc.output('blob');
-    var resp3=await fetch(graphBase+'/'+encodeURIComponent(base+'.pdf')+':/content',{
-      method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/pdf'},body:pdfBlob
-    });
-    if(!resp3.ok)throw new Error('PDF upload failed: '+resp3.statusText);
+    await odPutFile(graphBase,base+'.pdf',pdfBlob,'application/pdf',token);
     logSync('Uploaded PDF: '+base+'.pdf','ok');
   }
 
