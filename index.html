@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -398,6 +398,14 @@ section.panel.active{display:block;}
 .tc-chip.done{border-color:var(--amber);color:var(--text);background:color-mix(in srgb,var(--amber) 10%,transparent);}
 .danger-card{border-color:color-mix(in srgb,var(--danger) 45%,var(--line));margin-top:24px;}
 </style>
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:_dlc_DocId msdt:dt="string">YRNP74QTP6U2-1741340171-56282</mso:_dlc_DocId>
+<mso:_dlc_DocIdItemGuid msdt:dt="string">9bbae864-661c-4187-a2ba-073ade9f7bec</mso:_dlc_DocIdItemGuid>
+<mso:_dlc_DocIdUrl msdt:dt="string">https://earthtrackminesupplies.sharepoint.com/sites/EL/_layouts/15/DocIdRedir.aspx?ID=YRNP74QTP6U2-1741340171-56282, YRNP74QTP6U2-1741340171-56282</mso:_dlc_DocIdUrl>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
 </head>
 <body>
 
@@ -965,7 +973,12 @@ section.panel.active{display:block;}
 <section class="panel" id="panel-pricebook">
   <div class="blk" style="padding-top:4px;">
     <div class="blk-head"><div class="blk-title">Part Codes, Quantities &amp; Pricing</div></div>
-    <p class="hint" style="margin-bottom:14px;">Edit any code, description or price — changes apply immediately to every new part picker. Prices are ex-GST. Export after updates; share the file with other devices to keep pricing in sync.</p>
+    <div class="btnbar" style="margin-bottom:8px;align-items:center;">
+      <button class="btn accent" id="pbSyncBtn" type="button">⟳ Sync price book</button>
+      <button class="btn ghost" id="pbLockBtn" type="button">🔒 Lock admin</button>
+    </div>
+    <div id="pbSyncStatus" class="hint" style="margin-bottom:12px;"></div>
+    <p class="hint" style="margin-bottom:14px;">Edit any code, description or price — prices are ex-GST. Changes save to the shared price book on OneDrive automatically (when signed in with signal), and every tech's app picks them up next time it opens. <b>Lock admin</b> closes this tab again without signing out of Microsoft.</p>
     <div id="priceBookBody"></div>
     <div class="btnbar" style="margin-top:8px;">
       <button class="btn accent" id="addCatBtn">+ Add category</button>
@@ -1197,6 +1210,8 @@ function migrateOldAudits(){
 }
 
 var pb = lsGet(K.PB,null)||defaultPB();
+var PB_META_KEY='el_pb_meta_v1';
+var pbMeta = lsGet(PB_META_KEY,null)||{base:null,dirty:false,by:''}; // base = updatedAt of the shared copy we last matched
 var visits = [];
 var visitsReady=(async function(){
   try{
@@ -2906,7 +2921,97 @@ function renderPB(){
     table.appendChild(tbody);div.appendChild(table);wrap.appendChild(div);
   });
 }
-function persistPB(){lsSet(K.PB,pb);}
+function persistPB(){lsSet(K.PB,pb);pbMeta.dirty=true;lsSet(PB_META_KEY,pbMeta);schedulePbPush();updatePbSyncUI();}
+
+/* ─── SHARED PRICE BOOK (OneDrive) ───
+   One copy in APP REPORTS/_app-config/pricebook.json (price book + labour rate). Every app pulls it on
+   start-up; admin edits push it back a few seconds after the last change. If two people edit at once,
+   the app asks which version to keep rather than silently overwriting. */
+var PB_REMOTE='_app-config/pricebook.json';
+function savePbMeta(){lsSet(PB_META_KEY,pbMeta);}
+var pbConflictMsg='';
+function updatePbSyncUI(msg){
+  var el=document.getElementById('pbSyncStatus');if(!el)return;
+  var s=msg||pbConflictMsg||(pbMeta.base?'Shared price book — last synced version: '+new Date(pbMeta.base).toLocaleString()+(pbMeta.by?' by '+pbMeta.by:''):'Not yet synced with the shared price book on OneDrive.');
+  if(pbMeta.dirty)s+=' · ⚠ This phone has changes not yet on OneDrive.';
+  el.textContent=s;
+}
+async function pbToken(auto){
+  await ensureMsal();
+  if(!msalApp||!odAccount)throw new Error('Not signed in');
+  if(auto){var r=await msalApp.acquireTokenSilent({scopes:OD_SCOPES,account:odAccount});return r.accessToken;}
+  return getOdToken();
+}
+async function pbRemoteGet(token){
+  var base=await odGraphBase(token);
+  var r=await fetch(base+':/'+PB_REMOTE+':/content',{headers:{Authorization:'Bearer '+token},cache:'no-store'});
+  if(r.status===404)return null;
+  if(!r.ok)throw await graphError(r,'Couldn\'t read the shared price book');
+  var d=JSON.parse(await r.text());
+  if(!d||!d.pb||typeof d.pb!=='object')throw new Error('Shared price book file is not valid');
+  return d;
+}
+async function pbPush(token){
+  var base=await odGraphBase(token);
+  var doc={updatedAt:new Date().toISOString(),updatedBy:(odAccount&&odAccount.username)||'',labourRate:settings.labourRate,pb:pb};
+  var r=await fetch(base+':/'+PB_REMOTE+':/content',{method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(doc,null,1)});
+  if(!r.ok)throw await graphError(r,'Couldn\'t save the shared price book');
+  pbMeta={base:doc.updatedAt,dirty:false,by:doc.updatedBy};savePbMeta();pbConflictMsg='';
+  logSync('Price book saved to OneDrive','ok');
+}
+function pbApply(d){
+  pb=d.pb;lsSet(K.PB,pb);
+  if(d.labourRate!==undefined&&d.labourRate!==null){settings.labourRate=d.labourRate;lsSet(K.SETTINGS,settings);}
+  pbMeta={base:d.updatedAt,dirty:false,by:d.updatedBy||''};savePbMeta();pbConflictMsg='';
+  try{renderPB();loadSettingsUI();}catch(e){}
+  logSync('Price book updated from OneDrive ('+(d.updatedBy||'')+')','ok');
+}
+var pbSyncing=null;
+function pbSync(opts){
+  if(pbSyncing)return pbSyncing;
+  pbSyncing=pbSyncInner(opts||{}).finally(function(){pbSyncing=null;updatePbSyncUI();});
+  return pbSyncing;
+}
+async function pbSyncInner(o){
+  // o.auto = background (start-up / after an edit): silent token, never asks questions
+  if(!odAccount){if(!o.auto)toast('Sign in on the OneDrive tab first — then sync.',4000);return;}
+  if(!navigator.onLine){if(!o.auto)toast('No signal — the price book will sync when you\'re back online.');return;}
+  var token;
+  try{token=await pbToken(o.auto);}catch(e){if(!o.auto)toast('Sign-in problem: '+e.message,5000);return;}
+  var remote;
+  try{remote=await pbRemoteGet(token);}catch(e){if(!o.auto)toast(e.message,6000);logSync('Price book: '+e.message,'err');return;}
+  if(!remote){
+    if(o.auto)return;
+    if(!pbUnlocked){toast('No shared price book on OneDrive yet — an admin needs to sync first.',5000);return;}
+    if(!confirm('There is no shared price book on OneDrive yet.\n\nMake THIS phone\'s price book the shared one for everyone?'))return;
+    await pbPush(token);toast('✅ Price book shared — other phones pick it up next time they open.',5000);return;
+  }
+  var remoteNewer=!pbMeta.base||String(remote.updatedAt)>String(pbMeta.base);
+  if(pbMeta.dirty){
+    if(remoteNewer){
+      if(o.auto){pbConflictMsg='⚠ Someone else changed the shared price book since your last sync — tap Sync to choose which version to keep.';return;}
+      var keepMine=confirm('The shared price book was changed by '+(remote.updatedBy||'someone')+' on '+new Date(remote.updatedAt).toLocaleString()+' — after your last sync.\n\nOK = keep YOUR version (replaces theirs for everyone)\nCancel = take THEIR version (your unsynced changes are dropped)');
+      if(!keepMine){pbApply(remote);toast('Price book updated from OneDrive.');return;}
+    }
+    await pbPush(token);
+    if(!o.auto)toast('✅ Price book saved to OneDrive.');
+  }else if(remoteNewer){
+    pbApply(remote);
+    toast('Price book updated from OneDrive'+(remote.updatedBy?' ('+remote.updatedBy.split('@')[0]+')':'')+'.',4000);
+  }else if(!o.auto){toast('Price book is up to date.');}
+}
+var pbPushTmr=null;
+function schedulePbPush(){
+  clearTimeout(pbPushTmr);
+  pbPushTmr=setTimeout(function(){pbSync({auto:true}).catch(function(e){logSync('Price book auto-save: '+e.message,'err');});},4000);
+}
+$('pbSyncBtn').addEventListener('click',function(){clearTimeout(pbPushTmr);pbSync({});});
+$('pbLockBtn').addEventListener('click',function(){
+  if(pbMeta.dirty&&odAccount&&navigator.onLine){clearTimeout(pbPushTmr);pbSync({auto:true});}
+  pbUnlocked=false;lsSet(K.PBUNLOCK,false);
+  document.querySelector('.tab[data-tab="audit"]').click();
+  toast('🔒 Admin locked — PIN needed to open Price Book again.'+(pbMeta.dirty?' (Unsynced price changes are still on this phone.)':''),4500);
+});
 
 /* Minimal CSV parser — handles quoted fields with commas/escaped quotes */
 function parseCsv(text){
@@ -2972,7 +3077,7 @@ function loadSettingsUI(){
   $('s_inbox').value=settings.inbox||'';$('s_cc').value=settings.cc||'';
   $('s_labour_rate').value=(settings.labourRate!==undefined&&settings.labourRate!==null)?settings.labourRate:'';
 }
-$('s_labour_rate').addEventListener('input',function(){settings.labourRate=parseFloat(this.value)||0;lsSet(K.SETTINGS,settings);});
+$('s_labour_rate').addEventListener('input',function(){settings.labourRate=parseFloat(this.value)||0;lsSet(K.SETTINGS,settings);pbMeta.dirty=true;savePbMeta();schedulePbPush();updatePbSyncUI();});
 ['s_inbox','s_cc'].forEach(function(id){
   document.getElementById(id).addEventListener('input',function(){settings.inbox=$('s_inbox').value;settings.cc=$('s_cc').value;lsSet(K.SETTINGS,settings);});
 });
@@ -3148,8 +3253,19 @@ lsSet(K.PB,pb);
 loadSettingsUI();
 initMsal();
 ensureMsal().then(function(ok){
-  if(ok&&odAccount&&navigator.onLine)visitsReady.then(function(){return odListVisits(true);}).catch(function(){});
+  if(ok&&odAccount&&navigator.onLine){
+    pbSync({auto:true}).catch(function(){});
+    visitsReady.then(function(){return odListVisits(true);}).catch(function(){});
+  }
 });
+var pbLastPull=Date.now();
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&Date.now()-pbLastPull>10*60*1000&&odAccount&&navigator.onLine){
+    pbLastPull=Date.now();pbSync({auto:true}).catch(function(){});
+  }
+});
+window.addEventListener('online',function(){if(odAccount&&pbMeta.dirty)pbSync({auto:true}).catch(function(){});});
+updatePbSyncUI();
 updateOdUI();
 loadTravelIntoForm(null);
 var t0=blankTower();t0.towerNumber='#1';curTowers=[t0];curTowerIdx=null;switchTower(0);
